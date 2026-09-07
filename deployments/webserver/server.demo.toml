@@ -1,0 +1,13 @@
+environment = "demo"
+
+[http]
+
+[[http.server]]
+listen = ["80"]
+serverName = ["documents-demo.sdkwork.com", "documents-demo.birdcoder.com", "documents-demo.dtupay.com", "documents-demo.noaper.com", "documents-demo.sdkwork.cn", "documents-demo.birdcoder.cn", "documents-demo.dtupay.cn", "documents-demo.noaper.cn", "documents-demo.skubc.com", "documents-demo.skubc.cn", "documents-demo.zowalk.com", "documents-demo.zowalk.cn", "documents-demo.offer86.com", "documents-demo.offer86.cn", "documents-demo.86offer.com", "documents-demo.86offer.cn", "documents-admin-demo.sdkwork.com", "documents-admin-demo.birdcoder.com", "documents-admin-demo.dtupay.com", "documents-admin-demo.noaper.com", "documents-admin-demo.sdkwork.cn", "documents-admin-demo.birdcoder.cn", "documents-admin-demo.dtupay.cn", "documents-admin-demo.noaper.cn", "documents-admin-demo.skubc.com", "documents-admin-demo.skubc.cn", "documents-admin-demo.zowalk.com", "documents-admin-demo.zowalk.cn", "documents-admin-demo.offer86.com", "documents-admin-demo.offer86.cn", "documents-admin-demo.86offer.com", "documents-admin-demo.86offer.cn", "documents-open-demo.sdkwork.com", "documents-open-demo.birdcoder.com", "documents-open-demo.dtupay.com", "documents-open-demo.noaper.com", "documents-open-demo.sdkwork.cn", "documents-open-demo.birdcoder.cn", "documents-open-demo.dtupay.cn", "documents-open-demo.noaper.cn", "documents-open-demo.skubc.com", "documents-open-demo.skubc.cn", "documents-open-demo.zowalk.com", "documents-open-demo.zowalk.cn", "documents-open-demo.offer86.com", "documents-open-demo.offer86.cn", "documents-open-demo.86offer.com", "documents-open-demo.86offer.cn", "doc-demo.sdkwork.com"]
+include = ["snippets/adaptive-web.named-locations.conf", "snippets/gateway-api-locations.nonproduction.conf"]
+
+[[http.server.location]]
+match = "/"
+include = ["snippets/adaptive-web.dispatch.conf"]
+
