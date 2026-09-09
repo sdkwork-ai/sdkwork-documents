@@ -3,6 +3,7 @@ import {
   resolveDocumentsRuntimeBoolean,
 } from '@sdkwork/documents-pc-commons/runtime';
 import manifest from '../../../../sdkwork.app.config.json';
+import {resolveBaseUrlWithAlignProtocol} from '@sdkwork/sdk-common';
 
 export type SdkworkDocumentsPcEnvironment = 'development' | 'test' | 'staging' | 'production';
 
@@ -92,10 +93,15 @@ function parseSdkBaseUrls(applicationPublicHttpUrl: string): SdkworkDocumentsPcS
 }
 
 export function resolveSdkworkDocumentsPcRuntimeConfig(): SdkworkDocumentsPcRuntimeConfig {
+  // Authored override wins; the shared default resolves through
+  // @sdkwork/sdk-common resolveBaseUrlWithAlignProtocol (ENVIRONMENT_SPEC.md §6.3): unified
+  // SDKWORK_API_BASE_URL candidates matched against the page host, else
+  // derived from it (standalone same-origin, cloud api[-<env>].<brand>,
+  // pnpm dev same-origin ip+port / cloud-gateway dev port). Empty outside a
+  // browser so SSR/test callers keep their explicit config.
   const applicationPublicHttpUrl = readViteEnv(
     'VITE_SDKWORK_DOCUMENTS_APPLICATION_PUBLIC_HTTP_URL',
-    'http://127.0.0.1:18084',
-  );
+  ) || resolveBaseUrlWithAlignProtocol().url || '';
   const applicationBackendHttpUrl = readViteEnv(
     'VITE_SDKWORK_DOCUMENTS_APPLICATION_BACKEND_HTTP_URL',
     applicationPublicHttpUrl,

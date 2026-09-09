@@ -4,6 +4,7 @@ import {
 } from '@sdkwork/documents-pc-commons/runtime';
 import type { DocumentsGeneratedSdkMetadata } from '@sdkwork/documents-pc-commons/runtime';
 import type { SdkReferenceSystem } from '../sdkReferenceRuntime';
+import {resolveBaseUrlWithAlignProtocol} from '@sdkwork/sdk-common';
 
 export interface SdkLanguage {
   id: string;
@@ -399,7 +400,10 @@ function exampleSet(typescriptBody: string, genericCall: string): LanguageExampl
 }
 
 function fallbackOpenApiBaseUrl(apiPrefix: string): string {
-  return apiPrefix === '/v1' ? 'https://api.sdkwork.com' : apiPrefix;
+  // §6.3: the displayed open-api edge derives from the current page host via
+  // the shared resolver (api[-<env>].<brand> family) instead of a pinned
+  // production literal; non-vendor prefixes are surfaced as-authored.
+  return apiPrefix === '/v1' ? resolveBaseUrlWithAlignProtocol({ mode: 'cloud' }).url : apiPrefix;
 }
 
 function isOpenCompatibleSystem(system: ApiSystem): boolean {
