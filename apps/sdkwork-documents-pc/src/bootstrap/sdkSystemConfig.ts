@@ -21,6 +21,8 @@ const DOCUMENTS_APP_SDK_METADATA = sdkMetadata({
   packageName: '@sdkwork/documents-app-sdk',
   sdkType: 'app',
   apiPrefix: APP_API_PREFIX,
+  // base-url-check: exempt (sdk metadata naming an authored env key; runtime
+  // resolution happens in bootstrap/environment.ts via resolveBaseUrl)
   runtimeEnvName: 'VITE_SDKWORK_DOCUMENTS_APP_API_BASE_URL',
   sourceDir:
     'sdks/sdkwork-documents-app-sdk/sdkwork-documents-app-sdk-typescript/src/index.ts',

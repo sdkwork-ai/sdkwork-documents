@@ -66,6 +66,7 @@ type LegacySdkReferenceSystem =
   | 'sdkwork-memory-open-api'
   | 'sdkwork-agent-open-api';
 
+// base-url-check: exempt (static SDK reference display constant for docs pages)
 const OPEN_API_GENERATED_SDK_DEFAULT_BASE_URL = 'https://api.sdkwork.com';
 const SDK_REFERENCE_SYSTEM_IDS = new Set<SdkReferenceSystem>([
   'llm-open-api',
