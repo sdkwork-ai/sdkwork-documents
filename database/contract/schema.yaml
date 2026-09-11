@@ -1,12 +1,12 @@
 schema_version: 1
 kind: sdkwork.database.schema
 module_id: documents
+database_role: authoritative-server
 contract_version: 1.0.0
 owner_team: documents-platform
 compliance_level: L2
 engines:
   - postgres
-  - sqlite
 table_prefix: documents_
 tables:
   - name: documents_document

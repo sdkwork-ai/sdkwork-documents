@@ -1,5 +1,6 @@
 {
   "schemaVersion": 1,
+  "kind": "sdkwork.database.prefix-registry",
   "prefixes": [
     {
       "prefix": "documents_",

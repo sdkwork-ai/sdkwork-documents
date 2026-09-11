@@ -1078,25 +1078,25 @@ if (!fs.existsSync(path.join(root, "specs/topology.spec.json"))) {
 }
 
 writeJson("database/database.manifest.json", {
-  schemaVersion: 1,
+  schemaVersion: 2,
   kind: "sdkwork.database.module",
   moduleId: "documents",
   serviceCode: "DOCUMENTS",
   displayName: "Documents Database",
   owner: "documents-platform",
-  engines: ["postgres", "sqlite"],
+  engines: ["postgres"],
   defaultEngine: "postgres",
   tablePrefix: "documents_",
   contractVersion: "1.0.0",
   baselineStrategy: "baseline-plus-migrations",
   modules: [],
   lifecycle: {
-    autoMigrate: true,
+    autoMigrate: false,
     seedOnBoot: false,
     defaultSeedLocale: "zh-CN",
     defaultSeedProfile: "standard",
     supportedSeedLocales: ["zh-CN", "en-US", "ja-JP", "de-DE", "fr-FR", "ru-RU", "ko-KR"],
-    activeSeedLocales: ["zh-CN"],
+    activeSeedLocales: ["zh-CN", "en-US"],
     driftCheckIntervalSec: 60,
   },
   paths: {
@@ -1106,6 +1106,7 @@ writeJson("database/database.manifest.json", {
     driftPolicy: "drift/policy.yaml",
   },
   spi: { provider: "default", hooks: [] },
+  databaseRole: "authoritative-server",
 });
 
 writeText(
@@ -1113,12 +1114,12 @@ writeText(
   `schema_version: 1
 kind: sdkwork.database.schema
 module_id: documents
+database_role: authoritative-server
 contract_version: 1.0.0
 owner_team: documents-platform
 compliance_level: L2
 engines:
   - postgres
-  - sqlite
 table_prefix: documents_
 tables:
   - name: documents_document
@@ -1135,14 +1136,31 @@ tables:
 
 writeJson("database/contract/prefix-registry.json", {
   schemaVersion: 1,
+  kind: "sdkwork.database.prefix-registry",
   prefixes: [{ prefix: "documents_", owner: "documents-platform" }],
 });
 writeJson("database/contract/table-registry.json", {
   schemaVersion: 1,
+  kind: "sdkwork.database.table-registry",
   tables: [
-    { name: "documents_document", prefix: "documents_", owner: "documents-platform" },
-    { name: "documents_revision", prefix: "documents_", owner: "documents-platform" },
-    { name: "documents_audit_log", prefix: "documents_", owner: "documents-platform" },
+    {
+      table_name: "documents_document",
+      owner: "documents-platform",
+      compliance_level: "L2",
+      lifecycle_status: "active",
+    },
+    {
+      table_name: "documents_revision",
+      owner: "documents-platform",
+      compliance_level: "L2",
+      lifecycle_status: "active",
+    },
+    {
+      table_name: "documents_audit_log",
+      owner: "documents-platform",
+      compliance_level: "L2",
+      lifecycle_status: "active",
+    },
   ],
 });
 
@@ -1231,13 +1249,16 @@ CREATE INDEX IF NOT EXISTS idx_documents_audit_log_document ON documents_audit_l
 );
 
 const seedLocales = ["zh-CN", "en-US", "ja-JP", "de-DE", "fr-FR", "ru-RU", "ko-KR"];
+// sha256 of the empty JSON array `[]`; the canonical checksum for a locale set with no files yet.
+const emptyLocaleSetChecksum =
+  "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945";
 
 writeJson("database/seeds/seed.manifest.json", {
   schemaVersion: 1,
   kind: "sdkwork.database.seed",
   defaultLocale: "zh-CN",
   supportedLocales: seedLocales,
-  activeLocales: ["zh-CN"],
+  activeLocales: ["zh-CN", "en-US"],
   profiles: {
     minimal: {
       common: [],
@@ -1250,6 +1271,22 @@ writeJson("database/seeds/seed.manifest.json", {
       locales: {
         "zh-CN": [],
       },
+    },
+  },
+  i18nVersion: "1.0.0",
+  fallbackLocale: "zh-CN",
+  localeSets: {
+    "zh-CN": {
+      version: "1.0.0",
+      required: true,
+      checksum: emptyLocaleSetChecksum,
+      files: [],
+    },
+    "en-US": {
+      version: "1.0.0",
+      required: false,
+      checksum: emptyLocaleSetChecksum,
+      files: [],
     },
   },
 });
@@ -1266,16 +1303,41 @@ writeText(
   "database/README.md",
   `# Documents Database Module
 
-Canonical lifecycle assets for \`sdkwork-documents\` per \`DATABASE_FRAMEWORK_SPEC.md\`.
+Canonical authoritative-server lifecycle assets for \`sdkwork-documents\` under \`DATABASE_FRAMEWORK_SPEC.md\`.
 
-- moduleId: \`documents\`
-- serviceCode: \`DOCUMENTS\`
-- tablePrefix: \`documents_\`
+- \`databaseRole\`: \`authoritative-server\`
+- \`moduleId\`: \`documents\`
+- \`serviceCode\`: \`DOCUMENTS\`
+- \`owner\`: \`documents-platform\`
+- \`tablePrefix\`: \`documents_\`
+- \`contract tables\`: 3, listed in \`contract/schema.yaml\`
+- \`engine\`: PostgreSQL only
+- \`autoMigrate\`: disabled by default
+
+SQLite is not part of this authoritative database root. Any embedded SQLite adapter is non-authoritative and must own a separate \`client-local\` lifecycle contract before production use.
+
+## Layout
+
+1. \`database/ddl/baseline/postgres/0001_documents_baseline.sql\` is the greenfield PostgreSQL DDL snapshot.
+2. \`database/migrations/postgres/\` contains versioned incremental migrations with explicit lock, timeout, rollback, and transaction metadata.
+3. \`database/seeds/\` contains common and locale-aware initialization data.
+4. \`database/drift/\` declares non-mutating drift policy.
+
+## Initialization state
+
+This module is in initialization state per \`DATABASE_FRAMEWORK_SPEC.md\` section 7.5.
+
+- \`baselineStrategy\`: \`baseline-plus-migrations\`
+- Primary baseline: \`ddl/baseline/postgres/0001_documents_baseline.sql\` (immutable bootstrap anchor; not the complete active table inventory by itself)
+- Ordered migrations: none yet — \`migrations/postgres/\` is empty until the contract evolves. A fresh install applies the baseline followed by the ordered migrations, so the baseline and the migration files jointly define the contract.
+- Seeds: \`common/001_bootstrap.sql\` plus the \`zh-CN\` default locale; \`en-US\` is declared active and the remaining locales are reserved placeholders per section 8.1.
+- Consolidation level: baseline is current; no migration has been folded into it and no tracked migration has been rewritten.
 
 ## Commands
 
 \`\`\`bash
 pnpm run db:validate
+pnpm run db:materialize:contract
 pnpm run db:plan
 pnpm run db:init
 pnpm run db:migrate
@@ -1284,7 +1346,15 @@ pnpm run db:status
 pnpm run db:drift:check
 \`\`\`
 
+\`db:validate\` runs the canonical validator \`../sdkwork-specs/tools/check-database-framework-standard.mjs\`.
+
 Runtime services MUST create pools through \`sdkwork-database-sqlx\` and register \`DefaultDatabaseModule\` at bootstrap via \`sdkwork-documents-database-host\`.
+
+## Related specifications
+
+- \`DATABASE_FRAMEWORK_SPEC.md\` — database module layout, initialization state, governance.
+- \`DATABASE_SPEC.md\` — relational data, naming, and table authority rules.
+- \`MIGRATION_SPEC.md\` — schema version migration records and compatibility windows.
 `,
 );
 writeText(
