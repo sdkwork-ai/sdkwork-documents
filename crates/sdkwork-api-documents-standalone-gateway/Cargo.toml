@@ -1,9 +1,13 @@
 [package]
+rust-version.workspace = true
 name = "sdkwork-api-documents-standalone-gateway"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 
+
+[lints]
+workspace = true
 [lib]
 path = "src/lib.rs"
 
