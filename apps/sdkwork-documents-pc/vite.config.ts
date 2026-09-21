@@ -1,13 +1,12 @@
 import { resolveViteEnvironment, resolveLucideReactEntry } from '../../../sdkwork-specs/tools/vite-runtime-profile.mjs';
 import { resolveBrowserDistOutDir } from '../../../sdkwork-specs/tools/browser-dist-layout.mjs';
 
-
-
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import fs from 'node:fs';
 import path from 'node:path';
 import { defineConfig, loadEnv, type Plugin } from 'vite';
+import { createSdkworkCredentialEntryBootstrapVitePlugin } from '@sdkwork/iam-credential-entry/vite';
 
 const RUNTIME_ENV_SCRIPT_PATH = '/runtime-env.js';
 const HTML_MODULE_SCRIPT_PATTERN =
@@ -141,6 +140,7 @@ export default defineConfig(({ mode }) => {
   const workspaceRoot = path.resolve(repoRoot, '..');
   const env = loadEnv(mode, configDir, '');
 
+  const bootstrapAccessToken = env.SDKWORK_ACCESS_TOKEN ?? process.env.SDKWORK_ACCESS_TOKEN;
   const applicationPublicHttpUrl =
     env.VITE_SDKWORK_DOCUMENTS_APPLICATION_PUBLIC_HTTP_URL?.trim() || 'http://127.0.0.1:18084';
   const applicationBackendHttpUrl =
@@ -151,10 +151,18 @@ export default defineConfig(({ mode }) => {
     env.VITE_SDKWORK_DOCUMENTS_PLATFORM_API_GATEWAY_HTTP_URL?.trim() || 'http://127.0.0.1:3900';
 
   return {
-    define: {
-      'process.env.SDKWORK_ACCESS_TOKEN': JSON.stringify(env.SDKWORK_ACCESS_TOKEN ?? ''),
-    },
-    plugins: [documentsRuntimeEnvPlugin(), react(), tailwindcss()],
+    plugins: [
+      // The bootstrap credential reaches the renderer only through the shared IAM
+      // plugin (dev-server HTML injection as
+      // `globalThis.__SDKWORK_CREDENTIAL_ENTRY_BOOTSTRAP_ACCESS_TOKEN__`).
+      // `define['process.env.SDKWORK_ACCESS_TOKEN']` is NOT a valid handoff
+      // (IAM_CREDENTIAL_ENTRY_SPEC.md section 4/5).
+      createSdkworkCredentialEntryBootstrapVitePlugin({
+        accessToken: bootstrapAccessToken,
+        environment: resolveViteEnvironment(mode, process.env),
+      }),
+      documentsRuntimeEnvPlugin(), react(), tailwindcss(),
+    ],
     resolve: {
       alias: {
         '@': path.resolve(configDir, '.'),

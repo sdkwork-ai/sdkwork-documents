@@ -38,6 +38,7 @@
     "@sdkwork/documents-pc-shell": "workspace:*",
     "@sdkwork/i18n-pc-react": "workspace:*",
     "@sdkwork/iam-contracts": "workspace:*",
+    "@sdkwork/iam-credential-entry": "workspace:*",
     "@sdkwork/iam-runtime": "workspace:*",
     "@sdkwork/iam-sdk-adapter": "workspace:*",
     "@sdkwork/runtime-bootstrap": "workspace:*",
