@@ -4,5 +4,15 @@ repository: sdkwork-documents
 canon:
   prd: docs/product/prd/PRD.md
   techArchitecture: docs/architecture/tech/TECH_ARCHITECTURE.md
-entries: []
+entries:
+  - id: ADR-20261003-documents-marketplace-catalog-projection
+    path: docs/architecture/decisions/ADR-20261003-documents-marketplace-catalog-projection.md
+    layer: work
+    audience: [architecture, engineering]
+    status: ready
+  - id: PLAN-2026-1003-documents-api-sdk-marketplace
+    path: docs/engineering/plans/PLAN-2026-1003-documents-api-sdk-marketplace.md
+    layer: work
+    audience: [engineering]
+    status: ready
 domains: []

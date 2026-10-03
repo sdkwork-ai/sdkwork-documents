@@ -131,12 +131,13 @@
             }
           }
         },
+        "x-sdkwork-source-route-crate": "sdkwork-routes-documents-open-api",
         "parameters": []
       }
     },
     "/doc/v3/api/documents": {
       "get": {
-        "operationId": "list",
+        "operationId": "documents.list",
         "tags": [
           "documents"
         ],
@@ -245,12 +246,13 @@
             }
           }
         },
+        "x-sdkwork-source-route-crate": "sdkwork-routes-documents-open-api",
         "parameters": []
       }
     },
     "/doc/v3/api/documents/{documentId}": {
       "get": {
-        "operationId": "retrieve",
+        "operationId": "documents.retrieve",
         "tags": [
           "documents"
         ],
@@ -368,7 +370,8 @@
               "type": "string"
             }
           }
-        ]
+        ],
+        "x-sdkwork-source-route-crate": "sdkwork-routes-documents-open-api"
       }
     }
   },
@@ -873,5 +876,7 @@
         ]
       }
     }
-  }
+  },
+  "x-sdkwork-owner-only-input": true,
+  "x-sdkwork-standard-version": "2026-06-20"
 }

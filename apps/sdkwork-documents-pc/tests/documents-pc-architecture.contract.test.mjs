@@ -7,6 +7,12 @@ import { fileURLToPath } from 'node:url';
 
 const pcRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
+// BROWSER_RUNTIME_ENV_SPEC.md: the browser runtime-env document is declared per
+// deployment profile, so the required files follow the topology profile set.
+const topologySpec = JSON.parse(
+  fs.readFileSync(path.resolve(pcRoot, '../../specs/topology.spec.json'), 'utf8'),
+);
+
 const requiredFiles = [
   'src/App.tsx',
   'src/AuthGate.tsx',
@@ -19,10 +25,9 @@ const requiredFiles = [
   'src/bootstrap/runtime.ts',
   'src/bootstrap/sdkClients.ts',
   'src/bootstrap/routes.ts',
-  'config/browser/runtime-env.development.example.json',
-  'config/browser/runtime-env.test.example.json',
-  'config/browser/runtime-env.staging.example.json',
-  'config/browser/runtime-env.production.example.json',
+  ...Object.keys(topologySpec.profileFiles).map(
+    (profileId) => `config/browser/runtime-env.${profileId}.json`,
+  ),
   'specs/component.spec.json',
   'packages/sdkwork-documents-pc-shell/package.json',
   'packages/sdkwork-documents-pc-core/package.json',

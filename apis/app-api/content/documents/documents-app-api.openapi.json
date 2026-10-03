@@ -22,7 +22,7 @@
   "paths": {
     "/app/v3/api/documents": {
       "get": {
-        "operationId": "list",
+        "operationId": "documents.list",
         "tags": [
           "documents"
         ],
@@ -32,6 +32,7 @@
         "x-sdkwork-api-surface": "app-api",
         "x-sdkwork-request-context": "WebRequestContext",
         "x-sdkwork-auth-mode": "dual-token",
+        "x-sdkwork-permission": "documents.read",
         "x-sdkwork-audit-event": "documents.listed",
         "security": [
           {
@@ -131,10 +132,11 @@
             }
           }
         },
+        "x-sdkwork-source-route-crate": "sdkwork-routes-documents-app-api",
         "parameters": []
       },
       "post": {
-        "operationId": "create",
+        "operationId": "documents.create",
         "tags": [
           "documents"
         ],
@@ -144,6 +146,7 @@
         "x-sdkwork-api-surface": "app-api",
         "x-sdkwork-request-context": "WebRequestContext",
         "x-sdkwork-auth-mode": "dual-token",
+        "x-sdkwork-permission": "documents.write",
         "x-sdkwork-audit-event": "documents.created",
         "security": [
           {
@@ -265,12 +268,13 @@
               }
             }
           }
-        }
+        },
+        "x-sdkwork-source-route-crate": "sdkwork-routes-documents-app-api"
       }
     },
     "/app/v3/api/documents/{documentId}": {
       "get": {
-        "operationId": "retrieve",
+        "operationId": "documents.retrieve",
         "tags": [
           "documents"
         ],
@@ -280,6 +284,7 @@
         "x-sdkwork-api-surface": "app-api",
         "x-sdkwork-request-context": "WebRequestContext",
         "x-sdkwork-auth-mode": "dual-token",
+        "x-sdkwork-permission": "documents.read",
         "x-sdkwork-audit-event": "documents.retrieved",
         "security": [
           {
@@ -388,10 +393,11 @@
               "type": "string"
             }
           }
-        ]
+        ],
+        "x-sdkwork-source-route-crate": "sdkwork-routes-documents-app-api"
       },
       "patch": {
-        "operationId": "update",
+        "operationId": "documents.update",
         "tags": [
           "documents"
         ],
@@ -401,6 +407,7 @@
         "x-sdkwork-api-surface": "app-api",
         "x-sdkwork-request-context": "WebRequestContext",
         "x-sdkwork-auth-mode": "dual-token",
+        "x-sdkwork-permission": "documents.write",
         "x-sdkwork-audit-event": "documents.updated",
         "security": [
           {
@@ -519,12 +526,13 @@
               }
             }
           }
-        }
+        },
+        "x-sdkwork-source-route-crate": "sdkwork-routes-documents-app-api"
       }
     },
     "/app/v3/api/sdk_reference/archives": {
       "post": {
-        "operationId": "sdkReference.create",
+        "operationId": "sdkReference.archivesCreate",
         "tags": [
           "documents"
         ],
@@ -534,6 +542,7 @@
         "x-sdkwork-api-surface": "app-api",
         "x-sdkwork-request-context": "WebRequestContext",
         "x-sdkwork-auth-mode": "dual-token",
+        "x-sdkwork-permission": "archives.create",
         "x-sdkwork-audit-event": "sdkReference.archivesCreated",
         "security": [
           {
@@ -655,12 +664,13 @@
               }
             }
           }
-        }
+        },
+        "x-sdkwork-source-route-crate": "sdkwork-routes-documents-app-api"
       }
     },
     "/app/v3/api/sdk_reference/documentation": {
       "post": {
-        "operationId": "sdkReference.create",
+        "operationId": "sdkReference.documentationCreate",
         "tags": [
           "documents"
         ],
@@ -670,6 +680,7 @@
         "x-sdkwork-api-surface": "app-api",
         "x-sdkwork-request-context": "WebRequestContext",
         "x-sdkwork-auth-mode": "dual-token",
+        "x-sdkwork-permission": "documentation.create",
         "x-sdkwork-audit-event": "sdkReference.documentationCreated",
         "security": [
           {
@@ -791,7 +802,8 @@
               }
             }
           }
-        }
+        },
+        "x-sdkwork-source-route-crate": "sdkwork-routes-documents-app-api"
       }
     }
   },
@@ -1301,5 +1313,7 @@
         ]
       }
     }
-  }
+  },
+  "x-sdkwork-owner-only-input": true,
+  "x-sdkwork-standard-version": "2026-06-20"
 }

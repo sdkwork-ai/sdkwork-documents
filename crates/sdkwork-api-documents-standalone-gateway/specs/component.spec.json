@@ -6,7 +6,7 @@
     "displayName": "SDKWork Documents API Server",
     "version": "0.1.0",
     "type": "rust-api-standalone-gateway",
-    "root": "crates/sdkwork-api-documents-standalone-gateway",
+    "root": "sdkwork-documents/crates/sdkwork-api-documents-standalone-gateway",
     "domain": "content",
     "capability": "api-gateway",
     "surface": "gateway-api",

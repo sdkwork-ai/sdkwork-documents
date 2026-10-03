@@ -22,7 +22,7 @@
   "paths": {
     "/app/v3/api/documents": {
       "get": {
-        "operationId": "list",
+        "operationId": "documents.list",
         "tags": [
           "documents"
         ],
@@ -136,7 +136,7 @@
         "parameters": []
       },
       "post": {
-        "operationId": "create",
+        "operationId": "documents.create",
         "tags": [
           "documents"
         ],
@@ -274,7 +274,7 @@
     },
     "/app/v3/api/documents/{documentId}": {
       "get": {
-        "operationId": "retrieve",
+        "operationId": "documents.retrieve",
         "tags": [
           "documents"
         ],
@@ -397,7 +397,7 @@
         "x-sdkwork-source-route-crate": "sdkwork-routes-documents-app-api"
       },
       "patch": {
-        "operationId": "update",
+        "operationId": "documents.update",
         "tags": [
           "documents"
         ],
@@ -532,7 +532,7 @@
     },
     "/app/v3/api/sdk_reference/archives": {
       "post": {
-        "operationId": "sdkReference.create",
+        "operationId": "sdkReference.archivesCreate",
         "tags": [
           "documents"
         ],
@@ -670,7 +670,7 @@
     },
     "/app/v3/api/sdk_reference/documentation": {
       "post": {
-        "operationId": "sdkReference.create",
+        "operationId": "sdkReference.documentationCreate",
         "tags": [
           "documents"
         ],

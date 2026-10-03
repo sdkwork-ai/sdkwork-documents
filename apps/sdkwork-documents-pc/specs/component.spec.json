@@ -30,18 +30,24 @@
       "src/bootstrap/sdkClients.ts",
       "src/bootstrap/iamRuntime.ts",
       "src/bootstrap/routes.ts",
-      "config/browser/runtime-env.development.example.json",
-      "config/browser/runtime-env.test.example.json",
-      "config/browser/runtime-env.staging.example.json",
-      "config/browser/runtime-env.production.example.json",
+      "config/browser/runtime-env.standalone.development.json",
+      "config/browser/runtime-env.standalone.test.json",
+      "config/browser/runtime-env.standalone.staging.json",
+      "config/browser/runtime-env.standalone.production.json",
+      "config/browser/runtime-env.standalone.demo.json",
+      "config/browser/runtime-env.cloud.development.json",
+      "config/browser/runtime-env.cloud.test.json",
+      "config/browser/runtime-env.cloud.staging.json",
+      "config/browser/runtime-env.cloud.production.json",
+      "config/browser/runtime-env.cloud.demo.json",
       "packages/sdkwork-documents-pc-shell/package.json",
       "packages/sdkwork-documents-pc-core/package.json"
     ],
     "routeManifest": null,
     "sdkClients": ["@sdkwork/documents-app-sdk"],
     "configKeys": [
-      "config/browser/runtime-env.development.example.json",
-      "config/browser/runtime-env.production.example.json"
+      "config/browser/runtime-env.standalone.development.json",
+      "config/browser/runtime-env.cloud.production.json"
     ]
   },
   "verification": {

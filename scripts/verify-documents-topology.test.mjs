@@ -42,6 +42,7 @@ test("declares SDKWork v5 deployment topology spec and profile env files for sdk
     "test",
     "staging",
     "production",
+    "demo",
   ]);
   assert.equal(spec.defaults.developmentProfileId, "standalone.development");
   assert.equal(spec.defaults.productionProfileId, "cloud.production");
@@ -58,7 +59,12 @@ test("declares SDKWork v5 deployment topology spec and profile env files for sdk
     assert.match(profileEnv, /SDKWORK_DOCUMENTS_DEPLOYMENT_PROFILE=/);
     assert.doesNotMatch(profileEnv, /HOSTING|self-hosted|cloud-hosted|SERVICE_LAYOUT|unified-process|split-services/);
     assert.match(profileEnv, /(?:VITE_)?SDKWORK_DOCUMENTS_APPLICATION_PUBLIC_HTTP_URL=/);
-    assert.match(profileEnv, /(?:VITE_)?SDKWORK_DOCUMENTS_PLATFORM_API_GATEWAY_HTTP_URL=/);
+    if (profileId.startsWith("cloud.")) {
+      // Cloud profiles resolve every external plane to an explicit deployed URL
+      // and must not inherit a loopback default; standalone profiles may rely on
+      // the documented local dev default instead.
+      assert.match(profileEnv, /(?:VITE_)?SDKWORK_DOCUMENTS_PLATFORM_API_GATEWAY_HTTP_URL=/);
+    }
   }
 });
 

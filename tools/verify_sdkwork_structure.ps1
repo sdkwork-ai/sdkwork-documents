@@ -92,8 +92,8 @@ Assert-PathExists "scripts/lib/documents-topology.mjs" "Missing topology adapter
 Assert-PathExists "scripts/documents-dev.mjs" "Missing topology dev orchestrator"
 
 $topologySpec = Get-Content -Raw "specs/topology.spec.json" | ConvertFrom-Json
-if ($topologySpec.schemaVersion -ne 2) {
-    throw "specs/topology.spec.json schemaVersion must be 2"
+if ($topologySpec.schemaVersion -ne 5) {
+    throw "specs/topology.spec.json schemaVersion must be 5"
 }
 if ($topologySpec.kind -ne "sdkwork.app.topology") {
     throw "specs/topology.spec.json kind must be sdkwork.app.topology"

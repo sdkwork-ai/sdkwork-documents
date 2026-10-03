@@ -29,11 +29,11 @@ $requiredBySpec = @{
 
 $requiredSchemas = @(
     "Document",
-    "DocumentList",
+    "DocumentListResponse",
     "DocumentCreateRequest",
     "DocumentUpdateRequest",
     "DocumentCapabilities",
-    "ProblemDetails"
+    "ProblemDetail"
 )
 
 foreach ($specPath in $specPaths) {

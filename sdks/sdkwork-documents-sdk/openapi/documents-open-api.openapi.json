@@ -137,7 +137,7 @@
     },
     "/doc/v3/api/documents": {
       "get": {
-        "operationId": "list",
+        "operationId": "documents.list",
         "tags": [
           "documents"
         ],
@@ -252,7 +252,7 @@
     },
     "/doc/v3/api/documents/{documentId}": {
       "get": {
-        "operationId": "retrieve",
+        "operationId": "documents.retrieve",
         "tags": [
           "documents"
         ],

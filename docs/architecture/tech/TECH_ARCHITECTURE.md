@@ -29,4 +29,8 @@ Architecture detail lives in the linked TECH shards below.
 
 ## 8. Architecture Decision Index
 
+- [ADR-20261003-documents-marketplace-catalog-projection](../decisions/ADR-20261003-documents-marketplace-catalog-projection.md)
+  — the API/SDK market catalog is a read projection of other modules' published contracts plus
+  market-owned curation, inside the `content` / `documents` bounded context.
+
 ## 9. Verification

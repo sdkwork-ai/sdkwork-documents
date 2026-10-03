@@ -157,7 +157,7 @@ Invoke-Checked node tools/patch-route-manifest-extensions.mjs
 Invoke-Checked powershell -ExecutionPolicy Bypass -File tools/verify_openapi_operation_ids.ps1
 Invoke-Checked node sdks/standardize-documents-sdk-family.mjs --check
 Invoke-Checked node tools/materialize-apis-authority.mjs --check
-Invoke-Checked node tools/check_sdkwork_ai_prod_architecture_alignment.mjs
+Invoke-Checked node tools/check_sdkwork_documents_architecture_alignment.mjs
 Invoke-Checked node sdks/test/verify-sdk-ownership-boundaries.test.mjs
 
 $requiredGeneratedSdkRoots = @(

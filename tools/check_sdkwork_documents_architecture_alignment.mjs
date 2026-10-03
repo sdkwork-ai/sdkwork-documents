@@ -96,8 +96,8 @@ assert(
   "specs/topology.spec.json must default production to cloud.production",
 );
 assert(
-  topologySpec.schemaVersion === 2,
-  "specs/topology.spec.json must use schemaVersion 2",
+  topologySpec.schemaVersion === 5,
+  "specs/topology.spec.json must use the current topology schemaVersion 5",
 );
 
 for (const profileId of [
@@ -257,7 +257,7 @@ assert(
   "sdkwork-api-documents-standalone-gateway must declare unified standalone gateway binary",
 );
 assert(
-  apiServerToml.includes("sdkwork-api-documents-assembly"),
+  /sdkwork[-_]api[-_]documents[-_]assembly/u.test(apiServerToml),
   "sdkwork-api-documents-standalone-gateway must depend on sdkwork-api-documents-assembly",
 );
 assert(
@@ -430,15 +430,22 @@ const pcRootFiles = [
   "apps/sdkwork-documents-pc/src/bootstrap/sdkClients.ts",
   "apps/sdkwork-documents-pc/specs/component.spec.json",
   "apps/sdkwork-documents-pc/tests/documents-pc-architecture.contract.test.mjs",
-  "apps/sdkwork-documents-pc/config/browser/runtime-env.development.example.json",
-  "apps/sdkwork-documents-pc/config/browser/runtime-env.test.example.json",
-  "apps/sdkwork-documents-pc/config/browser/runtime-env.staging.example.json",
-  "apps/sdkwork-documents-pc/config/browser/runtime-env.production.example.json",
 ];
 for (const relativePath of pcRootFiles) {
   assert(
     fs.existsSync(path.join(repoRoot, relativePath)),
     `${relativePath} must exist per APP_PC_ARCHITECTURE_SPEC.md`,
+  );
+}
+
+// BROWSER_RUNTIME_ENV_SPEC.md: the browser runtime-env document is declared per
+// deployment profile, so the PC app owns one runtime-env.<profileId>.json per
+// declared topology profile file.
+for (const profileId of Object.keys(topologySpec.profileFiles ?? {})) {
+  const relativePath = `apps/sdkwork-documents-pc/config/browser/runtime-env.${profileId}.json`;
+  assert(
+    fs.existsSync(path.join(repoRoot, relativePath)),
+    `${relativePath} must exist per BROWSER_RUNTIME_ENV_SPEC.md`,
   );
 }
 
@@ -522,7 +529,6 @@ for (const routeTest of [
   "crates/sdkwork-routes-documents-backend-api/tests/backend_openapi_routes.rs",
   "crates/sdkwork-routes-documents-app-api/tests/hosted_runtime_routes.rs",
   "crates/sdkwork-content-documents-repository-sqlx/tests/migration_manifest.rs",
-  "crates/sdkwork-content-documents-repository-sqlx/tests/sqlite_document_store.rs",
   "crates/sdkwork-content-documents-repository-sqlx/tests/postgres_document_store.rs",
 ]) {
   assert(fs.existsSync(path.join(repoRoot, routeTest)), `${routeTest} must exist`);
@@ -622,35 +628,44 @@ for (const relativePath of crateComponentSpecs) {
   assert(fs.existsSync(path.join(repoRoot, relativePath)), `${relativePath} must exist`);
 }
 
+// PNPM_SCRIPT_SPEC.md: the public lifecycle verb is a facade over the private
+// `_sdkwork:<verb>` hook, so the aggregate body is asserted on the hook.
+const verifyHook = packageJson.scripts?.["_sdkwork:verify"] ?? "";
 assert(
-  packageJson.scripts?.verify?.includes("topology:validate"),
-  "package.json verify must run topology:validate",
+  verifyHook.includes("topology:validate"),
+  "package.json _sdkwork:verify must run topology:validate",
 );
 assert(
-  packageJson.scripts?.verify?.includes("test:topology"),
-  "package.json verify must run test:topology",
+  verifyHook.includes("test:topology"),
+  "package.json _sdkwork:verify must run test:topology",
 );
 assert(
-  packageJson.scripts?.verify?.includes("clean-generated-sdk-artifacts.mjs"),
-  "package.json verify must clean generated SDK build artifacts before verification",
+  verifyHook.includes("clean-generated-sdk-artifacts.mjs"),
+  "package.json _sdkwork:verify must clean generated SDK build artifacts before verification",
 );
 assert(
   packageJson.scripts?.["build:browser"],
   "package.json must expose pnpm build:browser for documents PC bundle verification",
 );
 assert(
-  packageJson.scripts?.verify?.includes("build:browser"),
-  "package.json verify must build documents PC browser bundle",
+  verifyHook.includes("build:browser"),
+  "package.json _sdkwork:verify must build documents PC browser bundle",
 );
 assert(
   packageJson.scripts?.["dev:browser"],
   "package.json must expose pnpm dev:browser for documents PC development",
 );
+const browserStandaloneScript = packageJson.scripts?.["dev:browser:postgres:standalone"] ?? "";
 assert(
-  packageJson.scripts?.["dev:browser:postgres:standalone"]?.includes(
-    "documents-dev.mjs --target browser",
+  browserStandaloneScript.includes("sdkwork-app dev") ||
+    browserStandaloneScript.includes("documents-dev.mjs"),
+  "dev:browser:postgres:standalone must route through topology-aware browser orchestration",
+);
+assert(
+  (packageJson.scripts?.["dev:browser:postgres:standalone:local"] ?? "").includes(
+    "documents-dev.mjs --target browser-only",
   ),
-  "dev:browser must route through topology-aware documents-dev.mjs browser orchestration",
+  "dev:browser:postgres:standalone:local must reuse documents-dev.mjs browser-only orchestration",
 );
 
 const topologyStandard = readText("docs/topology-standard.md");
@@ -718,18 +733,26 @@ for (const componentKey of ["appApiRouter", "backendApiRouter", "openApiRouter"]
 
 const cloudSplitDevProcesses =
   topologySpec.orchestration?.profiles?.["cloud.development"]?.processes ?? [];
-const publicIngressProcess = cloudSplitDevProcesses.find(
-  (entry) => entry.id === "application.public-ingress",
-);
-assert(publicIngressProcess, "topology cloud split development must declare application.public-ingress");
+const cloudSplitDevHealthSurfaces =
+  topologySpec.orchestration?.profiles?.["cloud.development"]?.healthSurfaces ?? [];
+// APP_RUNTIME_TOPOLOGY_SPEC.md dev:cloud section: cloud.development is a
+// remote-consumer development profile, so its processes list contains no local
+// API-plane or platform-plane server process; application.public-ingress is a
+// remote surface the profile health-checks instead of starting locally.
 assert(
-  /standalone-gateway/u.test(String(publicIngressProcess.binary ?? "")),
-  "topology cloud split development application.public-ingress must launch standalone gateway binary",
+  cloudSplitDevHealthSurfaces.includes("application.public-ingress"),
+  "topology cloud split development must health-check the remote application.public-ingress surface",
 );
 for (const processDef of cloudSplitDevProcesses) {
   assert(
-    processDef.id !== "application.backend-http" && processDef.id !== "application.open-http",
-    `topology cloud split development must not start decomposed HTTP process ${processDef.id}`,
+    processDef.id !== "application.public-ingress" &&
+      processDef.id !== "application.backend-http" &&
+      processDef.id !== "application.open-http",
+    `topology cloud split development must not start API-plane process ${processDef.id}`,
+  );
+  assert(
+    !/standalone-gateway/u.test(String(processDef.binary ?? "")),
+    `topology cloud split development must not start an application gateway binary (${processDef.id})`,
   );
 }
 

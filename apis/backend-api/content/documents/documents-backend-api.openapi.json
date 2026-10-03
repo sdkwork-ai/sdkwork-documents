@@ -22,7 +22,7 @@
   "paths": {
     "/backend/v3/api/documents": {
       "get": {
-        "operationId": "list",
+        "operationId": "documents.list",
         "tags": [
           "documents"
         ],
@@ -132,10 +132,11 @@
             }
           }
         },
+        "x-sdkwork-source-route-crate": "sdkwork-routes-documents-backend-api",
         "parameters": []
       },
       "post": {
-        "operationId": "create",
+        "operationId": "documents.create",
         "tags": [
           "documents"
         ],
@@ -267,12 +268,13 @@
               }
             }
           }
-        }
+        },
+        "x-sdkwork-source-route-crate": "sdkwork-routes-documents-backend-api"
       }
     },
     "/backend/v3/api/documents/{documentId}": {
       "get": {
-        "operationId": "retrieve",
+        "operationId": "documents.retrieve",
         "tags": [
           "documents"
         ],
@@ -391,10 +393,11 @@
               "type": "string"
             }
           }
-        ]
+        ],
+        "x-sdkwork-source-route-crate": "sdkwork-routes-documents-backend-api"
       },
       "patch": {
-        "operationId": "update",
+        "operationId": "documents.update",
         "tags": [
           "documents"
         ],
@@ -523,10 +526,11 @@
               }
             }
           }
-        }
+        },
+        "x-sdkwork-source-route-crate": "sdkwork-routes-documents-backend-api"
       },
       "delete": {
-        "operationId": "delete",
+        "operationId": "documents.delete",
         "tags": [
           "documents"
         ],
@@ -638,7 +642,8 @@
               "type": "string"
             }
           }
-        ]
+        ],
+        "x-sdkwork-source-route-crate": "sdkwork-routes-documents-backend-api"
       }
     }
   },
@@ -1148,5 +1153,7 @@
         ]
       }
     }
-  }
+  },
+  "x-sdkwork-owner-only-input": true,
+  "x-sdkwork-standard-version": "2026-06-20"
 }
