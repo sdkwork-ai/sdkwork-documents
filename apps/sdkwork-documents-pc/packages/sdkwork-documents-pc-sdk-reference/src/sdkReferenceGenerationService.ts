@@ -28,14 +28,17 @@ export async function generateSdkReferenceDocumentation(
   input: GenerateSdkReferenceInput,
 ): Promise<SdkReferenceDocumentationResponse> {
   const language = normalizeSdkReferenceLanguage(input.language);
-  const result = await getDocumentsAppSdkClient().sdkReference.documentation.create({
-    spec: normalizeJsonObject(input.spec, 'spec'),
-    language,
-    config: normalizeJsonObject({
-      ...input.config,
+  const result = await getDocumentsAppSdkClient().documents.sdkReference.documentationCreate(
+    {
+      spec: normalizeJsonObject(input.spec, 'spec'),
       language,
-    }, 'config'),
-  });
+      config: normalizeJsonObject({
+        ...input.config,
+        language,
+      }, 'config'),
+    },
+    { idempotencyKey: createSdkReferenceIdempotencyKey('documentation') },
+  );
   ensureSdkworkApiSuccess(result, 'SDK reference documentation could not be generated');
   const data = readApiData(result);
   if (!isRecord(data)) {
@@ -54,14 +57,17 @@ export async function generateSdkReferenceArchive(
   input: GenerateSdkReferenceInput,
 ): Promise<SdkReferenceArchiveResponse> {
   const language = normalizeSdkReferenceLanguage(input.language);
-  const result = await getDocumentsAppSdkClient().sdkReference.archives.create({
-    spec: normalizeJsonObject(input.spec, 'spec'),
-    language,
-    config: normalizeJsonObject({
-      ...input.config,
+  const result = await getDocumentsAppSdkClient().documents.sdkReference.archivesCreate(
+    {
+      spec: normalizeJsonObject(input.spec, 'spec'),
       language,
-    }, 'config'),
-  });
+      config: normalizeJsonObject({
+        ...input.config,
+        language,
+      }, 'config'),
+    },
+    { idempotencyKey: createSdkReferenceIdempotencyKey('archives') },
+  );
   ensureSdkworkApiSuccess(result, 'SDK archive could not be generated');
   const data = readApiData(result);
   if (!isRecord(data)) {
@@ -73,4 +79,18 @@ export async function generateSdkReferenceArchive(
     contentBase64: readString(data, 'contentBase64'),
     language: readString(data, 'language', language),
   };
+}
+
+/**
+ * The SDK-reference operations are POST commands carrying the contract's
+ * `Idempotency-Key` header. A fresh key per invocation lets a network retry
+ * after an ambiguous failure replay safely without collapsing distinct
+ * generations into one cached response.
+ */
+function createSdkReferenceIdempotencyKey(scope: string): string {
+  const unique =
+    typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+  return `sdk-reference-${scope}-${unique}`;
 }

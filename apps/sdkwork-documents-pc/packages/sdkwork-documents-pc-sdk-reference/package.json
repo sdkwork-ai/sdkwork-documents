@@ -22,7 +22,8 @@
     "lucide-react": "^0.511.0",
     "motion": "^12.38.0",
     "react": "^19.1.0",
-    "react-i18next": "catalog:"
+    "react-i18next": "catalog:",
+    "@sdkwork/sdk-common": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",

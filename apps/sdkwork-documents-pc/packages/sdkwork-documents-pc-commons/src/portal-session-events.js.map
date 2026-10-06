@@ -1,0 +1,1 @@
+{"version":3,"file":"portal-session-events.js","sourceRoot":"","sources":["portal-session-events.ts"],"names":[],"mappings":"AAAA,MAAM,CAAC,MAAM,2BAA2B,GAAG,yCAAyC,CAAC;AAErF,MAAM,UAAU,2BAA2B;IACzC,IAAI,OAAO,MAAM,KAAK,WAAW,IAAI,OAAO,MAAM,CAAC,aAAa,KAAK,UAAU,EAAE,CAAC;QAChF,OAAO;IACT,CAAC;IAED,MAAM,CAAC,aAAa,CAAC,IAAI,KAAK,CAAC,2BAA2B,CAAC,CAAC,CAAC;AAC/D,CAAC"}

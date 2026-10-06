@@ -44,7 +44,7 @@
     },
     {
       "path": "README.md",
-      "sha256": "3cb79186d3c0d2126957504e0b5e67d5ce03e00f2ac5f9257daea1325888cbe7"
+      "sha256": "a7ecf30c5adbf71b50544814b1fbe38622d93f645cea9c68d6c7d33fe348d09c"
     },
     {
       "path": "sdkwork-sdk.json",
@@ -176,7 +176,7 @@
     },
     {
       "path": "tsconfig.json",
-      "sha256": "7c8a6c2b00fb208ec28e1e6045194487d1b3e563d6c44cef4783fd4fe0e8ffad"
+      "sha256": "35f6f0baf03ca4245339f0a532b02c6b0c8e64d66852a2f77d38ae063b2024b8"
     }
   ],
   "scaffoldFiles": [

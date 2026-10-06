@@ -54,7 +54,7 @@ export function getDocumentsAppSdkClientForReference(): DocumentsAppSdkClient {
   if (!documentsAppSdkClient) {
     throw new Error('Documents app SDK client is not initialized.');
   }
-  return documentsAppSdkClient as unknown as DocumentsAppSdkClient;
+  return documentsAppSdkClient;
 }
 
 export function resetSdkworkDocumentsPcSdkClients(): void {

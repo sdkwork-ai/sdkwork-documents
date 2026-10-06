@@ -1,0 +1,1 @@
+{"version":3,"file":"sdk-reference.js","sourceRoot":"","sources":["sdk-reference.ts"],"names":[],"mappings":"AAEA,MAAM,CAAC,MAAM,0BAA0B,GAAG;IACxC,EAAE,EAAE;QACF,eAAe,EAAE,MAAM;QACvB,eAAe,EAAE,eAAe;QAChC,uBAAuB,EAAE,qBAAqB;QAC9C,cAAc,EAAE,qBAAqB;KACtC;IACD,EAAE,EAAE;QACF,eAAe,EAAE,cAAc;QAC/B,eAAe,EAAE,kBAAkB;QACnC,uBAAuB,EAAE,SAAS;QAClC,cAAc,EAAE,QAAQ;KACzB;CAC0B,CAAC"}
