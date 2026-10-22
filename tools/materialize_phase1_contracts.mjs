@@ -1141,7 +1141,7 @@ if (!fs.existsSync(path.join(root, "specs/topology.spec.json"))) {
   });
 }
 
-writeJson("database/database.manifest.json", {
+writeJsonIfMissing("database/database.manifest.json", {
   schemaVersion: 2,
   kind: "sdkwork.database.module",
   moduleId: "documents",
@@ -1363,7 +1363,7 @@ SELECT 1;
 );
 writeText("database/drift/policy.yaml", "drift_policy_version: 1\nmode: observe\n");
 
-writeText(
+writeTextIfMissing(
   "database/README.md",
   `# Documents Database Module
 

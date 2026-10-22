@@ -18,10 +18,11 @@ const scripts = {
   generate: { file: 'database/seeds/catalog/generate_catalog_seed.py', args: [] },
   check: { file: 'database/seeds/catalog/generate_catalog_seed.py', args: ['--check'] },
   coverage: { file: 'database/seeds/catalog/verify_catalog_coverage.py', args: [] },
+  sql: { file: 'database/seeds/catalog/verify_catalog_seed_sql.py', args: [] },
 };
 const selected = scripts[command];
 if (!selected) {
-  console.error('Usage: node tools/catalog-cli.mjs <generate|check|coverage>');
+  console.error('Usage: node tools/catalog-cli.mjs <generate|check|coverage|sql>');
   process.exit(2);
 }
 

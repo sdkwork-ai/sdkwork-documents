@@ -297,9 +297,15 @@ impl DocumentsRepository for DocumentsSqlxRepository {
                    COALESCE(c.icon, '') AS icon,
                    c.sort_order, c.parent_code,
                    (SELECT COUNT(*) FROM documents_api_surface_category sc
-                     WHERE sc.tenant_id = c.tenant_id AND sc.category_code = c.category_code) AS api_count,
+                     JOIN documents_api_surface s
+                       ON s.id = sc.surface_id AND s.tenant_id = sc.tenant_id
+                     WHERE sc.tenant_id = c.tenant_id AND sc.category_code = c.category_code
+                       AND s.publish_status = 'published') AS api_count,
                    (SELECT COUNT(*) FROM documents_sdk_category sc
-                     WHERE sc.tenant_id = c.tenant_id AND sc.category_code = c.category_code) AS sdk_count
+                     JOIN documents_sdk_family f
+                       ON f.id = sc.sdk_family_id AND f.tenant_id = sc.tenant_id
+                     WHERE sc.tenant_id = c.tenant_id AND sc.category_code = c.category_code
+                       AND f.publish_status = 'published') AS sdk_count
             FROM documents_catalog_category c
             WHERE c.tenant_id = $1 AND c.category_status = 'active'
             ORDER BY c.sort_order ASC, c.category_code ASC

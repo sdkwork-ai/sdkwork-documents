@@ -27,6 +27,7 @@ The scanner normalizes language aliases (`c#` -> `csharp`, `node` ->
 | `catalog.config.json` | Category taxonomy, module-to-category map, surface labels, tag mapping, language metadata. |
 | `generate_catalog_seed.py` | Scanner and seed generator. Supports `--check` and `--summary-only`. |
 | `verify_catalog_coverage.py` | Independent regression: every module with API/SDK assets appears in the catalog, every OpenAPI document has a surface, every SDK manifest has a family, and identifiers/categories are consistent. |
+| `verify_catalog_seed_sql.py` | Optional `pglast` AST/regression check: PostgreSQL syntax, column/value arity, JSONB payloads, foreign keys, uniqueness, primary category links, and per-surface operation counts. |
 | `catalog.summary.json` | Generated counts and category/type distribution; committed for review. |
 | `../common/100_catalog_taxonomy.sql` | 15 primary categories. |
 | `../common/101_catalog_modules.sql` | Module inventory. |
@@ -45,6 +46,7 @@ migration when a module or surface is deleted.
 python database/seeds/catalog/generate_catalog_seed.py
 python database/seeds/catalog/generate_catalog_seed.py --check
 python database/seeds/catalog/verify_catalog_coverage.py
+python database/seeds/catalog/verify_catalog_seed_sql.py
 ```
 
 `--check` fails when the committed seeds or summary are stale.
@@ -53,6 +55,12 @@ manifest exists in the workspace but never reached the catalog; it also checks
 that API authorities and SDK codes are unique, that every surface has
 operations (zero-operation placeholder documents are seeded as `draft`), and
 that every SDK family has at least one language release.
+
+`verify_catalog_seed_sql.py` is an optional developer check (it needs
+`pip install pglast`). It parses every seed with PostgreSQL's own parser,
+validates column/value arity and JSONB payloads, checks foreign keys and
+uniqueness, and compares each surface's seeded operation count with
+`operation_count`. Without `pglast` it prints a skip notice and exits zero.
 
 Run both after any change to a module's `apis/` directory or
 `sdks/*/sdk-manifest.json`, and commit the regenerated files together with that

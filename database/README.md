@@ -10,6 +10,7 @@ Canonical authoritative-server lifecycle assets for `sdkwork-documents` under `D
 - `contract tables`: 14, listed in `contract/schema.yaml`
 - `engine`: PostgreSQL only
 - `autoMigrate`: disabled by default
+- `seedOnBoot`: enabled for the developer catalog; migrations stay explicit
 
 SQLite is not part of this authoritative database root. Any embedded SQLite adapter is non-authoritative and must own a separate `client-local` lifecycle contract before production use.
 

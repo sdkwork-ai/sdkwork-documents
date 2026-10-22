@@ -3170,12 +3170,12 @@
       }
     }
   },
-  "x-sdkwork-owner-only-input": true,
-  "x-sdkwork-standard-version": "2026-06-20",
   "tags": [
     {
       "name": "developerCatalog",
       "description": "Developer catalog: API market and SDK market."
     }
-  ]
+  ],
+  "x-sdkwork-owner-only-input": true,
+  "x-sdkwork-standard-version": "2026-06-20"
 }

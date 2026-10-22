@@ -167,6 +167,10 @@ export default defineConfig(({ mode }) => {
       alias: {
         '@': path.resolve(configDir, '.'),
       },
+      // Workspace packages are consumed as TypeScript sources. Prefer `.ts`
+      // over a machine-local (or legacy committed) `src/*.js` so compiled
+      // residue can never shadow the source plane in dev, build, or tests.
+      extensions: ['.mts', '.ts', '.tsx', '.mjs', '.js', '.jsx', '.json'],
     },
     server: {
       host: '127.0.0.1',
