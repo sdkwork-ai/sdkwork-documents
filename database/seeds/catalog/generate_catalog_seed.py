@@ -247,7 +247,9 @@ def extract_operations(document: dict[str, Any]) -> list[dict[str, Any]]:
                     "method": method.upper(),
                     "path": api_path,
                     "summary": str(operation.get("summary") or "").strip(),
+                    "summary_i18n": {"en-US": str(operation.get("summary") or "").strip()},
                     "description": str(operation.get("description") or "").strip(),
+                    "description_i18n": {"en-US": str(operation.get("description") or "").strip()},
                     "tags": [str(tag) for tag in tags if isinstance(tag, (str, int, float))],
                     "deprecated": bool(operation.get("deprecated")),
                     "sort_order": order,
@@ -413,6 +415,7 @@ class Catalog:
         self.category_by_code = {item["code"]: item for item in self.categories}
         self.module_categories = config.get("modules") or {}
         self.surface_labels = config.get("surfaceLabels") or {}
+        self.module_translations = config.get("moduleTranslations") or {}
         self.surface_defaults = config.get("surfaceApiPrefixDefaults") or {}
         self.tag_categories = config.get("tagCategories") or {}
         self.languages = config.get("languages") or []
@@ -476,11 +479,14 @@ class Catalog:
         description = str(app.get("description") or package.get("description") or "").strip()
         categories = self.module_categories.get(repo.name) or self.module_categories.get(module_code) or ["other"]
         categories = [code for code in categories if code in self.category_by_code] or ["other"]
+        translation = self.module_translations.get(module_code) or {}
         module = {
             "id": stable_id(MODULE_NAMESPACE, module_code),
             "module_code": module_code,
             "module_name": module_name,
+            "name_i18n": self.i18n_map(module_name, translation.get("nameZh")),
             "description": description,
+            "description_i18n": self.i18n_map(description, translation.get("descriptionZh")),
             "categories": categories,
             "category_code": categories[0],
             "category_sort": self.category_by_code[categories[0]]["sortOrder"],
@@ -557,8 +563,17 @@ class Catalog:
                 "module_sort": module["category_sort"],
                 "surface_code": surface_code,
                 "surface_name": self.surface_name(surface_code),
+                "surface_name_i18n": self.i18n_map(
+                    self.surface_name(surface_code), self.surface_name_zh(surface_code)
+                ),
                 "title": title,
+                "title_i18n": self.localize_surface_text(title, surface_code),
                 "description": description,
+                "description_i18n": (
+                    self.i18n_map(description, self.surface_description_zh(surface_code))
+                    if description == self.surface_description(surface_code)
+                    else self.i18n_map(description)
+                ),
                 "api_version": version,
                 "api_authority": authority,
                 "api_prefix": infer_api_prefix(document, surface_code, self.surface_defaults),
@@ -635,6 +650,7 @@ class Catalog:
                 or languages[0]["package_name"]
             ).strip()
             title = str(manifest.get("title") or "").strip()
+            sdk_name = title or f"{target_module['module_name']} {self.surface_name(sdk_type)} SDK"
             description = title or f"{target_module['module_name']} {self.surface_name(sdk_type)} SDK"
             sdk = {
                 "id": stable_id(SDK_NAMESPACE, sdk_code),
@@ -642,7 +658,8 @@ class Catalog:
                 "module_code": target_module["module_code"],
                 "module_sort": target_module["category_sort"],
                 "sdk_code": sdk_code,
-                "sdk_name": title or sdk_code,
+                "sdk_name": sdk_name,
+                "sdk_name_i18n": self.localize_surface_text(sdk_name, sdk_type),
                 "sdk_family": sdk_code,
                 "sdk_type": sdk_type,
                 "surface_code": sdk_type if sdk_type in TYPE_ORDER else "custom",
@@ -651,6 +668,7 @@ class Catalog:
                 "api_authority": manifest.get("apiAuthority") or None,
                 "api_prefix": api_prefix,
                 "description": description,
+                "description_i18n": self.localize_surface_text(description, sdk_type),
                 "sdk_version": version,
                 "license_code": str(manifest.get("license") or "MIT"),
                 "repository_url": f"https://github.com/sdkwork/{target_module['repository_path']}",
@@ -906,6 +924,32 @@ class Catalog:
         label = self.surface_labels.get(surface_code) or {}
         return label.get("description") or ""
 
+    @staticmethod
+    def i18n_map(base: str, translated: str | None = None) -> dict[str, str]:
+        """Build the per-field locale map stored in the catalog's ``*_i18n`` columns."""
+        result = {"en-US": base}
+        if translated and translated != base:
+            result["zh-CN"] = translated
+        return result
+
+    def surface_name_zh(self, surface_code: str) -> str:
+        label = self.surface_labels.get(surface_code) or self.surface_labels.get("custom") or {}
+        return label.get("nameZh") or label.get("name") or f"{surface_code.title()} API"
+
+    def surface_description_zh(self, surface_code: str) -> str:
+        label = self.surface_labels.get(surface_code) or {}
+        return label.get("descriptionZh") or label.get("description") or ""
+
+    def localize_surface_text(self, text: str, surface_code: str) -> dict[str, str]:
+        """Translate a known surface-type suffix in a generated catalog label."""
+        labels = [(self.surface_name(code), self.surface_name_zh(code)) for code in self.surface_labels]
+        labels.sort(key=lambda pair: len(pair[0]), reverse=True)
+        for english, chinese in labels:
+            if english and english.lower() in text.lower():
+                translated = re.sub(re.escape(english), chinese, text, flags=re.IGNORECASE)
+                return self.i18n_map(text, translated)
+        return self.i18n_map(text)
+
 
 def render_sql(catalog: Catalog) -> dict[str, str]:
     tenant = catalog.tenant
@@ -917,7 +961,7 @@ def render_sql(catalog: Catalog) -> dict[str, str]:
         "",
         "INSERT INTO documents_catalog_category",
         "  (id, tenant_id, category_code, parent_code, category_kind, name, name_i18n, description,",
-        "   icon, sort_order, category_level, category_path, category_status, metadata)",
+        "   description_i18n, icon, sort_order, category_level, category_path, category_status, metadata)",
         "VALUES",
     ]
     rows: list[str] = []
@@ -934,6 +978,14 @@ def render_sql(catalog: Catalog) -> dict[str, str]:
                     sql_text(category["name"]),
                     sql_json({"zh-CN": category.get("nameZh") or category["name"], "en-US": category["name"]}),
                     sql_text(category.get("description") or ""),
+                    sql_json(
+                        {
+                            "en-US": category.get("description") or "",
+                            "zh-CN": category.get("descriptionZh")
+                            or category.get("description")
+                            or "",
+                        }
+                    ),
                     sql_text(category.get("icon") or ""),
                     str(int(category.get("sortOrder") or 0)),
                     "1",
@@ -949,12 +1001,13 @@ def render_sql(catalog: Catalog) -> dict[str, str]:
         [
             "ON CONFLICT (tenant_id, category_kind, category_code) DO UPDATE SET",
             "  name = EXCLUDED.name, name_i18n = EXCLUDED.name_i18n,",
-            "  description = EXCLUDED.description, icon = EXCLUDED.icon,",
+            "  description = EXCLUDED.description, description_i18n = EXCLUDED.description_i18n,",
+            "  icon = EXCLUDED.icon,",
             "  sort_order = EXCLUDED.sort_order, category_path = EXCLUDED.category_path,",
             "  metadata = EXCLUDED.metadata, updated_at = NOW();",
             "",
             "INSERT INTO documents_sdk_language",
-            "  (language_code, language_name, language_family, icon, file_extension, official_url, sort_order, language_status)",
+            "  (language_code, language_name, language_name_i18n, language_family, icon, file_extension, official_url, sort_order, language_status)",
             "VALUES",
         ]
     )
@@ -964,6 +1017,12 @@ def render_sql(catalog: Catalog) -> dict[str, str]:
             [
                 sql_text(item["code"]),
                 sql_text(item["name"]),
+                sql_json(
+                    {
+                        "en-US": item["name"],
+                        "zh-CN": item.get("nameZh") or item["name"],
+                    }
+                ),
                 sql_text(item.get("family") or "server"),
                 sql_text(item.get("icon") or ""),
                 sql_text(item.get("extension") or ""),
@@ -979,7 +1038,9 @@ def render_sql(catalog: Catalog) -> dict[str, str]:
     taxonomy.extend(
         [
             "ON CONFLICT (language_code) DO UPDATE SET",
-            "  language_name = EXCLUDED.language_name, language_family = EXCLUDED.language_family,",
+            "  language_name = EXCLUDED.language_name,",
+            "  language_name_i18n = EXCLUDED.language_name_i18n,",
+            "  language_family = EXCLUDED.language_family,",
             "  icon = EXCLUDED.icon, file_extension = EXCLUDED.file_extension,",
             "  official_url = EXCLUDED.official_url, sort_order = EXCLUDED.sort_order;",
             "",
@@ -1021,7 +1082,7 @@ def render_sql(catalog: Catalog) -> dict[str, str]:
         "-- Generated by database/seeds/catalog/generate_catalog_seed.py; do not hand-edit.",
         "",
         "INSERT INTO documents_catalog_module",
-        "  (id, tenant_id, module_code, module_name, description, category_code, domain_code,",
+        "  (id, tenant_id, module_code, module_name, name_i18n, description, description_i18n, category_code, domain_code,",
         "   capability_code, official_url, icon_url, repository_path, owner_team, module_status,",
         "   sort_order, metadata)",
         "VALUES",
@@ -1036,7 +1097,9 @@ def render_sql(catalog: Catalog) -> dict[str, str]:
                     str(tenant),
                     sql_text(module["module_code"]),
                     sql_text(module["module_name"]),
+                    sql_json(module["name_i18n"]),
                     sql_text(module["description"]),
+                    sql_json(module["description_i18n"]),
                     sql_text(module["category_code"]),
                     sql_text(module["domain_code"]),
                     sql_text(module["capability_code"]),
@@ -1055,7 +1118,8 @@ def render_sql(catalog: Catalog) -> dict[str, str]:
     modules.extend(
         [
             "ON CONFLICT (tenant_id, module_code) DO UPDATE SET",
-            "  module_name = EXCLUDED.module_name, description = EXCLUDED.description,",
+            "  module_name = EXCLUDED.module_name, name_i18n = EXCLUDED.name_i18n,",
+            "  description = EXCLUDED.description, description_i18n = EXCLUDED.description_i18n,",
             "  category_code = EXCLUDED.category_code, domain_code = EXCLUDED.domain_code,",
             "  capability_code = EXCLUDED.capability_code, official_url = EXCLUDED.official_url,",
             "  icon_url = EXCLUDED.icon_url, repository_path = EXCLUDED.repository_path,",
@@ -1085,7 +1149,8 @@ def render_sql(catalog: Catalog) -> dict[str, str]:
         lines.extend(
             [
                 "INSERT INTO documents_api_surface",
-                "  (id, tenant_id, module_id, surface_code, surface_name, title, description, api_version,",
+                "  (id, tenant_id, module_id, surface_code, surface_name, surface_name_i18n, title, title_i18n,",
+                "   description, description_i18n, api_version,",
                 "   api_authority, api_prefix, protocol_code, spec_format, operation_count, tag_count,",
                 "   server_count, auth_modes, servers, category_code, visibility, publish_status,",
                 "   featured, deprecated, source_path, schema_checksum, metadata)",
@@ -1103,8 +1168,11 @@ def render_sql(catalog: Catalog) -> dict[str, str]:
                         sql_uuid(surface["module_id"]),
                         sql_text(surface["surface_code"]),
                         sql_text(surface["surface_name"]),
+                        sql_json(surface["surface_name_i18n"]),
                         sql_text(surface["title"]),
+                        sql_json(surface["title_i18n"]),
                         sql_text(surface["description"]),
+                        sql_json(surface["description_i18n"]),
                         sql_text(surface["api_version"]),
                         sql_text(surface["api_authority"]),
                         sql_text(surface["api_prefix"]),
@@ -1132,8 +1200,10 @@ def render_sql(catalog: Catalog) -> dict[str, str]:
             [
                 "ON CONFLICT (tenant_id, api_authority) DO UPDATE SET",
                 "  module_id = EXCLUDED.module_id, surface_code = EXCLUDED.surface_code,",
-                "  surface_name = EXCLUDED.surface_name, title = EXCLUDED.title,",
-                "  description = EXCLUDED.description, api_version = EXCLUDED.api_version,",
+                "  surface_name = EXCLUDED.surface_name, surface_name_i18n = EXCLUDED.surface_name_i18n,",
+                "  title = EXCLUDED.title, title_i18n = EXCLUDED.title_i18n,",
+                "  description = EXCLUDED.description, description_i18n = EXCLUDED.description_i18n,",
+                "  api_version = EXCLUDED.api_version,",
                 "  api_prefix = EXCLUDED.api_prefix, spec_format = EXCLUDED.spec_format,",
                 "  operation_count = EXCLUDED.operation_count, tag_count = EXCLUDED.tag_count,",
                 "  server_count = EXCLUDED.server_count, auth_modes = EXCLUDED.auth_modes,",
@@ -1175,7 +1245,7 @@ def render_sql(catalog: Catalog) -> dict[str, str]:
                 lines.extend(
                     [
                         "INSERT INTO documents_api_operation",
-                        "  (id, tenant_id, surface_id, operation_key, method, path, summary, description,",
+                        "  (id, tenant_id, surface_id, operation_key, method, path, summary, summary_i18n, description, description_i18n,",
                         "   tags, deprecated, sort_order)",
                         "VALUES",
                     ]
@@ -1198,7 +1268,9 @@ def render_sql(catalog: Catalog) -> dict[str, str]:
                                 sql_text(operation["method"]),
                                 sql_text(operation["path"]),
                                 sql_text(operation["summary"]),
+                                sql_json(operation["summary_i18n"]),
                                 sql_text(operation["description"]),
+                                sql_json(operation["description_i18n"]),
                                 sql_json(operation["tags"]),
                                 "TRUE" if operation["deprecated"] else "FALSE",
                                 str(operation["sort_order"]),
@@ -1211,7 +1283,9 @@ def render_sql(catalog: Catalog) -> dict[str, str]:
                     [
                         "ON CONFLICT (tenant_id, surface_id, operation_key) DO UPDATE SET",
                         "  method = EXCLUDED.method, path = EXCLUDED.path, summary = EXCLUDED.summary,",
-                        "  description = EXCLUDED.description, tags = EXCLUDED.tags,",
+                        "  summary_i18n = EXCLUDED.summary_i18n,",
+                        "  description = EXCLUDED.description, description_i18n = EXCLUDED.description_i18n,",
+                        "  tags = EXCLUDED.tags,",
                         "  deprecated = EXCLUDED.deprecated, sort_order = EXCLUDED.sort_order;",
                         "",
                     ]
@@ -1259,8 +1333,8 @@ def render_sql(catalog: Catalog) -> dict[str, str]:
         lines.extend(
             [
                 "INSERT INTO documents_sdk_family",
-                "  (id, tenant_id, module_id, sdk_code, sdk_name, sdk_family, sdk_type, surface_code,",
-                "   package_name, transport_package_name, api_authority, api_prefix, description,",
+                "  (id, tenant_id, module_id, sdk_code, sdk_name, sdk_name_i18n, sdk_family, sdk_type, surface_code,",
+                "   package_name, transport_package_name, api_authority, api_prefix, description, description_i18n,",
                 "   sdk_version, license_code, repository_url, docs_url, support_level, pricing_tier,",
                 "   visibility, publish_status, featured, deprecated, download_count, rating,",
                 "   category_code, source_path, metadata)",
@@ -1278,6 +1352,7 @@ def render_sql(catalog: Catalog) -> dict[str, str]:
                         sql_uuid(sdk["module_id"]),
                         sql_text(sdk["sdk_code"]),
                         sql_text(sdk["sdk_name"]),
+                        sql_json(sdk["sdk_name_i18n"]),
                         sql_text(sdk["sdk_family"]),
                         sql_text(sdk["sdk_type"]),
                         sql_text(sdk["surface_code"]),
@@ -1286,6 +1361,7 @@ def render_sql(catalog: Catalog) -> dict[str, str]:
                         sql_text(sdk["api_authority"]),
                         sql_text(sdk["api_prefix"]),
                         sql_text(sdk["description"]),
+                        sql_json(sdk["description_i18n"]),
                         sql_text(sdk["sdk_version"]),
                         sql_text(sdk["license_code"]),
                         sql_text(sdk["repository_url"]),
@@ -1310,11 +1386,13 @@ def render_sql(catalog: Catalog) -> dict[str, str]:
             [
                 "ON CONFLICT (tenant_id, sdk_code) DO UPDATE SET",
                 "  module_id = EXCLUDED.module_id, sdk_name = EXCLUDED.sdk_name,",
+                "  sdk_name_i18n = EXCLUDED.sdk_name_i18n,",
                 "  sdk_family = EXCLUDED.sdk_family, sdk_type = EXCLUDED.sdk_type,",
                 "  surface_code = EXCLUDED.surface_code, package_name = EXCLUDED.package_name,",
                 "  transport_package_name = EXCLUDED.transport_package_name,",
                 "  api_authority = EXCLUDED.api_authority, api_prefix = EXCLUDED.api_prefix,",
-                "  description = EXCLUDED.description, sdk_version = EXCLUDED.sdk_version,",
+                "  description = EXCLUDED.description, description_i18n = EXCLUDED.description_i18n,",
+                "  sdk_version = EXCLUDED.sdk_version,",
                 "  repository_url = EXCLUDED.repository_url, featured = EXCLUDED.featured,",
                 "  category_code = EXCLUDED.category_code, source_path = EXCLUDED.source_path,",
                 "  metadata = EXCLUDED.metadata, updated_at = NOW();",

@@ -1,0 +1,1 @@
+{"version":3,"file":"catalog-api-surface-page.d.ts","sourceRoot":"","sources":["catalog-api-surface-page.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,iBAAiB,EAAE,MAAM,uBAAuB,CAAC;AAE/D,MAAM,WAAW,qBAAqB;IACpC,KAAK,EAAE,iBAAiB,EAAE,CAAC;IAC3B,KAAK,EAAE,MAAM,CAAC;IACd,IAAI,EAAE,MAAM,CAAC;IACb,QAAQ,EAAE,MAAM,CAAC;CAClB"}

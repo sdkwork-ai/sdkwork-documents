@@ -4,4 +4,5 @@ export * from './openapiTypes';
 export * from './pages/Docs';
 export * from './pages/ProductDocs';
 export * from './pages/ApiReference';
+export * from './pages/DeveloperCatalog';
 //# sourceMappingURL=index.d.ts.map

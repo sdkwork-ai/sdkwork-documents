@@ -48,3 +48,31 @@ async fn documents_manifest_boot_seeds_the_developer_catalog() {
         );
     }
 }
+
+/// Catalog initialization must populate the localized label columns, not only
+/// the canonical English text, so a locale-aware API has data on first boot.
+#[test]
+fn catalog_seed_files_carry_chinese_locale_overrides() {
+    let app_root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let common = app_root.join("database/seeds/common");
+    let taxonomy = std::fs::read_to_string(common.join("100_catalog_taxonomy.sql"))
+        .expect("read taxonomy seed");
+    let modules = std::fs::read_to_string(common.join("101_catalog_modules.sql"))
+        .expect("read module seed");
+    let surfaces = std::fs::read_to_string(common.join("110_api_surfaces_01.sql"))
+        .expect("read surface seed");
+    let sdks = std::fs::read_to_string(common.join("120_sdk_families_01.sql"))
+        .expect("read sdk seed");
+
+    assert!(taxonomy.contains("name_i18n"));
+    assert!(taxonomy.contains("description_i18n"));
+    assert!(taxonomy.contains("\"zh-CN\""));
+    assert!(modules.contains("name_i18n"));
+    assert!(modules.contains("description_i18n"));
+    assert!(surfaces.contains("surface_name_i18n"));
+    assert!(surfaces.contains("title_i18n"));
+    assert!(surfaces.contains("\"zh-CN\""));
+    assert!(sdks.contains("sdk_name_i18n"));
+    assert!(sdks.contains("description_i18n"));
+    assert!(sdks.contains("\"zh-CN\""));
+}

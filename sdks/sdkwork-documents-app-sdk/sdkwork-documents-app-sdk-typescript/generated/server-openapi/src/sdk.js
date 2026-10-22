@@ -1,11 +1,14 @@
 import { createHttpClient } from './http/client';
 import { createDocumentsApi } from './api/documents';
+import { createDeveloperCatalogApi } from './api/developer-catalog';
 export class SdkworkDocumentsAppClient {
     httpClient;
     documents;
+    developerCatalog;
     constructor(config) {
         this.httpClient = createHttpClient(config);
         this.documents = createDocumentsApi(this.httpClient);
+        this.developerCatalog = createDeveloperCatalogApi(this.httpClient);
     }
     setAuthToken(token) {
         this.httpClient.setAuthToken(token);

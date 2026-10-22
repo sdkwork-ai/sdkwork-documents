@@ -30,6 +30,8 @@ pub struct DocumentsOpenApiRequestContext {
 pub struct DocumentsAppRequestContext {
     pub tenant_id: i64,
     pub user_id: i64,
+    /// BCP 47 locale resolved by the web framework for catalog localization.
+    pub locale: String,
 }
 
 #[derive(Debug, Clone)]
@@ -224,6 +226,7 @@ pub trait DocumentsRepository: Send + Sync {
     async fn developer_catalog_overview(
         &self,
         _tenant_id: i64,
+        _locale: &str,
     ) -> DocumentsServiceResult<DeveloperCatalogOverview> {
         Err(DocumentsServiceError::Internal(
             "developer catalog is not available in this repository".to_owned(),
@@ -233,6 +236,7 @@ pub trait DocumentsRepository: Send + Sync {
     async fn developer_catalog_categories(
         &self,
         _tenant_id: i64,
+        _locale: &str,
     ) -> DocumentsServiceResult<CatalogCategoryList> {
         Err(DocumentsServiceError::Internal(
             "developer catalog is not available in this repository".to_owned(),
@@ -242,6 +246,7 @@ pub trait DocumentsRepository: Send + Sync {
     async fn developer_catalog_languages(
         &self,
         _tenant_id: i64,
+        _locale: &str,
     ) -> DocumentsServiceResult<CatalogLanguageList> {
         Err(DocumentsServiceError::Internal(
             "developer catalog is not available in this repository".to_owned(),
@@ -251,6 +256,7 @@ pub trait DocumentsRepository: Send + Sync {
     async fn developer_catalog_api_surfaces(
         &self,
         _tenant_id: i64,
+        _locale: &str,
         _query: CatalogApiSurfaceQuery,
     ) -> DocumentsServiceResult<CatalogApiSurfacePage> {
         Err(DocumentsServiceError::Internal(
@@ -261,6 +267,7 @@ pub trait DocumentsRepository: Send + Sync {
     async fn developer_catalog_api_surface(
         &self,
         _tenant_id: i64,
+        _locale: &str,
         _surface_id: &str,
     ) -> DocumentsServiceResult<Option<CatalogApiSurfaceDetail>> {
         Err(DocumentsServiceError::Internal(
@@ -281,6 +288,7 @@ pub trait DocumentsRepository: Send + Sync {
     async fn developer_catalog_api_operations(
         &self,
         _tenant_id: i64,
+        _locale: &str,
         _surface_id: &str,
         _query: CatalogApiOperationQuery,
     ) -> DocumentsServiceResult<CatalogApiOperationPage> {
@@ -292,6 +300,7 @@ pub trait DocumentsRepository: Send + Sync {
     async fn developer_catalog_sdks(
         &self,
         _tenant_id: i64,
+        _locale: &str,
         _query: CatalogSdkQuery,
     ) -> DocumentsServiceResult<CatalogSdkFamilyPage> {
         Err(DocumentsServiceError::Internal(
@@ -302,6 +311,7 @@ pub trait DocumentsRepository: Send + Sync {
     async fn developer_catalog_sdk(
         &self,
         _tenant_id: i64,
+        _locale: &str,
         _sdk_id: &str,
     ) -> DocumentsServiceResult<Option<CatalogSdkFamilyDetail>> {
         Err(DocumentsServiceError::Internal(

@@ -128,7 +128,7 @@ impl DocumentsAppApi for DocumentsService {
         ctx: DocumentsAppRequestContext,
     ) -> DocumentsServiceResult<DeveloperCatalogOverview> {
         self.repository
-            .developer_catalog_overview(ctx.tenant_id)
+            .developer_catalog_overview(ctx.tenant_id, ctx.locale.as_str())
             .await
     }
 
@@ -137,7 +137,7 @@ impl DocumentsAppApi for DocumentsService {
         ctx: DocumentsAppRequestContext,
     ) -> DocumentsServiceResult<CatalogCategoryList> {
         self.repository
-            .developer_catalog_categories(ctx.tenant_id)
+            .developer_catalog_categories(ctx.tenant_id, ctx.locale.as_str())
             .await
     }
 
@@ -146,7 +146,7 @@ impl DocumentsAppApi for DocumentsService {
         ctx: DocumentsAppRequestContext,
     ) -> DocumentsServiceResult<CatalogLanguageList> {
         self.repository
-            .developer_catalog_languages(ctx.tenant_id)
+            .developer_catalog_languages(ctx.tenant_id, ctx.locale.as_str())
             .await
     }
 
@@ -156,7 +156,11 @@ impl DocumentsAppApi for DocumentsService {
         query: CatalogApiSurfaceQuery,
     ) -> DocumentsServiceResult<CatalogApiSurfacePage> {
         self.repository
-            .developer_catalog_api_surfaces(ctx.tenant_id, normalize_api_query(query))
+            .developer_catalog_api_surfaces(
+                ctx.tenant_id,
+                ctx.locale.as_str(),
+                normalize_api_query(query),
+            )
             .await
     }
 
@@ -166,7 +170,7 @@ impl DocumentsAppApi for DocumentsService {
         surface_id: String,
     ) -> DocumentsServiceResult<CatalogApiSurfaceDetail> {
         self.repository
-            .developer_catalog_api_surface(ctx.tenant_id, &surface_id)
+            .developer_catalog_api_surface(ctx.tenant_id, ctx.locale.as_str(), &surface_id)
             .await?
             .ok_or(DocumentsServiceError::NotFound(surface_id))
     }
@@ -191,6 +195,7 @@ impl DocumentsAppApi for DocumentsService {
         self.repository
             .developer_catalog_api_operations(
                 ctx.tenant_id,
+                ctx.locale.as_str(),
                 &surface_id,
                 normalize_operation_query(query),
             )
@@ -203,7 +208,11 @@ impl DocumentsAppApi for DocumentsService {
         query: CatalogSdkQuery,
     ) -> DocumentsServiceResult<CatalogSdkFamilyPage> {
         self.repository
-            .developer_catalog_sdks(ctx.tenant_id, normalize_sdk_query(query))
+            .developer_catalog_sdks(
+                ctx.tenant_id,
+                ctx.locale.as_str(),
+                normalize_sdk_query(query),
+            )
             .await
     }
 
@@ -213,7 +222,7 @@ impl DocumentsAppApi for DocumentsService {
         sdk_id: String,
     ) -> DocumentsServiceResult<CatalogSdkFamilyDetail> {
         self.repository
-            .developer_catalog_sdk(ctx.tenant_id, &sdk_id)
+            .developer_catalog_sdk(ctx.tenant_id, ctx.locale.as_str(), &sdk_id)
             .await?
             .ok_or(DocumentsServiceError::NotFound(sdk_id))
     }
@@ -423,6 +432,7 @@ mod tests {
             DocumentsAppRequestContext {
                 tenant_id: 100_001,
                 user_id: 1,
+                locale: "en-US".to_owned(),
             },
             DocumentCreateRequest {
                 title: "Hello".to_owned(),

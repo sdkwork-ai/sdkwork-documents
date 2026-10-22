@@ -32,6 +32,9 @@ export function createSdkworkDocumentsPcSdkClientsWithTokenManager(
       baseUrl: normalizeGeneratedSdkBaseUrl(config.appApiBaseUrl, APP_API_PREFIX),
       platform: 'pc',
       tokenManager,
+      // The catalog resolves localized labels from this BCP 47 header; the
+      // standalone documents host follows its active locale.
+      headers: { 'Accept-Language': config.i18n.defaultLocale },
     });
   } else {
     documentsAppSdkClient.setTokenManager(tokenManager);

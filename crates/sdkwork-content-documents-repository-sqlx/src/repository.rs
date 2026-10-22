@@ -171,6 +171,7 @@ impl DocumentsRepository for DocumentsSqlxRepository {
     async fn developer_catalog_overview(
         &self,
         tenant_id: i64,
+        locale: &str,
     ) -> DocumentsServiceResult<DeveloperCatalogOverview> {
         let pg = self.postgres()?;
         let counts = sqlx::query_as::<_, CatalogCountsRow>(
@@ -195,7 +196,7 @@ impl DocumentsRepository for DocumentsSqlxRepository {
         .await
         .map_err(Self::map_sqlx_error)?;
 
-        let categories = self.developer_catalog_categories(tenant_id).await?;
+        let categories = self.developer_catalog_categories(tenant_id, locale).await?;
         let surface_facets = sqlx::query_as::<_, CatalogFacetRow>(
             r#"
             SELECT surface_code AS code, COUNT(*) AS count
@@ -288,12 +289,23 @@ impl DocumentsRepository for DocumentsSqlxRepository {
     async fn developer_catalog_categories(
         &self,
         tenant_id: i64,
+        locale: &str,
     ) -> DocumentsServiceResult<CatalogCategoryList> {
         let pg = self.postgres()?;
         let rows = sqlx::query_as::<_, CatalogCategoryRow>(
             r#"
-            SELECT c.category_code, c.name,
-                   COALESCE(c.description, '') AS description,
+            SELECT c.category_code,
+                   COALESCE(
+                     NULLIF(c.name_i18n ->> $2, ''),
+                     NULLIF(c.name_i18n ->> split_part($2, '-', 1), ''),
+                     c.name
+                   ) AS name,
+                   COALESCE(
+                     NULLIF(c.description_i18n ->> $2, ''),
+                     NULLIF(c.description_i18n ->> split_part($2, '-', 1), ''),
+                     c.description,
+                     ''
+                   ) AS description,
                    COALESCE(c.icon, '') AS icon,
                    c.sort_order, c.parent_code,
                    (SELECT COUNT(*) FROM documents_api_surface_category sc
@@ -312,6 +324,7 @@ impl DocumentsRepository for DocumentsSqlxRepository {
             "#,
         )
         .bind(tenant_id)
+        .bind(locale)
         .fetch_all(pg)
         .await
         .map_err(Self::map_sqlx_error)?;
@@ -326,11 +339,18 @@ impl DocumentsRepository for DocumentsSqlxRepository {
     async fn developer_catalog_languages(
         &self,
         tenant_id: i64,
+        locale: &str,
     ) -> DocumentsServiceResult<CatalogLanguageList> {
         let pg = self.postgres()?;
         let rows = sqlx::query_as::<_, CatalogLanguageRow>(
             r#"
-            SELECT l.language_code AS code, l.language_name AS name, l.language_family AS family,
+            SELECT l.language_code AS code,
+                   COALESCE(
+                     NULLIF(l.language_name_i18n ->> $2, ''),
+                     NULLIF(l.language_name_i18n ->> split_part($2, '-', 1), ''),
+                     l.language_name
+                   ) AS name,
+                   l.language_family AS family,
                    COALESCE(l.icon, '') AS icon, COALESCE(l.file_extension, '') AS file_extension,
                    COALESCE(l.official_url, '') AS official_url, l.sort_order,
                    (SELECT COUNT(*) FROM documents_sdk_release r
@@ -341,6 +361,7 @@ impl DocumentsRepository for DocumentsSqlxRepository {
             "#,
         )
         .bind(tenant_id)
+        .bind(locale)
         .fetch_all(pg)
         .await
         .map_err(Self::map_sqlx_error)?;
@@ -355,6 +376,7 @@ impl DocumentsRepository for DocumentsSqlxRepository {
     async fn developer_catalog_api_surfaces(
         &self,
         tenant_id: i64,
+        locale: &str,
         query: CatalogApiSurfaceQuery,
     ) -> DocumentsServiceResult<CatalogApiSurfacePage> {
         let pg = self.postgres()?;
@@ -368,7 +390,7 @@ impl DocumentsRepository for DocumentsSqlxRepository {
             FROM documents_api_surface s
             JOIN documents_catalog_module m ON m.id = s.module_id
             WHERE s.tenant_id = $1 AND s.publish_status = 'published' AND s.visibility = 'public'
-              AND ($2::text IS NULL OR s.title ILIKE $2 ESCAPE '\' OR COALESCE(s.description, '') ILIKE $2 ESCAPE '\' OR m.module_name ILIKE $2 ESCAPE '\' OR s.api_authority ILIKE $2 ESCAPE '\')
+              AND ($2::text IS NULL OR s.title ILIKE $2 ESCAPE '\' OR COALESCE(s.description, '') ILIKE $2 ESCAPE '\' OR m.module_name ILIKE $2 ESCAPE '\' OR s.api_authority ILIKE $2 ESCAPE '\' OR COALESCE(s.title_i18n ->> $6, '') ILIKE $2 ESCAPE '\' OR COALESCE(s.description_i18n ->> $6, '') ILIKE $2 ESCAPE '\' OR COALESCE(m.name_i18n ->> $6, '') ILIKE $2 ESCAPE '\')
               AND ($3::text IS NULL OR s.surface_code = $3)
               AND ($4::text IS NULL OR m.module_code = $4)
               AND ($5::text IS NULL OR s.category_code = $5 OR EXISTS (
@@ -381,14 +403,37 @@ impl DocumentsRepository for DocumentsSqlxRepository {
         .bind(query.surface_code.as_deref())
         .bind(query.module_code.as_deref())
         .bind(query.category_code.as_deref())
+        .bind(locale)
         .fetch_one(pg)
         .await
         .map_err(Self::map_sqlx_error)?;
 
         let rows = sqlx::query_as::<_, CatalogApiSurfaceRow>(
                 r#"
-                SELECT s.id::text AS id, m.module_code, m.module_name, s.surface_code, s.surface_name,
-                       s.title, COALESCE(s.description, '') AS description, s.api_version,
+                SELECT s.id::text AS id, m.module_code,
+                       COALESCE(
+                         NULLIF(m.name_i18n ->> $6, ''),
+                         NULLIF(m.name_i18n ->> split_part($6, '-', 1), ''),
+                         m.module_name
+                       ) AS module_name,
+                       s.surface_code,
+                       COALESCE(
+                         NULLIF(s.surface_name_i18n ->> $6, ''),
+                         NULLIF(s.surface_name_i18n ->> split_part($6, '-', 1), ''),
+                         s.surface_name
+                       ) AS surface_name,
+                       COALESCE(
+                         NULLIF(s.title_i18n ->> $6, ''),
+                         NULLIF(s.title_i18n ->> split_part($6, '-', 1), ''),
+                         s.title
+                       ) AS title,
+                       COALESCE(
+                         NULLIF(s.description_i18n ->> $6, ''),
+                         NULLIF(s.description_i18n ->> split_part($6, '-', 1), ''),
+                         s.description,
+                         ''
+                       ) AS description,
+                       s.api_version,
                        s.api_authority, COALESCE(s.api_prefix, '') AS api_prefix,
                        COALESCE(s.category_code, '') AS category_code,
                        s.operation_count, s.tag_count,
@@ -402,14 +447,14 @@ impl DocumentsRepository for DocumentsSqlxRepository {
                 FROM documents_api_surface s
                 JOIN documents_catalog_module m ON m.id = s.module_id
                 WHERE s.tenant_id = $1 AND s.publish_status = 'published' AND s.visibility = 'public'
-                  AND ($2::text IS NULL OR s.title ILIKE $2 ESCAPE '\' OR COALESCE(s.description, '') ILIKE $2 ESCAPE '\' OR m.module_name ILIKE $2 ESCAPE '\' OR s.api_authority ILIKE $2 ESCAPE '\')
+                  AND ($2::text IS NULL OR s.title ILIKE $2 ESCAPE '\' OR COALESCE(s.description, '') ILIKE $2 ESCAPE '\' OR m.module_name ILIKE $2 ESCAPE '\' OR s.api_authority ILIKE $2 ESCAPE '\' OR COALESCE(s.title_i18n ->> $6, '') ILIKE $2 ESCAPE '\' OR COALESCE(s.description_i18n ->> $6, '') ILIKE $2 ESCAPE '\' OR COALESCE(m.name_i18n ->> $6, '') ILIKE $2 ESCAPE '\')
                   AND ($3::text IS NULL OR s.surface_code = $3)
                   AND ($4::text IS NULL OR m.module_code = $4)
                   AND ($5::text IS NULL OR s.category_code = $5 OR EXISTS (
                         SELECT 1 FROM documents_api_surface_category sc
                         WHERE sc.surface_id = s.id AND sc.category_code = $5))
                 ORDER BY s.featured DESC, m.sort_order ASC, s.surface_code ASC, s.api_authority ASC
-                LIMIT $6 OFFSET $7
+                LIMIT $7 OFFSET $8
                 "#
         )
         .bind(tenant_id)
@@ -417,6 +462,7 @@ impl DocumentsRepository for DocumentsSqlxRepository {
         .bind(query.surface_code.as_deref())
         .bind(query.module_code.as_deref())
         .bind(query.category_code.as_deref())
+        .bind(locale)
         .bind(page_size)
         .bind(offset)
         .fetch_all(pg)
@@ -437,14 +483,37 @@ impl DocumentsRepository for DocumentsSqlxRepository {
     async fn developer_catalog_api_surface(
         &self,
         tenant_id: i64,
+        locale: &str,
         surface_id: &str,
     ) -> DocumentsServiceResult<Option<CatalogApiSurfaceDetail>> {
         let pg = self.postgres()?;
         let id = parse_uuid(surface_id)?;
         let row = sqlx::query_as::<_, CatalogApiSurfaceDetailRow>(
             r#"
-            SELECT s.id::text AS id, m.module_code, m.module_name, s.surface_code, s.surface_name,
-                   s.title, COALESCE(s.description, '') AS description, s.api_version,
+            SELECT s.id::text AS id, m.module_code,
+                   COALESCE(
+                     NULLIF(m.name_i18n ->> $3, ''),
+                     NULLIF(m.name_i18n ->> split_part($3, '-', 1), ''),
+                     m.module_name
+                   ) AS module_name,
+                   s.surface_code,
+                   COALESCE(
+                     NULLIF(s.surface_name_i18n ->> $3, ''),
+                     NULLIF(s.surface_name_i18n ->> split_part($3, '-', 1), ''),
+                     s.surface_name
+                   ) AS surface_name,
+                   COALESCE(
+                     NULLIF(s.title_i18n ->> $3, ''),
+                     NULLIF(s.title_i18n ->> split_part($3, '-', 1), ''),
+                     s.title
+                   ) AS title,
+                   COALESCE(
+                     NULLIF(s.description_i18n ->> $3, ''),
+                     NULLIF(s.description_i18n ->> split_part($3, '-', 1), ''),
+                     s.description,
+                     ''
+                   ) AS description,
+                   s.api_version,
                    s.api_authority, COALESCE(s.api_prefix, '') AS api_prefix,
                    COALESCE(s.category_code, '') AS category_code,
                    s.operation_count, s.tag_count,
@@ -468,6 +537,7 @@ impl DocumentsRepository for DocumentsSqlxRepository {
         )
         .bind(tenant_id)
         .bind(id)
+        .bind(locale)
         .fetch_optional(pg)
         .await
         .map_err(Self::map_sqlx_error)?;
@@ -503,6 +573,7 @@ impl DocumentsRepository for DocumentsSqlxRepository {
     async fn developer_catalog_api_operations(
         &self,
         tenant_id: i64,
+        locale: &str,
         surface_id: &str,
         query: CatalogApiOperationQuery,
     ) -> DocumentsServiceResult<CatalogApiOperationPage> {
@@ -516,30 +587,43 @@ impl DocumentsRepository for DocumentsSqlxRepository {
             r#"
             SELECT COUNT(*) FROM documents_api_operation
             WHERE tenant_id = $1 AND surface_id = $2
-              AND ($3::text IS NULL OR summary ILIKE $3 ESCAPE '\' OR path ILIKE $3 ESCAPE '\' OR method ILIKE $3 ESCAPE '\')
+              AND ($3::text IS NULL OR summary ILIKE $3 ESCAPE '\' OR path ILIKE $3 ESCAPE '\' OR method ILIKE $3 ESCAPE '\' OR COALESCE(summary_i18n ->> $4, '') ILIKE $3 ESCAPE '\' OR COALESCE(description_i18n ->> $4, '') ILIKE $3 ESCAPE '\')
             "#,
         )
         .bind(tenant_id)
         .bind(id)
         .bind(pattern.as_deref())
+        .bind(locale)
         .fetch_one(pg)
         .await
         .map_err(Self::map_sqlx_error)?;
         let rows = sqlx::query_as::<_, CatalogApiOperationRow>(
             r#"
-            SELECT operation_key, method, path, COALESCE(summary, '') AS summary,
-                   COALESCE(description, '') AS description,
+            SELECT operation_key, method, path,
+                   COALESCE(
+                     NULLIF(summary_i18n ->> $4, ''),
+                     NULLIF(summary_i18n ->> split_part($4, '-', 1), ''),
+                     summary,
+                     ''
+                   ) AS summary,
+                   COALESCE(
+                     NULLIF(description_i18n ->> $4, ''),
+                     NULLIF(description_i18n ->> split_part($4, '-', 1), ''),
+                     description,
+                     ''
+                   ) AS description,
                    COALESCE(tags::text, '[]') AS tags, deprecated, sort_order
             FROM documents_api_operation
             WHERE tenant_id = $1 AND surface_id = $2
-              AND ($3::text IS NULL OR summary ILIKE $3 ESCAPE '\' OR path ILIKE $3 ESCAPE '\' OR method ILIKE $3 ESCAPE '\')
+              AND ($3::text IS NULL OR summary ILIKE $3 ESCAPE '\' OR path ILIKE $3 ESCAPE '\' OR method ILIKE $3 ESCAPE '\' OR COALESCE(summary_i18n ->> $4, '') ILIKE $3 ESCAPE '\' OR COALESCE(description_i18n ->> $4, '') ILIKE $3 ESCAPE '\')
             ORDER BY sort_order ASC, operation_key ASC
-            LIMIT $4 OFFSET $5
+            LIMIT $5 OFFSET $6
             "#,
         )
         .bind(tenant_id)
         .bind(id)
         .bind(pattern.as_deref())
+        .bind(locale)
         .bind(page_size)
         .bind(offset)
         .fetch_all(pg)
@@ -559,6 +643,7 @@ impl DocumentsRepository for DocumentsSqlxRepository {
     async fn developer_catalog_sdks(
         &self,
         tenant_id: i64,
+        locale: &str,
         query: CatalogSdkQuery,
     ) -> DocumentsServiceResult<CatalogSdkFamilyPage> {
         let pg = self.postgres()?;
@@ -572,7 +657,7 @@ impl DocumentsRepository for DocumentsSqlxRepository {
             FROM documents_sdk_family f
             LEFT JOIN documents_catalog_module m ON m.id = f.module_id
             WHERE f.tenant_id = $1 AND f.publish_status = 'published' AND f.visibility = 'public'
-              AND ($2::text IS NULL OR f.sdk_name ILIKE $2 ESCAPE '\' OR f.sdk_code ILIKE $2 ESCAPE '\' OR COALESCE(f.description, '') ILIKE $2 ESCAPE '\' OR COALESCE(f.package_name, '') ILIKE $2 ESCAPE '\' OR COALESCE(m.module_name, '') ILIKE $2 ESCAPE '\')
+              AND ($2::text IS NULL OR f.sdk_name ILIKE $2 ESCAPE '\' OR f.sdk_code ILIKE $2 ESCAPE '\' OR COALESCE(f.description, '') ILIKE $2 ESCAPE '\' OR COALESCE(f.package_name, '') ILIKE $2 ESCAPE '\' OR COALESCE(m.module_name, '') ILIKE $2 ESCAPE '\' OR COALESCE(f.sdk_name_i18n ->> $7, '') ILIKE $2 ESCAPE '\' OR COALESCE(f.description_i18n ->> $7, '') ILIKE $2 ESCAPE '\' OR COALESCE(m.name_i18n ->> $7, '') ILIKE $2 ESCAPE '\')
               AND ($3::text IS NULL OR f.category_code = $3 OR EXISTS (
                     SELECT 1 FROM documents_sdk_category sc
                     WHERE sc.sdk_family_id = f.id AND sc.category_code = $3))
@@ -589,6 +674,7 @@ impl DocumentsRepository for DocumentsSqlxRepository {
         .bind(query.module_code.as_deref())
         .bind(query.language_code.as_deref())
         .bind(query.sdk_type.as_deref())
+        .bind(locale)
         .fetch_one(pg)
         .await
         .map_err(Self::map_sqlx_error)?;
@@ -596,10 +682,27 @@ impl DocumentsRepository for DocumentsSqlxRepository {
                 r#"
                 SELECT f.id::text AS id,
                        COALESCE(m.module_code, f.sdk_code) AS module_code,
-                       COALESCE(m.module_name, f.sdk_name) AS module_name,
-                       f.sdk_code, f.sdk_name, f.sdk_type, COALESCE(f.surface_code, '') AS surface_code,
+                       COALESCE(
+                         NULLIF(m.name_i18n ->> $7, ''),
+                         NULLIF(m.name_i18n ->> split_part($7, '-', 1), ''),
+                         m.module_name,
+                         f.sdk_name
+                       ) AS module_name,
+                       f.sdk_code,
+                       COALESCE(
+                         NULLIF(f.sdk_name_i18n ->> $7, ''),
+                         NULLIF(f.sdk_name_i18n ->> split_part($7, '-', 1), ''),
+                         f.sdk_name
+                       ) AS sdk_name,
+                       f.sdk_type, COALESCE(f.surface_code, '') AS surface_code,
                        COALESCE(f.package_name, '') AS package_name,
-                       COALESCE(f.description, '') AS description, f.sdk_version,
+                       COALESCE(
+                         NULLIF(f.description_i18n ->> $7, ''),
+                         NULLIF(f.description_i18n ->> split_part($7, '-', 1), ''),
+                         f.description,
+                         ''
+                       ) AS description,
+                       f.sdk_version,
                        COALESCE(f.category_code, '') AS category_code,
                        COALESCE((SELECT jsonb_agg(sc.category_code ORDER BY sc.sort_order)
                                  FROM documents_sdk_category sc
@@ -615,7 +718,7 @@ impl DocumentsRepository for DocumentsSqlxRepository {
                 FROM documents_sdk_family f
                 LEFT JOIN documents_catalog_module m ON m.id = f.module_id
                 WHERE f.tenant_id = $1 AND f.publish_status = 'published' AND f.visibility = 'public'
-                  AND ($2::text IS NULL OR f.sdk_name ILIKE $2 ESCAPE '\' OR f.sdk_code ILIKE $2 ESCAPE '\' OR COALESCE(f.description, '') ILIKE $2 ESCAPE '\' OR COALESCE(f.package_name, '') ILIKE $2 ESCAPE '\' OR COALESCE(m.module_name, '') ILIKE $2 ESCAPE '\')
+                  AND ($2::text IS NULL OR f.sdk_name ILIKE $2 ESCAPE '\' OR f.sdk_code ILIKE $2 ESCAPE '\' OR COALESCE(f.description, '') ILIKE $2 ESCAPE '\' OR COALESCE(f.package_name, '') ILIKE $2 ESCAPE '\' OR COALESCE(m.module_name, '') ILIKE $2 ESCAPE '\' OR COALESCE(f.sdk_name_i18n ->> $7, '') ILIKE $2 ESCAPE '\' OR COALESCE(f.description_i18n ->> $7, '') ILIKE $2 ESCAPE '\' OR COALESCE(m.name_i18n ->> $7, '') ILIKE $2 ESCAPE '\')
                   AND ($3::text IS NULL OR f.category_code = $3 OR EXISTS (
                         SELECT 1 FROM documents_sdk_category sc
                         WHERE sc.sdk_family_id = f.id AND sc.category_code = $3))
@@ -625,7 +728,7 @@ impl DocumentsRepository for DocumentsSqlxRepository {
                         WHERE r.sdk_family_id = f.id AND r.language_code = $5))
                   AND ($6::text IS NULL OR f.sdk_type = $6)
                 ORDER BY f.featured DESC, f.download_count DESC, f.sdk_code ASC
-                LIMIT $7 OFFSET $8
+                LIMIT $8 OFFSET $9
                 "#
         )
         .bind(tenant_id)
@@ -634,6 +737,7 @@ impl DocumentsRepository for DocumentsSqlxRepository {
         .bind(query.module_code.as_deref())
         .bind(query.language_code.as_deref())
         .bind(query.sdk_type.as_deref())
+        .bind(locale)
         .bind(page_size)
         .bind(offset)
         .fetch_all(pg)
@@ -653,6 +757,7 @@ impl DocumentsRepository for DocumentsSqlxRepository {
     async fn developer_catalog_sdk(
         &self,
         tenant_id: i64,
+        locale: &str,
         sdk_id: &str,
     ) -> DocumentsServiceResult<Option<CatalogSdkFamilyDetail>> {
         let pg = self.postgres()?;
@@ -661,10 +766,27 @@ impl DocumentsRepository for DocumentsSqlxRepository {
             r#"
             SELECT f.id::text AS id,
                    COALESCE(m.module_code, f.sdk_code) AS module_code,
-                   COALESCE(m.module_name, f.sdk_name) AS module_name,
-                   f.sdk_code, f.sdk_name, f.sdk_type, COALESCE(f.surface_code, '') AS surface_code,
+                   COALESCE(
+                     NULLIF(m.name_i18n ->> $3, ''),
+                     NULLIF(m.name_i18n ->> split_part($3, '-', 1), ''),
+                     m.module_name,
+                     f.sdk_name
+                   ) AS module_name,
+                   f.sdk_code,
+                   COALESCE(
+                     NULLIF(f.sdk_name_i18n ->> $3, ''),
+                     NULLIF(f.sdk_name_i18n ->> split_part($3, '-', 1), ''),
+                     f.sdk_name
+                   ) AS sdk_name,
+                   f.sdk_type, COALESCE(f.surface_code, '') AS surface_code,
                    COALESCE(f.package_name, '') AS package_name,
-                   COALESCE(f.description, '') AS description, f.sdk_version,
+                   COALESCE(
+                     NULLIF(f.description_i18n ->> $3, ''),
+                     NULLIF(f.description_i18n ->> split_part($3, '-', 1), ''),
+                     f.description,
+                     ''
+                   ) AS description,
+                   f.sdk_version,
                    COALESCE(f.category_code, '') AS category_code,
                    COALESCE((SELECT jsonb_agg(sc.category_code ORDER BY sc.sort_order)
                              FROM documents_sdk_category sc
@@ -684,6 +806,7 @@ impl DocumentsRepository for DocumentsSqlxRepository {
         )
         .bind(tenant_id)
         .bind(id)
+        .bind(locale)
         .fetch_optional(pg)
         .await
         .map_err(Self::map_sqlx_error)?;

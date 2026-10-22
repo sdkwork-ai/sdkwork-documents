@@ -2,6 +2,12 @@ import type { ElementType } from 'react';
 import type { ApiReferenceEndpoint, OpenApiDocument } from './openapiTypes';
 export declare const API_SCHEMA_TABS_URL = "/openapi/schema-tabs.json";
 export declare const LEGACY_OPENAPI_URL = "/openapi.json";
+/**
+ * Synthetic schema URL handed to {@link ApiReferenceFetchJson} for a system
+ * whose OpenAPI document is served by the host's database-backed developer
+ * market instead of a static gateway document.
+ */
+export declare const DEVELOPER_MARKET_SCHEMA_URL_PREFIX = "sdkwork-developer-market://system/";
 export interface ApiSchemaTab {
     id: string;
     name: string;
@@ -65,4 +71,6 @@ export declare function buildApiReferenceSystemsFromTabs(manifest: ApiSchemaTabs
 export declare function getApiSystemDisplayName(system: Pick<ApiSystemData, 'id' | 'name'>): string;
 export declare function getDefaultApiReferenceEndpoint(system: ApiSystemData): ApiReferenceEndpoint | null;
 export declare function formatApiOperationDisplayName(value: string): string;
+/** Build the endpoint categories for a catalog surface from its stored document. */
+export declare function buildApiCategoriesFromOpenApiDocument(spec: OpenApiDocument): ApiCategory[];
 //# sourceMappingURL=apiReferenceSchemaTabs.d.ts.map

@@ -19,7 +19,7 @@ export interface SdkReferenceArchiveResponse {
  * parallel shape) keeps the reference runtime aligned with the SDK family the
  * generator owns.
  */
-export type DocumentsAppSdkClient = Pick<SdkworkDocumentsAppClient, 'documents'>;
+export type DocumentsAppSdkClient = Pick<SdkworkDocumentsAppClient, 'documents' | 'developerCatalog'>;
 export declare function registerDocumentsReferenceRuntime(runtime: DocumentsReferenceRuntime): void;
 export declare function getDocumentsReferenceRuntime(): DocumentsReferenceRuntime;
 export declare function getDocumentsAppSdkClient(): DocumentsAppSdkClient;

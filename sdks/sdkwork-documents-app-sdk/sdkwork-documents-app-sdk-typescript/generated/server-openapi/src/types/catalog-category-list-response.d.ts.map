@@ -1,0 +1,1 @@
+{"version":3,"file":"catalog-category-list-response.d.ts","sourceRoot":"","sources":["catalog-category-list-response.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,mBAAmB,EAAE,MAAM,yBAAyB,CAAC;AAEnE,MAAM,WAAW,2BAA2B;IAC1C,IAAI,EAAE,CAAC,CAAC;IACR,IAAI,EAAE,OAAO,GAAG,mBAAmB,CAAC;IACpC,2CAA2C;IAC3C,OAAO,EAAE,MAAM,CAAC;CACjB"}

@@ -82,6 +82,7 @@ fn app_context() -> DocumentsAppRequestContext {
     DocumentsAppRequestContext {
         tenant_id: 100_001,
         user_id: 1,
+        locale: "en-US".to_owned(),
     }
 }
 

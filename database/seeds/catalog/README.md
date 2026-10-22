@@ -24,7 +24,7 @@ The scanner normalizes language aliases (`c#` -> `csharp`, `node` ->
 
 | Path | Purpose |
 | --- | --- |
-| `catalog.config.json` | Category taxonomy, module-to-category map, surface labels, tag mapping, language metadata. |
+| `catalog.config.json` | Category taxonomy, module-to-category map, surface labels, tag mapping, language metadata, and locale labels. |
 | `generate_catalog_seed.py` | Scanner and seed generator. Supports `--check` and `--summary-only`. |
 | `verify_catalog_coverage.py` | Independent regression: every module with API/SDK assets appears in the catalog, every OpenAPI document has a surface, every SDK manifest has a family, and identifiers/categories are consistent. |
 | `verify_catalog_seed_sql.py` | Optional `pglast` AST/regression check: PostgreSQL syntax, column/value arity, JSONB payloads, foreign keys, uniqueness, primary category links, and per-surface operation counts. |
@@ -39,6 +39,25 @@ Every file is written with deterministic UUIDv5 identifiers and
 `INSERT ... ON CONFLICT ... DO UPDATE`, so the catalog seeds are idempotent and
 safe to re-apply. Removed rows are not pruned automatically; retire them with a
 migration when a module or surface is deleted.
+
+## Localized labels
+
+Every user-visible catalog label has a canonical English column and a JSONB
+override column keyed by BCP 47 locale (`{"en-US":"App API","zh-CN":"应用 API"}`):
+
+- category: `name_i18n`, `description_i18n`
+- module: `name_i18n`, `description_i18n`
+- API surface: `surface_name_i18n`, `title_i18n`, `description_i18n`
+- API operation: `summary_i18n`, `description_i18n`
+- SDK language: `language_name_i18n`
+- SDK family: `sdk_name_i18n`, `description_i18n`
+
+`catalog.config.json` owns the curated Chinese taxonomy and surface labels.
+The generator derives Chinese titles for surfaces and SDKs when the title
+contains a known surface label; custom product names and descriptions fall back
+to the canonical English value. The API resolves labels from the request
+`Accept-Language` header (exact tag, then language base tag, then canonical
+English), so the same database row serves every locale.
 
 ## Refresh
 
@@ -90,7 +109,7 @@ idempotently.
 ## Adding a category or module
 
 1. Add the category to `categories` in `catalog.config.json` (code, English and
-   Chinese names, icon, sort order).
+   Chinese names, English and Chinese descriptions, icon, sort order).
 2. Add the module to `moduleCategories` or a surface/tag mapping.
 3. Regenerate and commit the seeds and `catalog.summary.json`.
 4. Run `pnpm db:validate` and the documents API checks.

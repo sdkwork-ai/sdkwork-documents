@@ -1,0 +1,1 @@
+{"version":3,"file":"catalog-sdk-family-page.d.ts","sourceRoot":"","sources":["catalog-sdk-family-page.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,gBAAgB,EAAE,MAAM,sBAAsB,CAAC;AAE7D,MAAM,WAAW,oBAAoB;IACnC,KAAK,EAAE,gBAAgB,EAAE,CAAC;IAC1B,KAAK,EAAE,MAAM,CAAC;IACd,IAAI,EAAE,MAAM,CAAC;IACb,QAAQ,EAAE,MAAM,CAAC;CAClB"}

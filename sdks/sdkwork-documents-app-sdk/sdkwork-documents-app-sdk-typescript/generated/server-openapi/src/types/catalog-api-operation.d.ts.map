@@ -1,0 +1,1 @@
+{"version":3,"file":"catalog-api-operation.d.ts","sourceRoot":"","sources":["catalog-api-operation.ts"],"names":[],"mappings":"AAAA,MAAM,WAAW,mBAAmB;IAClC,YAAY,EAAE,MAAM,CAAC;IACrB,MAAM,EAAE,MAAM,CAAC;IACf,IAAI,EAAE,MAAM,CAAC;IACb,OAAO,EAAE,MAAM,CAAC;IAChB,WAAW,EAAE,MAAM,CAAC;IACpB,IAAI,EAAE,MAAM,EAAE,CAAC;IACf,UAAU,EAAE,OAAO,CAAC;IACpB,SAAS,EAAE,MAAM,CAAC;CACnB"}

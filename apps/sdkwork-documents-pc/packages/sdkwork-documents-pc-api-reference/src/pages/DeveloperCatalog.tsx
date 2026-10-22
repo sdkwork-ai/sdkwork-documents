@@ -128,11 +128,16 @@ function CategoryChips({
   countLabel: (category: Category) => number;
 }) {
   return (
-    <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+    <div
+      className="flex flex-wrap items-center gap-2"
+      role="group"
+      aria-label="Filter by category"
+    >
       <button
         type="button"
         onClick={() => onChange('')}
-        className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+        aria-pressed={active === ''}
+        className={`max-w-full rounded-full border px-3 py-1.5 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40 ${
           active === ''
             ? 'border-teal-600 bg-teal-600 text-white'
             : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:text-white'
@@ -147,13 +152,15 @@ function CategoryChips({
             key={category.code}
             type="button"
             onClick={() => onChange(selected ? '' : category.code)}
-            className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+            aria-pressed={selected}
+            title={category.name}
+            className={`max-w-full rounded-full border px-3 py-1.5 text-left text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40 ${
               selected
                 ? 'border-teal-600 bg-teal-600 text-white'
                 : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:text-white'
             }`}
           >
-            {category.name}
+            <span className="break-words">{category.name}</span>
             <span className={`ml-1.5 text-[10px] ${selected ? 'text-white/80' : 'text-slate-400 dark:text-slate-500'}`}>
               {formatCount(countLabel(category))}
             </span>
