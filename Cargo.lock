@@ -2073,6 +2073,7 @@ dependencies = [
  "sdkwork-documents-contract",
  "sdkwork-documents-database-host",
  "sdkwork-utils-rust",
+ "serde_json",
  "sqlx",
  "tokio",
  "uuid",
@@ -2220,6 +2221,7 @@ dependencies = [
  "sdkwork-database-lifecycle",
  "sdkwork-database-spi",
  "sdkwork-database-sqlx",
+ "tokio",
 ]
 
 [[package]]

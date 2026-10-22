@@ -27,7 +27,7 @@ client.setAuthToken('your-auth-token');
 client.setAccessToken('your-access-token');
 
 // Use the SDK
-const result = await client.documents.list();
+const result = await client.developerCatalog.overviewRetrieve();
 ```
 
 ## Authentication
@@ -55,6 +55,7 @@ const client = new SdkworkDocumentsAppClient({
 ## API Modules
 
 - `client.documents` - documents API
+- `client.developerCatalog` - developer_catalog API
 
 ## Usage Examples
 
@@ -65,13 +66,20 @@ const client = new SdkworkDocumentsAppClient({
 const result = await client.documents.list();
 ```
 
+### developer_catalog
+
+```typescript
+// Developer catalog overview and facets
+const result = await client.developerCatalog.overviewRetrieve();
+```
+
 ## Error Handling
 
 ```typescript
 import { SdkworkDocumentsAppClient, NetworkError, TimeoutError, AuthenticationError } from '@sdkwork/documents-app-sdk';
 
 try {
-  const result = await client.documents.list();
+  const result = await client.developerCatalog.overviewRetrieve();
 } catch (error) {
   if (error instanceof AuthenticationError) {
     console.error('Authentication failed:', error.message);

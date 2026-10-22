@@ -2,7 +2,8 @@ use async_trait::async_trait;
 use axum::body::{to_bytes, Body};
 use axum::http::{header, Request, StatusCode};
 use sdkwork_documents_contract::{
-    Document, DocumentCreateRequest, DocumentList, DocumentsAppApi, DocumentsAppRequestContext,
+    CatalogCategory, CatalogCounts, CatalogFacet, DeveloperCatalogOverview, Document,
+    DocumentCreateRequest, DocumentList, DocumentsAppApi, DocumentsAppRequestContext,
     DocumentsServiceResult,
 };
 use sdkwork_routes_documents_app_api::{
@@ -17,7 +18,7 @@ fn app_api_manifest_matches_contract() {
     assert_eq!(manifest::PACKAGE_NAME, "sdkwork-routes-documents-app-api");
     assert_eq!(manifest::SURFACE, "app-api");
     assert_eq!(manifest::PREFIX, "/app/v3/api");
-    assert_eq!(ROUTES.len(), 4);
+    assert_eq!(ROUTES.len(), 13);
     assert!(ROUTES.iter().all(|route| route.auth_mode == "dual-token"));
 }
 
@@ -84,6 +85,28 @@ fn app_context() -> DocumentsAppRequestContext {
     }
 }
 
+#[tokio::test]
+async fn app_catalog_overview_returns_catalog_payload() {
+    let app = build_router_with_shared_app_api(Arc::new(RecordingAppApi::default()));
+    let response = app
+        .oneshot(
+            Request::builder()
+                .uri("/app/v3/api/developer_catalog/overview")
+                .extension(app_context())
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+    let payload: serde_json::Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(payload["counts"]["apiSurfaces"], 142);
+    assert_eq!(payload["counts"]["apiOperations"], 3681);
+    assert_eq!(payload["categories"][0]["code"], "ai-models");
+    assert_eq!(payload["surfaceFacets"][0]["code"], "app");
+}
+
 #[derive(Clone, Default)]
 struct RecordingAppApi {
     contexts: Arc<Mutex<Vec<(i64, i64)>>>,
@@ -138,5 +161,45 @@ impl DocumentsAppApi for RecordingAppApi {
         _request: sdkwork_documents_contract::DocumentUpdateRequest,
     ) -> DocumentsServiceResult<Document> {
         unimplemented!()
+    }
+
+    async fn developer_catalog_overview(
+        &self,
+        _ctx: DocumentsAppRequestContext,
+    ) -> DocumentsServiceResult<DeveloperCatalogOverview> {
+        Ok(DeveloperCatalogOverview {
+            counts: CatalogCounts {
+                modules: 72,
+                api_surfaces: 142,
+                api_operations: 3681,
+                sdk_families: 142,
+                sdk_releases: 431,
+                languages: 16,
+            },
+            categories: vec![CatalogCategory {
+                code: "ai-models".to_owned(),
+                name: "AI & Models".to_owned(),
+                description: String::new(),
+                icon: "Sparkles".to_owned(),
+                sort_order: 10,
+                parent_code: None,
+                api_count: 15,
+                sdk_count: 15,
+            }],
+            surface_facets: vec![CatalogFacet {
+                code: "app".to_owned(),
+                count: 54,
+            }],
+            sdk_type_facets: vec![CatalogFacet {
+                code: "app".to_owned(),
+                count: 59,
+            }],
+            language_facets: vec![CatalogFacet {
+                code: "typescript".to_owned(),
+                count: 142,
+            }],
+            featured_api_surface_ids: Vec::new(),
+            featured_sdk_ids: Vec::new(),
+        })
     }
 }

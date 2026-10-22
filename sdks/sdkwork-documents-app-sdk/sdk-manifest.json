@@ -39,7 +39,7 @@
   "sdkDependencies": [],
   "metadata": {
     "standardVersion": "2026-06-20",
-    "ownerOnlyOperationCount": 6,
+    "ownerOnlyOperationCount": 15,
     "managedBy": "sdks/standardize-documents-sdk-family.mjs"
   },
   "schemaVersion": 1,
@@ -52,7 +52,7 @@
   "apiPrefix": "/app/v3/api",
   "generatedOutput": "sdkwork-documents-app-sdk-typescript/generated/server-openapi",
   "standardProfile": "sdkwork-v3",
-  "ownerOnlyOperationCount": 6,
+  "ownerOnlyOperationCount": 15,
   "standardVersion": "2026-06-20",
   "managedBy": "sdks/standardize-documents-sdk-family.mjs"
 }

@@ -1,0 +1,76 @@
+{
+  "apiSurfacesByCategory": {
+    "agents-automation": 13,
+    "ai-models": 15,
+    "analytics-insights": 0,
+    "commerce-payments": 20,
+    "communication": 10,
+    "content-documents": 23,
+    "devtools-platform": 17,
+    "identity-access": 5,
+    "industry-vertical": 13,
+    "infrastructure-cloud": 10,
+    "media-generation": 2,
+    "other": 0,
+    "productivity-collaboration": 6,
+    "security-compliance": 2,
+    "storage-files": 6
+  },
+  "apiSurfacesByType": {
+    "app": 54,
+    "backend": 57,
+    "gateway": 1,
+    "internal": 8,
+    "open": 22
+  },
+  "counts": {
+    "apiOperations": 3681,
+    "apiSurfaces": 142,
+    "modules": 74,
+    "sdkFamilies": 154,
+    "sdkReleases": 450
+  },
+  "generatedBy": "database/seeds/catalog/generate_catalog_seed.py",
+  "kind": "sdkwork.catalog.summary",
+  "schemaVersion": 1,
+  "sdkFamiliesByCategory": {
+    "agents-automation": 10,
+    "ai-models": 16,
+    "analytics-insights": 2,
+    "commerce-payments": 21,
+    "communication": 17,
+    "content-documents": 25,
+    "devtools-platform": 15,
+    "identity-access": 5,
+    "industry-vertical": 13,
+    "infrastructure-cloud": 5,
+    "media-generation": 11,
+    "other": 0,
+    "productivity-collaboration": 6,
+    "security-compliance": 2,
+    "storage-files": 6
+  },
+  "sdkFamiliesByType": {
+    "app": 63,
+    "backend": 59,
+    "custom": 15,
+    "internal": 2,
+    "open": 13,
+    "rpc": 2
+  },
+  "sdkReleasesByLanguage": {
+    "csharp": 16,
+    "dart": 11,
+    "flutter": 25,
+    "go": 43,
+    "java": 46,
+    "kotlin": 16,
+    "php": 8,
+    "python": 47,
+    "ruby": 8,
+    "rust": 60,
+    "swift": 16,
+    "typescript": 154
+  },
+  "workspace": "sdkwork-space"
+}

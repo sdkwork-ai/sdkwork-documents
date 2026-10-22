@@ -21,7 +21,6 @@ async fn postgres_document_repository_supports_crud_and_tenant_isolation() {
     run_document_repository_crud_suite(DocumentsSqlxRepository::new(pool)).await;
 }
 
-
 async fn run_document_repository_crud_suite(repository: DocumentsSqlxRepository) {
     let tenant_a = 2001_i64;
     let tenant_b = 2002_i64;

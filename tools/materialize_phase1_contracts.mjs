@@ -81,6 +81,63 @@ function writeJson(relativePath, value) {
   writeText(relativePath, `${JSON.stringify(value, null, 2)}\n`);
 }
 
+function writeJsonIfMissing(relativePath, value) {
+  const target = path.join(root, relativePath);
+  if (fs.existsSync(target)) {
+    return;
+  }
+  writeJson(relativePath, value);
+}
+
+function readJsonIfExists(relativePath) {
+  const target = path.join(root, relativePath);
+  if (!fs.existsSync(target)) {
+    return null;
+  }
+  try {
+    return JSON.parse(fs.readFileSync(target, "utf8"));
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Preserve contract paths and component schemas that a later phase added on top
+ * of the phase-1 skeleton (the developer catalog is one such extension). The
+ * scaffold owns its own definitions; unknown keys stay untouched.
+ */
+function mergeOpenApiSpec(existing, generated) {
+  if (!existing) {
+    return generated;
+  }
+  return {
+    ...generated,
+    paths: { ...generated.paths, ...(existing.paths ?? {}) },
+    components: {
+      ...generated.components,
+      schemas: {
+        ...(generated.components?.schemas ?? {}),
+        ...(existing.components?.schemas ?? {}),
+      },
+    },
+  };
+}
+
+/** Preserve routes contributed after the phase-1 skeleton. */
+function mergeRouteManifest(existing, generated) {
+  if (!existing) {
+    return generated;
+  }
+  const key = (route) => `${route.method} ${route.path}`;
+  const routes = new Map(generated.routes.map((route) => [key(route), route]));
+  for (const route of existing.routes ?? []) {
+    if (!routes.has(key(route))) {
+      routes.set(key(route), route);
+    }
+  }
+  return { ...generated, routes: [...routes.values()] };
+}
+
 function problemResponseRef() {
   return {
     description: "Problem detail",
@@ -936,9 +993,12 @@ const sdkFamilies = [
 ];
 
 for (const family of sdkFamilies) {
-  writeJson(`${family.dir}/openapi/${path.basename(family.specFile)}`, family.openApi);
+  const specPath = `${family.dir}/openapi/${path.basename(family.specFile)}`;
+  const mergedSpec = mergeOpenApiSpec(readJsonIfExists(specPath), family.openApi);
+  writeJson(specPath, mergedSpec);
+  const sdkManifestPath = `${family.dir}/sdk-manifest.json`;
   writeJson(
-    `${family.dir}/sdk-manifest.json`,
+    sdkManifestPath,
     {
       ...sdkFamilyAssembly({
         sdkFamily: path.basename(family.dir),
@@ -955,6 +1015,7 @@ for (const family of sdkFamilies) {
         specFile: family.specFile,
         clientName: family.client,
       }),
+      ...(readJsonIfExists(sdkManifestPath) ?? {}),
     },
   );
   writeText(
@@ -983,14 +1044,17 @@ for (const family of sdkFamilies) {
   const routeManifestPath = `sdks/_route-manifests/${family.surface}/${family.crate}.route-manifest.json`;
   writeJson(
     routeManifestPath,
-    routeManifest(
-      family.surface,
-      family.crate,
-      family.authority,
-      path.basename(family.dir),
-      family.prefix,
-      `${family.dir}/${family.specFile}`,
-      manifestRoutes(family.openApi, family.authMode),
+    mergeRouteManifest(
+      readJsonIfExists(routeManifestPath),
+      routeManifest(
+        family.surface,
+        family.crate,
+        family.authority,
+        path.basename(family.dir),
+        family.prefix,
+        `${family.dir}/${family.specFile}`,
+        manifestRoutes(mergedSpec, family.authMode),
+      ),
     ),
   );
 }
@@ -1109,7 +1173,7 @@ writeJson("database/database.manifest.json", {
   databaseRole: "authoritative-server",
 });
 
-writeText(
+writeTextIfMissing(
   "database/contract/schema.yaml",
   `schema_version: 1
 kind: sdkwork.database.schema
@@ -1134,12 +1198,12 @@ tables:
 `,
 );
 
-writeJson("database/contract/prefix-registry.json", {
+writeJsonIfMissing("database/contract/prefix-registry.json", {
   schemaVersion: 1,
   kind: "sdkwork.database.prefix-registry",
   prefixes: [{ prefix: "documents_", owner: "documents-platform" }],
 });
-writeJson("database/contract/table-registry.json", {
+writeJsonIfMissing("database/contract/table-registry.json", {
   schemaVersion: 1,
   kind: "sdkwork.database.table-registry",
   tables: [
@@ -1164,7 +1228,7 @@ writeJson("database/contract/table-registry.json", {
   ],
 });
 
-writeText(
+writeTextIfMissing(
   "database/ddl/baseline/postgres/0001_documents_baseline.sql",
   `-- SDKWork Documents baseline DDL
 CREATE TABLE IF NOT EXISTS documents_document (
@@ -1206,7 +1270,7 @@ CREATE INDEX IF NOT EXISTS idx_documents_audit_log_document ON documents_audit_l
 `,
 );
 
-writeText(
+writeTextIfMissing(
   "tests/fixtures/database/sqlite/ddl/baseline/0001_documents_baseline.sql",
   `-- SDKWork Documents baseline DDL (sqlite)
 CREATE TABLE IF NOT EXISTS documents_document (
@@ -1253,7 +1317,7 @@ const seedLocales = ["zh-CN", "en-US", "ja-JP", "de-DE", "fr-FR", "ru-RU", "ko-K
 const emptyLocaleSetChecksum =
   "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945";
 
-writeJson("database/seeds/seed.manifest.json", {
+writeJsonIfMissing("database/seeds/seed.manifest.json", {
   schemaVersion: 1,
   kind: "sdkwork.database.seed",
   defaultLocale: "zh-CN",

@@ -24,7 +24,21 @@
     },
     "standard": {
       "common": [
-        "common/001_bootstrap.sql"
+        "common/001_bootstrap.sql",
+        "common/100_catalog_taxonomy.sql",
+        "common/101_catalog_modules.sql",
+        "common/110_api_surfaces_01.sql",
+        "common/110_api_surfaces_02.sql",
+        "common/110_api_surfaces_03.sql",
+        "common/110_api_surfaces_04.sql",
+        "common/110_api_surfaces_05.sql",
+        "common/110_api_surfaces_06.sql",
+        "common/110_api_surfaces_07.sql",
+        "common/110_api_surfaces_08.sql",
+        "common/120_sdk_families_01.sql",
+        "common/120_sdk_families_02.sql",
+        "common/121_sdk_releases_01.sql",
+        "common/121_sdk_releases_02.sql"
       ],
       "locales": {
         "zh-CN": []

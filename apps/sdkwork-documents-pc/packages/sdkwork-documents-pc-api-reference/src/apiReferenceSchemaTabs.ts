@@ -45,10 +45,18 @@ import {
   BACKEND_API_PREFIX,
   CLOUD_API_PREFIX,
   OPEN_API_PREFIX,
+  getDocumentsReferenceRuntime,
 } from '@sdkwork/documents-pc-commons/runtime';
 
 export const API_SCHEMA_TABS_URL = '/openapi/schema-tabs.json';
 export const LEGACY_OPENAPI_URL = '/openapi.json';
+
+/**
+ * Synthetic schema URL handed to {@link ApiReferenceFetchJson} for a system
+ * whose OpenAPI document is served by the host's database-backed developer
+ * market instead of a static gateway document.
+ */
+export const DEVELOPER_MARKET_SCHEMA_URL_PREFIX = 'sdkwork-developer-market://system/';
 
 export interface ApiSchemaTab {
   id: string;
@@ -133,12 +141,57 @@ export function sortApiSchemaTabs(tabs: ApiSchemaTab[]): ApiSchemaTab[] {
 export async function loadApiReferenceSchemaTabs(
   fetchJson: ApiReferenceFetchJson = defaultFetchJson,
 ): Promise<ApiSchemaTabsDocument> {
+  const developerMarket = readDeveloperMarketRuntime();
+  if (developerMarket) {
+    return loadDeveloperMarketSchemaTabsDocument(developerMarket);
+  }
   try {
     const manifestPayload = await fetchJson(API_SCHEMA_TABS_URL);
     return normalizeApiSchemaTabsDocument(manifestPayload);
   } catch {
     return legacyApiSchemaTabsDocument();
   }
+}
+
+function readDeveloperMarketRuntime() {
+  try {
+    return getDocumentsReferenceRuntime().developerMarket;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Map the host's database-backed catalog onto the schema-tab manifest shape the
+ * reference surfaces already render. Each available system addresses its stored
+ * OpenAPI document through {@link DEVELOPER_MARKET_SCHEMA_URL_PREFIX}.
+ */
+async function loadDeveloperMarketSchemaTabsDocument(
+  runtime: NonNullable<ReturnType<typeof readDeveloperMarketRuntime>>,
+): Promise<ApiSchemaTabsDocument> {
+  const systems = await runtime.listSystems();
+  const tabs = systems
+    .filter((system) => typeof system?.systemCode === 'string' && system.systemCode.trim().length > 0)
+    .map((system) => {
+      const schemaUrl = system.availability === 'planned' || !system.schemaKey
+        ? ''
+        : `${DEVELOPER_MARKET_SCHEMA_URL_PREFIX}${encodeURIComponent(system.systemCode)}`;
+      return {
+        id: system.systemCode,
+        name: system.systemName || system.systemCode,
+        aliases: system.aliases ?? [],
+        order: typeof system.sortWeight === 'number' ? system.sortWeight : 0,
+        schemaUrls: schemaUrl ? [schemaUrl] : [],
+        ...(schemaUrl ? { defaultSchemaUrl: schemaUrl } : {}),
+        status: normalizeApiSchemaTabStatus(system.availability),
+        ...(system.description ? { description: system.description } : {}),
+        serviceGroups: normalizeApiSchemaServiceGroups(system.serviceGroups ?? []),
+      };
+    });
+  if (tabs.length === 0) {
+    throw new Error('Developer market catalog has no API systems');
+  }
+  return { tabs };
 }
 
 export function createApiReferenceSystemSummaries(manifest: ApiSchemaTabsDocument): ApiSystemData[] {
@@ -211,6 +264,11 @@ export function buildApiCategorySidebarTree(categories: ApiCategory[]): ApiCateg
 }
 
 export async function loadApiReferenceSystems(fetchJson: ApiReferenceFetchJson = defaultFetchJson): Promise<ApiSystemData[]> {
+  const developerMarket = readDeveloperMarketRuntime();
+  if (developerMarket) {
+    const marketManifest = await loadDeveloperMarketSchemaTabsDocument(developerMarket);
+    return buildApiReferenceSystemsFromTabs(marketManifest, fetchJson);
+  }
   try {
     const manifestPayload = await fetchJson(API_SCHEMA_TABS_URL);
     const manifest = normalizeApiSchemaTabsDocument(manifestPayload);
@@ -277,6 +335,8 @@ export async function buildApiReferenceSystemsFromTabs(
     }));
     const schemaUrl = tab.defaultSchemaUrl || tab.schemaUrls[0];
     const defaultSchemaDoc = schemaDocs.find((schemaDoc) => schemaDoc.url === schemaUrl) ?? schemaDocs[0];
+    const requestBaseUrl = resolveApiSystemRequestBaseUrl(tab.id, schemaUrl, defaultSchemaDoc?.spec);
+    const developerMarket = readDeveloperMarketRuntime();
 
     return {
       id: tab.id,
@@ -284,7 +344,7 @@ export async function buildApiReferenceSystemsFromTabs(
       icon: iconForTab(tab.id),
       schemaTab: tab,
       schemaUrl,
-      requestBaseUrl: resolveApiSystemRequestBaseUrl(tab.id, schemaUrl, defaultSchemaDoc?.spec),
+      requestBaseUrl: developerMarket?.resolveRequestBaseUrl?.(tab.id, requestBaseUrl) ?? requestBaseUrl,
       openApiSpec: defaultSchemaDoc?.spec,
       categories: schemaDocs.flatMap((schemaDoc) => (
         filterApiCategoriesForSchemaTab(tab.id, openApiDocumentToCategories(schemaDoc.spec))
@@ -407,8 +467,7 @@ function normalizeApiSchemaServiceGroup(value: unknown): ApiSchemaServiceGroup |
   };
 }
 
-function openApiDocumentToCategories(spec: OpenApiDocument): ApiCategory[] {
-  const categoriesMap: Record<string, ApiCategory> = {};
+function openApiDocumentToCategories(spec: OpenApiDocument): ApiCategory[] {  const categoriesMap: Record<string, ApiCategory> = {};
   const categorySortOrders = openApiTagSortOrders(spec);
 
   Object.entries(spec.paths).forEach(([path, pathItem]: [string, OpenApiPathItem]) => {
@@ -456,6 +515,11 @@ function openApiDocumentToCategories(spec: OpenApiDocument): ApiCategory[] {
   });
 
   return sortApiCategories(Object.values(categoriesMap));
+}
+
+/** Build the endpoint categories for a catalog surface from its stored document. */
+export function buildApiCategoriesFromOpenApiDocument(spec: OpenApiDocument): ApiCategory[] {
+  return openApiDocumentToCategories(spec);
 }
 
 function filterApiCategoriesForSchemaTab(tabId: string, categories: ApiCategory[]): ApiCategory[] {
@@ -891,6 +955,15 @@ function delay(ms: number): Promise<void> {
 }
 
 async function defaultFetchJson(url: string): Promise<unknown> {
+  if (url.startsWith(DEVELOPER_MARKET_SCHEMA_URL_PREFIX)) {
+    const runtime = readDeveloperMarketRuntime();
+    if (!runtime) {
+      throw new Error('Developer market runtime is not configured');
+    }
+    const systemCode = decodeURIComponent(url.slice(DEVELOPER_MARKET_SCHEMA_URL_PREFIX.length));
+    return runtime.loadSchema(systemCode);
+  }
+
   let lastError: unknown;
   for (let attempt = 0; attempt <= FETCH_RETRY_COUNT; attempt += 1) {
     try {

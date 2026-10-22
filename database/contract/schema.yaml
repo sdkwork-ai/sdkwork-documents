@@ -1,7 +1,7 @@
 schema_version: 1
 kind: sdkwork.database.schema
-module_id: documents
 database_role: authoritative-server
+module_id: documents
 contract_version: 1.0.0
 owner_team: documents-platform
 compliance_level: L2
@@ -16,5 +16,38 @@ tables:
     lifecycle_status: active
     owner: documents-platform
   - name: documents_audit_log
+    lifecycle_status: active
+    owner: documents-platform
+  - name: documents_catalog_category
+    lifecycle_status: active
+    owner: documents-platform
+  - name: documents_catalog_module
+    lifecycle_status: active
+    owner: documents-platform
+  - name: documents_api_surface
+    lifecycle_status: active
+    owner: documents-platform
+  - name: documents_api_schema
+    lifecycle_status: active
+    owner: documents-platform
+  - name: documents_api_operation
+    lifecycle_status: active
+    owner: documents-platform
+  - name: documents_api_surface_category
+    lifecycle_status: active
+    owner: documents-platform
+  - name: documents_sdk_language
+    lifecycle_status: active
+    owner: documents-platform
+  - name: documents_sdk_family
+    lifecycle_status: active
+    owner: documents-platform
+  - name: documents_sdk_release
+    lifecycle_status: active
+    owner: documents-platform
+  - name: documents_sdk_category
+    lifecycle_status: active
+    owner: documents-platform
+  - name: documents_catalog_sync
     lifecycle_status: active
     owner: documents-platform

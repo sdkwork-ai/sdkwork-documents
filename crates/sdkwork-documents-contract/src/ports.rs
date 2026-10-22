@@ -2,6 +2,9 @@ use async_trait::async_trait;
 use thiserror::Error;
 
 use crate::dto::{
+    CatalogApiOperationPage, CatalogApiOperationQuery, CatalogApiSchema, CatalogApiSurfaceDetail,
+    CatalogApiSurfacePage, CatalogApiSurfaceQuery, CatalogCategoryList, CatalogLanguageList,
+    CatalogSdkFamilyDetail, CatalogSdkFamilyPage, CatalogSdkQuery, DeveloperCatalogOverview,
     Document, DocumentCapabilities, DocumentCreateRequest, DocumentList, DocumentUpdateRequest,
 };
 
@@ -74,6 +77,98 @@ pub trait DocumentsAppApi: Send + Sync {
         document_id: String,
         request: DocumentUpdateRequest,
     ) -> DocumentsServiceResult<Document>;
+
+    // Developer catalog (API market / SDK market). The default implementations
+    // keep lightweight test doubles compiling; the authoritative service
+    // overrides every method.
+
+    async fn developer_catalog_overview(
+        &self,
+        _ctx: DocumentsAppRequestContext,
+    ) -> DocumentsServiceResult<DeveloperCatalogOverview> {
+        Err(DocumentsServiceError::Internal(
+            "developer catalog is not available on this surface".to_owned(),
+        ))
+    }
+
+    async fn list_developer_catalog_categories(
+        &self,
+        _ctx: DocumentsAppRequestContext,
+    ) -> DocumentsServiceResult<CatalogCategoryList> {
+        Err(DocumentsServiceError::Internal(
+            "developer catalog is not available on this surface".to_owned(),
+        ))
+    }
+
+    async fn list_developer_catalog_languages(
+        &self,
+        _ctx: DocumentsAppRequestContext,
+    ) -> DocumentsServiceResult<CatalogLanguageList> {
+        Err(DocumentsServiceError::Internal(
+            "developer catalog is not available on this surface".to_owned(),
+        ))
+    }
+
+    async fn list_developer_catalog_apis(
+        &self,
+        _ctx: DocumentsAppRequestContext,
+        _query: CatalogApiSurfaceQuery,
+    ) -> DocumentsServiceResult<CatalogApiSurfacePage> {
+        Err(DocumentsServiceError::Internal(
+            "developer catalog is not available on this surface".to_owned(),
+        ))
+    }
+
+    async fn retrieve_developer_catalog_api(
+        &self,
+        _ctx: DocumentsAppRequestContext,
+        _surface_id: String,
+    ) -> DocumentsServiceResult<CatalogApiSurfaceDetail> {
+        Err(DocumentsServiceError::Internal(
+            "developer catalog is not available on this surface".to_owned(),
+        ))
+    }
+
+    async fn retrieve_developer_catalog_api_schema(
+        &self,
+        _ctx: DocumentsAppRequestContext,
+        _surface_id: String,
+    ) -> DocumentsServiceResult<CatalogApiSchema> {
+        Err(DocumentsServiceError::Internal(
+            "developer catalog is not available on this surface".to_owned(),
+        ))
+    }
+
+    async fn list_developer_catalog_api_operations(
+        &self,
+        _ctx: DocumentsAppRequestContext,
+        _surface_id: String,
+        _query: CatalogApiOperationQuery,
+    ) -> DocumentsServiceResult<CatalogApiOperationPage> {
+        Err(DocumentsServiceError::Internal(
+            "developer catalog is not available on this surface".to_owned(),
+        ))
+    }
+
+    async fn list_developer_catalog_sdks(
+        &self,
+        _ctx: DocumentsAppRequestContext,
+        _query: CatalogSdkQuery,
+    ) -> DocumentsServiceResult<CatalogSdkFamilyPage> {
+        Err(DocumentsServiceError::Internal(
+            "developer catalog is not available on this surface".to_owned(),
+        ))
+    }
+
+    async fn retrieve_developer_catalog_sdk(
+        &self,
+        _ctx: DocumentsAppRequestContext,
+        _sdk_id: String,
+    ) -> DocumentsServiceResult<CatalogSdkFamilyDetail> {
+        Err(DocumentsServiceError::Internal(
+            "developer catalog is not available on this surface".to_owned(),
+        ))
+    }
 }
 
 #[async_trait]
@@ -121,4 +216,96 @@ pub trait DocumentsRepository: Send + Sync {
         request: DocumentUpdateRequest,
     ) -> DocumentsServiceResult<Document>;
     async fn delete(&self, tenant_id: i64, document_id: &str) -> DocumentsServiceResult<()>;
+
+    // Developer catalog reads. Default implementations keep the in-memory test
+    // repository compiling; the PostgreSQL repository owns the authoritative
+    // queries.
+
+    async fn developer_catalog_overview(
+        &self,
+        _tenant_id: i64,
+    ) -> DocumentsServiceResult<DeveloperCatalogOverview> {
+        Err(DocumentsServiceError::Internal(
+            "developer catalog is not available in this repository".to_owned(),
+        ))
+    }
+
+    async fn developer_catalog_categories(
+        &self,
+        _tenant_id: i64,
+    ) -> DocumentsServiceResult<CatalogCategoryList> {
+        Err(DocumentsServiceError::Internal(
+            "developer catalog is not available in this repository".to_owned(),
+        ))
+    }
+
+    async fn developer_catalog_languages(
+        &self,
+        _tenant_id: i64,
+    ) -> DocumentsServiceResult<CatalogLanguageList> {
+        Err(DocumentsServiceError::Internal(
+            "developer catalog is not available in this repository".to_owned(),
+        ))
+    }
+
+    async fn developer_catalog_api_surfaces(
+        &self,
+        _tenant_id: i64,
+        _query: CatalogApiSurfaceQuery,
+    ) -> DocumentsServiceResult<CatalogApiSurfacePage> {
+        Err(DocumentsServiceError::Internal(
+            "developer catalog is not available in this repository".to_owned(),
+        ))
+    }
+
+    async fn developer_catalog_api_surface(
+        &self,
+        _tenant_id: i64,
+        _surface_id: &str,
+    ) -> DocumentsServiceResult<Option<CatalogApiSurfaceDetail>> {
+        Err(DocumentsServiceError::Internal(
+            "developer catalog is not available in this repository".to_owned(),
+        ))
+    }
+
+    async fn developer_catalog_api_schema(
+        &self,
+        _tenant_id: i64,
+        _surface_id: &str,
+    ) -> DocumentsServiceResult<Option<CatalogApiSchema>> {
+        Err(DocumentsServiceError::Internal(
+            "developer catalog is not available in this repository".to_owned(),
+        ))
+    }
+
+    async fn developer_catalog_api_operations(
+        &self,
+        _tenant_id: i64,
+        _surface_id: &str,
+        _query: CatalogApiOperationQuery,
+    ) -> DocumentsServiceResult<CatalogApiOperationPage> {
+        Err(DocumentsServiceError::Internal(
+            "developer catalog is not available in this repository".to_owned(),
+        ))
+    }
+
+    async fn developer_catalog_sdks(
+        &self,
+        _tenant_id: i64,
+        _query: CatalogSdkQuery,
+    ) -> DocumentsServiceResult<CatalogSdkFamilyPage> {
+        Err(DocumentsServiceError::Internal(
+            "developer catalog is not available in this repository".to_owned(),
+        ))
+    }
+
+    async fn developer_catalog_sdk(
+        &self,
+        _tenant_id: i64,
+        _sdk_id: &str,
+    ) -> DocumentsServiceResult<Option<CatalogSdkFamilyDetail>> {
+        Err(DocumentsServiceError::Internal(
+            "developer catalog is not available in this repository".to_owned(),
+        ))
+    }
 }

@@ -3,15 +3,19 @@ import type { SdkworkAppConfig } from './types/common';
 import type { AuthTokenManager } from '@sdkwork/sdk-common';
 
 import { DocumentsApi, createDocumentsApi } from './api/documents';
+import { DeveloperCatalogApi, createDeveloperCatalogApi } from './api/developer-catalog';
 
 export class SdkworkDocumentsAppClient {
   private httpClient: HttpClient;
 
   public readonly documents: DocumentsApi;
+  public readonly developerCatalog: DeveloperCatalogApi;
 
   constructor(config: SdkworkAppConfig) {
     this.httpClient = createHttpClient(config);
     this.documents = createDocumentsApi(this.httpClient);
+
+    this.developerCatalog = createDeveloperCatalogApi(this.httpClient);
   }
   setAuthToken(token: string): this {
     this.httpClient.setAuthToken(token);

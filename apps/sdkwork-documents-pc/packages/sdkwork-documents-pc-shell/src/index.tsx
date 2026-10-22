@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { BookOpen, Code2, FileText, Layers } from 'lucide-react';
-import { ApiReference, Docs, ProductDocs } from '@sdkwork/documents-pc-api-reference';
+import { BookOpen, Code2, FileText, Layers, Package, Sparkles, type LucideIcon } from 'lucide-react';
+import { ApiMarketPage, ApiReference, Docs, ProductDocs, SdkMarketPage } from '@sdkwork/documents-pc-api-reference';
 import { SdkReference } from '@sdkwork/documents-pc-sdk-reference';
 import {
   listSdkworkDocumentsPcNavigationItems,
@@ -48,7 +48,7 @@ function DocumentsNavbar() {
                 }`}
                 to={item.path}
               >
-                {t(item.labelKey)}
+                {t(item.labelKey, { defaultValue: item.label ?? item.labelKey })}
               </Link>
             );
           })}
@@ -61,7 +61,14 @@ function DocumentsNavbar() {
 function HomePage() {
   const { t } = useTranslation();
 
-  const cards = [
+  const cards: Array<{
+    path: string;
+    icon: LucideIcon;
+    titleKey: string;
+    descriptionKey: string;
+    title?: string;
+    description?: string;
+  }> = [
     {
       path: SdkworkDocumentsPcRoutePaths.productDocs,
       icon: Layers,
@@ -73,6 +80,22 @@ function HomePage() {
       icon: FileText,
       titleKey: 'nav.docs',
       descriptionKey: 'home.docsDescription',
+    },
+    {
+      path: SdkworkDocumentsPcRoutePaths.apiMarket,
+      icon: Sparkles,
+      titleKey: 'nav.apiMarket',
+      descriptionKey: 'home.apiMarketDescription',
+      title: 'API 市场',
+      description: 'Browse every API surface published across the SDKWork workspace, with categories, OpenAPI contracts, and operations.',
+    },
+    {
+      path: SdkworkDocumentsPcRoutePaths.sdkMarket,
+      icon: Package,
+      titleKey: 'nav.sdkMarket',
+      descriptionKey: 'home.sdkMarketDescription',
+      title: 'SDK 市场',
+      description: 'Browse multi-language SDK families generated from every API surface, with package coordinates and install commands.',
     },
     {
       path: SdkworkDocumentsPcRoutePaths.apiReference,
@@ -102,7 +125,7 @@ function HomePage() {
         </p>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
-        {cards.map(({ path, icon: Icon, titleKey, descriptionKey }) => (
+        {cards.map(({ path, icon: Icon, titleKey, descriptionKey, title, description }) => (
           <Link
             key={path}
             className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-slate-300 hover:shadow-md dark:border-white/10 dark:bg-white/5 dark:hover:border-white/20"
@@ -110,10 +133,12 @@ function HomePage() {
           >
             <div className="mb-4 flex items-center gap-3">
               <Icon className="h-5 w-5 text-slate-700 dark:text-slate-200" />
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{t(titleKey)}</h2>
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+                {t(titleKey, { defaultValue: title ?? titleKey })}
+              </h2>
             </div>
             <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
-              {t(descriptionKey, { defaultValue: '' })}
+              {t(descriptionKey, { defaultValue: description ?? '' })}
             </p>
           </Link>
         ))}
@@ -135,6 +160,8 @@ export function DocumentsPcShell() {
           <Route path={SdkworkDocumentsPcRoutePaths.home} element={<HomePage />} />
           <Route path={SdkworkDocumentsPcRoutePaths.productDocs} element={<ProductDocs />} />
           <Route path={SdkworkDocumentsPcRoutePaths.docs} element={<Docs />} />
+          <Route path={SdkworkDocumentsPcRoutePaths.apiMarket} element={<ApiMarketPage />} />
+          <Route path={SdkworkDocumentsPcRoutePaths.sdkMarket} element={<SdkMarketPage />} />
           <Route path={SdkworkDocumentsPcRoutePaths.apiReference} element={<ApiReference />} />
           <Route path={SdkworkDocumentsPcRoutePaths.sdkReference} element={<SdkReference />} />
           <Route path="*" element={<Navigate replace to={SdkworkDocumentsPcRoutePaths.home} />} />

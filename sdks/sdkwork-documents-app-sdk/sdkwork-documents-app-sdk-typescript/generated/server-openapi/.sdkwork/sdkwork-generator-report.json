@@ -11,100 +11,91 @@
   "status": "ok",
   "mode": "apply",
   "hasChanges": true,
-  "hasDestructiveChanges": false,
-  "changeFingerprint": "7faae2c6971e859e68a385aa93468f92b2d998592347fa6acbc905587b724338",
+  "hasDestructiveChanges": true,
+  "changeFingerprint": "736cf73220a67180b1dc3e6e56bcfb26adf7b431acb6f93ba44ee2b2f1c0ac61",
   "changeImpact": {
     "schemaVersion": 1,
     "areas": [
       "api-surface",
       "models",
-      "runtime",
-      "build-metadata",
-      "publish-workflow",
-      "documentation",
-      "unknown"
+      "documentation"
     ],
     "details": [
       {
         "area": "api-surface",
         "paths": [
-          "src/api/base.ts",
-          "src/api/documents.ts",
+          "src/api/base.d.ts",
+          "src/api/developer-catalog.ts",
+          "src/api/documents.d.ts",
+          "src/api/index.d.ts",
           "src/api/index.ts",
-          "src/api/paths.ts",
-          "src/http/client.ts",
+          "src/api/paths.d.ts",
           "src/sdk.ts"
         ]
       },
       {
         "area": "models",
         "paths": [
-          "src/types/common.ts",
-          "src/types/document-capabilities-response.ts",
-          "src/types/document-capabilities.ts",
-          "src/types/document-create-request.ts",
-          "src/types/document-list-response.ts",
-          "src/types/document-response.ts",
-          "src/types/document-update-request.ts",
-          "src/types/document.ts",
-          "src/types/field-error.ts",
+          "src/types/catalog-api-operation-page-response.ts",
+          "src/types/catalog-api-operation-page.ts",
+          "src/types/catalog-api-operation.ts",
+          "src/types/catalog-api-schema-response.ts",
+          "src/types/catalog-api-schema.ts",
+          "src/types/catalog-api-surface-detail-response.ts",
+          "src/types/catalog-api-surface-detail.ts",
+          "src/types/catalog-api-surface-page-response.ts",
+          "src/types/catalog-api-surface-page.ts",
+          "src/types/catalog-api-surface.ts",
+          "src/types/catalog-category-list-response.ts",
+          "src/types/catalog-category-list.ts",
+          "src/types/catalog-category.ts",
+          "src/types/catalog-counts.ts",
+          "src/types/catalog-facet.ts",
+          "src/types/catalog-language-list-response.ts",
+          "src/types/catalog-language-list.ts",
+          "src/types/catalog-language.ts",
+          "src/types/catalog-sdk-family-detail-response.ts",
+          "src/types/catalog-sdk-family-detail.ts",
+          "src/types/catalog-sdk-family-page-response.ts",
+          "src/types/catalog-sdk-family-page.ts",
+          "src/types/catalog-sdk-family.ts",
+          "src/types/catalog-sdk-release.ts",
+          "src/types/common.d.ts",
+          "src/types/developer-catalog-overview-response.ts",
+          "src/types/developer-catalog-overview.ts",
+          "src/types/document-capabilities-response.d.ts",
+          "src/types/document-capabilities.d.ts",
+          "src/types/document-create-request.d.ts",
+          "src/types/document-list-response.d.ts",
+          "src/types/document-response.d.ts",
+          "src/types/document-update-request.d.ts",
+          "src/types/document.d.ts",
+          "src/types/field-error.d.ts",
+          "src/types/index.d.ts",
           "src/types/index.ts",
-          "src/types/page-info.ts",
-          "src/types/problem-detail.ts",
-          "src/types/sdk-reference-generation-request.ts",
-          "src/types/sdk-reference-response.ts",
-          "src/types/sdk-work-api-response.ts",
-          "src/types/sdk-work-command-data.ts",
-          "src/types/sdk-work-command-response.ts",
-          "src/types/sdk-work-list-response.ts",
-          "src/types/sdk-work-page-data.ts",
-          "src/types/sdk-work-platform-error-code.ts",
-          "src/types/sdk-work-resource-data.ts",
-          "src/types/sdk-work-resource-response.ts"
-        ]
-      },
-      {
-        "area": "runtime",
-        "paths": [
-          "src/auth/index.ts",
-          "src/http/client.ts",
-          "src/http/index.ts"
-        ]
-      },
-      {
-        "area": "build-metadata",
-        "paths": [
-          "package.json",
-          "sdkwork-sdk.json",
-          "tsconfig.json"
-        ]
-      },
-      {
-        "area": "publish-workflow",
-        "paths": [
-          "bin/publish.ps1",
-          "bin/publish.sh",
-          "bin/sdk-gen.bat",
-          "bin/sdk-gen.sh"
+          "src/types/page-info.d.ts",
+          "src/types/problem-detail.d.ts",
+          "src/types/sdk-reference-generation-request.d.ts",
+          "src/types/sdk-reference-response.d.ts",
+          "src/types/sdk-work-api-response.d.ts",
+          "src/types/sdk-work-command-data.d.ts",
+          "src/types/sdk-work-command-response.d.ts",
+          "src/types/sdk-work-list-response.d.ts",
+          "src/types/sdk-work-page-data.d.ts",
+          "src/types/sdk-work-platform-error-code.d.ts",
+          "src/types/sdk-work-resource-data.d.ts",
+          "src/types/sdk-work-resource-response.d.ts"
         ]
       },
       {
         "area": "documentation",
         "paths": [
-          "CHANGELOG.md",
           "README.md"
-        ]
-      },
-      {
-        "area": "unknown",
-        "paths": [
-          "LICENSE",
-          "src/index.ts"
         ]
       }
     ],
     "requiresVerification": true,
-    "summary": "Detected impact areas: api-surface, models, runtime, build-metadata, publish-workflow, documentation, unknown. Verification is required."
+    "summary": "Detected impact areas: api-surface, models, documentation. Verification is required."
   },
   "executionDecision": {
     "schemaVersion": 1,
@@ -115,8 +106,8 @@
     "summary": "Changes have been applied. Run the required verification plan now.",
     "reasons": [
       "backed-up-generated-files",
+      "deleted-generated-files",
       "manual-review-required",
-      "unknown-impact",
       "verification-required"
     ]
   },
@@ -128,7 +119,7 @@
         "id": "verify-check",
         "title": "Unified package check",
         "required": true,
-        "rationale": "Validate the generated package with the unified publish helper. Triggered by: api-surface, models, runtime, build-metadata, publish-workflow, documentation, unknown.",
+        "rationale": "Validate the generated package with the unified publish helper. Triggered by: api-surface, models, documentation.",
         "workingDirectory": "D:\\sdkwork-space\\sdkwork-documents\\sdks\\sdkwork-documents-app-sdk\\sdkwork-documents-app-sdk-typescript\\generated\\server-openapi",
         "command": "node",
         "args": [
@@ -146,7 +137,7 @@
         "id": "verify-build",
         "title": "Unified package build",
         "required": true,
-        "rationale": "Run the full package build because this language uses a lighter check path than the final build. Triggered by: api-surface, models, runtime, build-metadata, publish-workflow, documentation, unknown.",
+        "rationale": "Run the full package build because this language uses a lighter check path than the final build. Triggered by: api-surface, models, documentation.",
         "workingDirectory": "D:\\sdkwork-space\\sdkwork-documents\\sdks\\sdkwork-documents-app-sdk\\sdkwork-documents-app-sdk-typescript\\generated\\server-openapi",
         "command": "node",
         "args": [
@@ -165,13 +156,13 @@
   "verificationPlan": {
     "shouldRun": true,
     "runPhase": "now",
-    "summary": "Detected impact areas: api-surface, models, runtime, build-metadata, publish-workflow, documentation, unknown. Verification is required. Run the required verification commands now against the generated SDK output.",
+    "summary": "Detected impact areas: api-surface, models, documentation. Verification is required. Run the required verification commands now against the generated SDK output.",
     "steps": [
       {
         "id": "check",
         "title": "Unified package check",
         "required": true,
-        "rationale": "Validate the generated package with the unified publish helper. Triggered by: api-surface, models, runtime, build-metadata, publish-workflow, documentation, unknown.",
+        "rationale": "Validate the generated package with the unified publish helper. Triggered by: api-surface, models, documentation.",
         "workingDirectory": "D:\\sdkwork-space\\sdkwork-documents\\sdks\\sdkwork-documents-app-sdk\\sdkwork-documents-app-sdk-typescript\\generated\\server-openapi",
         "command": "node",
         "args": [
@@ -189,7 +180,7 @@
         "id": "build",
         "title": "Unified package build",
         "required": true,
-        "rationale": "Run the full package build because this language uses a lighter check path than the final build. Triggered by: api-surface, models, runtime, build-metadata, publish-workflow, documentation, unknown.",
+        "rationale": "Run the full package build because this language uses a lighter check path than the final build. Triggered by: api-surface, models, documentation.",
         "workingDirectory": "D:\\sdkwork-space\\sdkwork-documents\\sdks\\sdkwork-documents-app-sdk\\sdkwork-documents-app-sdk-typescript\\generated\\server-openapi",
         "command": "node",
         "args": [
@@ -219,24 +210,59 @@
     "localVersions": []
   },
   "stats": {
-    "totalFiles": 44,
-    "models": 20,
-    "apis": 1,
-    "types": 22
+    "totalFiles": 71,
+    "models": 46,
+    "apis": 2,
+    "types": 48
   },
   "warnings": [],
   "syncSummary": {
     "dryRun": false,
     "controlPlaneEnabled": true,
-    "writtenFiles": 41,
+    "writtenFiles": 31,
     "skippedScaffoldFiles": 2,
-    "skippedUnchangedGeneratedFiles": 1,
-    "deletedGeneratedFiles": 0,
+    "skippedUnchangedGeneratedFiles": 38,
+    "deletedGeneratedFiles": 26,
     "changeSummaryPath": ".sdkwork/sdkwork-generator-changes.json",
-    "changeFingerprint": "7faae2c6971e859e68a385aa93468f92b2d998592347fa6acbc905587b724338",
+    "changeFingerprint": "736cf73220a67180b1dc3e6e56bcfb26adf7b431acb6f93ba44ee2b2f1c0ac61",
     "changes": {
-      "createdGeneratedFiles": [],
+      "createdGeneratedFiles": [
+        "src/api/developer-catalog.ts",
+        "src/types/catalog-api-operation-page-response.ts",
+        "src/types/catalog-api-operation-page.ts",
+        "src/types/catalog-api-operation.ts",
+        "src/types/catalog-api-schema-response.ts",
+        "src/types/catalog-api-schema.ts",
+        "src/types/catalog-api-surface-detail-response.ts",
+        "src/types/catalog-api-surface-detail.ts",
+        "src/types/catalog-api-surface-page-response.ts",
+        "src/types/catalog-api-surface-page.ts",
+        "src/types/catalog-api-surface.ts",
+        "src/types/catalog-category-list-response.ts",
+        "src/types/catalog-category-list.ts",
+        "src/types/catalog-category.ts",
+        "src/types/catalog-counts.ts",
+        "src/types/catalog-facet.ts",
+        "src/types/catalog-language-list-response.ts",
+        "src/types/catalog-language-list.ts",
+        "src/types/catalog-language.ts",
+        "src/types/catalog-sdk-family-detail-response.ts",
+        "src/types/catalog-sdk-family-detail.ts",
+        "src/types/catalog-sdk-family-page-response.ts",
+        "src/types/catalog-sdk-family-page.ts",
+        "src/types/catalog-sdk-family.ts",
+        "src/types/catalog-sdk-release.ts",
+        "src/types/developer-catalog-overview-response.ts",
+        "src/types/developer-catalog-overview.ts"
+      ],
       "updatedGeneratedFiles": [
+        "README.md",
+        "src/api/index.ts",
+        "src/sdk.ts",
+        "src/types/index.ts"
+      ],
+      "unchangedGeneratedFiles": [
+        "bin/publish-core.mjs",
         "bin/publish.ps1",
         "bin/publish.sh",
         "bin/sdk-gen.bat",
@@ -244,17 +270,14 @@
         "CHANGELOG.md",
         "LICENSE",
         "package.json",
-        "README.md",
         "sdkwork-sdk.json",
         "src/api/base.ts",
         "src/api/documents.ts",
-        "src/api/index.ts",
         "src/api/paths.ts",
         "src/auth/index.ts",
         "src/http/client.ts",
         "src/http/index.ts",
         "src/index.ts",
-        "src/sdk.ts",
         "src/types/common.ts",
         "src/types/document-capabilities-response.ts",
         "src/types/document-capabilities.ts",
@@ -264,7 +287,6 @@
         "src/types/document-update-request.ts",
         "src/types/document.ts",
         "src/types/field-error.ts",
-        "src/types/index.ts",
         "src/types/page-info.ts",
         "src/types/problem-detail.ts",
         "src/types/sdk-reference-generation-request.ts",
@@ -279,57 +301,66 @@
         "src/types/sdk-work-resource-response.ts",
         "tsconfig.json"
       ],
-      "unchangedGeneratedFiles": [
-        "bin/publish-core.mjs"
+      "deletedGeneratedFiles": [
+        "src/api/base.d.ts",
+        "src/api/documents.d.ts",
+        "src/api/index.d.ts",
+        "src/api/paths.d.ts",
+        "src/types/common.d.ts",
+        "src/types/document-capabilities-response.d.ts",
+        "src/types/document-capabilities.d.ts",
+        "src/types/document-create-request.d.ts",
+        "src/types/document-list-response.d.ts",
+        "src/types/document-response.d.ts",
+        "src/types/document-update-request.d.ts",
+        "src/types/document.d.ts",
+        "src/types/field-error.d.ts",
+        "src/types/index.d.ts",
+        "src/types/page-info.d.ts",
+        "src/types/problem-detail.d.ts",
+        "src/types/sdk-reference-generation-request.d.ts",
+        "src/types/sdk-reference-response.d.ts",
+        "src/types/sdk-work-api-response.d.ts",
+        "src/types/sdk-work-command-data.d.ts",
+        "src/types/sdk-work-command-response.d.ts",
+        "src/types/sdk-work-list-response.d.ts",
+        "src/types/sdk-work-page-data.d.ts",
+        "src/types/sdk-work-platform-error-code.d.ts",
+        "src/types/sdk-work-resource-data.d.ts",
+        "src/types/sdk-work-resource-response.d.ts"
       ],
-      "deletedGeneratedFiles": [],
       "scaffoldedFiles": [],
       "preservedScaffoldFiles": [
         "custom/build-runtime.mjs",
         "custom/README.md"
       ],
       "backedUpFiles": [
-        "bin/publish.ps1",
-        "bin/publish.sh",
-        "bin/sdk-gen.bat",
-        "bin/sdk-gen.sh",
-        "CHANGELOG.md",
-        "LICENSE",
-        "package.json",
-        "README.md",
-        "sdkwork-sdk.json",
-        "src/api/base.ts",
-        "src/api/documents.ts",
-        "src/api/index.ts",
-        "src/api/paths.ts",
-        "src/auth/index.ts",
-        "src/http/client.ts",
-        "src/http/index.ts",
-        "src/index.ts",
-        "src/sdk.ts",
-        "src/types/common.ts",
-        "src/types/document-capabilities-response.ts",
-        "src/types/document-capabilities.ts",
-        "src/types/document-create-request.ts",
-        "src/types/document-list-response.ts",
-        "src/types/document-response.ts",
-        "src/types/document-update-request.ts",
-        "src/types/document.ts",
-        "src/types/field-error.ts",
-        "src/types/index.ts",
-        "src/types/page-info.ts",
-        "src/types/problem-detail.ts",
-        "src/types/sdk-reference-generation-request.ts",
-        "src/types/sdk-reference-response.ts",
-        "src/types/sdk-work-api-response.ts",
-        "src/types/sdk-work-command-data.ts",
-        "src/types/sdk-work-command-response.ts",
-        "src/types/sdk-work-list-response.ts",
-        "src/types/sdk-work-page-data.ts",
-        "src/types/sdk-work-platform-error-code.ts",
-        "src/types/sdk-work-resource-data.ts",
-        "src/types/sdk-work-resource-response.ts",
-        "tsconfig.json"
+        "src/api/base.d.ts",
+        "src/api/documents.d.ts",
+        "src/api/index.d.ts",
+        "src/api/paths.d.ts",
+        "src/types/common.d.ts",
+        "src/types/document-capabilities-response.d.ts",
+        "src/types/document-capabilities.d.ts",
+        "src/types/document-create-request.d.ts",
+        "src/types/document-list-response.d.ts",
+        "src/types/document-response.d.ts",
+        "src/types/document-update-request.d.ts",
+        "src/types/document.d.ts",
+        "src/types/field-error.d.ts",
+        "src/types/index.d.ts",
+        "src/types/page-info.d.ts",
+        "src/types/problem-detail.d.ts",
+        "src/types/sdk-reference-generation-request.d.ts",
+        "src/types/sdk-reference-response.d.ts",
+        "src/types/sdk-work-api-response.d.ts",
+        "src/types/sdk-work-command-data.d.ts",
+        "src/types/sdk-work-command-response.d.ts",
+        "src/types/sdk-work-list-response.d.ts",
+        "src/types/sdk-work-page-data.d.ts",
+        "src/types/sdk-work-platform-error-code.d.ts",
+        "src/types/sdk-work-resource-data.d.ts",
+        "src/types/sdk-work-resource-response.d.ts"
       ]
     },
     "impact": {
@@ -337,104 +368,95 @@
       "areas": [
         "api-surface",
         "models",
-        "runtime",
-        "build-metadata",
-        "publish-workflow",
-        "documentation",
-        "unknown"
+        "documentation"
       ],
       "details": [
         {
           "area": "api-surface",
           "paths": [
-            "src/api/base.ts",
-            "src/api/documents.ts",
+            "src/api/base.d.ts",
+            "src/api/developer-catalog.ts",
+            "src/api/documents.d.ts",
+            "src/api/index.d.ts",
             "src/api/index.ts",
-            "src/api/paths.ts",
-            "src/http/client.ts",
+            "src/api/paths.d.ts",
             "src/sdk.ts"
           ]
         },
         {
           "area": "models",
           "paths": [
-            "src/types/common.ts",
-            "src/types/document-capabilities-response.ts",
-            "src/types/document-capabilities.ts",
-            "src/types/document-create-request.ts",
-            "src/types/document-list-response.ts",
-            "src/types/document-response.ts",
-            "src/types/document-update-request.ts",
-            "src/types/document.ts",
-            "src/types/field-error.ts",
+            "src/types/catalog-api-operation-page-response.ts",
+            "src/types/catalog-api-operation-page.ts",
+            "src/types/catalog-api-operation.ts",
+            "src/types/catalog-api-schema-response.ts",
+            "src/types/catalog-api-schema.ts",
+            "src/types/catalog-api-surface-detail-response.ts",
+            "src/types/catalog-api-surface-detail.ts",
+            "src/types/catalog-api-surface-page-response.ts",
+            "src/types/catalog-api-surface-page.ts",
+            "src/types/catalog-api-surface.ts",
+            "src/types/catalog-category-list-response.ts",
+            "src/types/catalog-category-list.ts",
+            "src/types/catalog-category.ts",
+            "src/types/catalog-counts.ts",
+            "src/types/catalog-facet.ts",
+            "src/types/catalog-language-list-response.ts",
+            "src/types/catalog-language-list.ts",
+            "src/types/catalog-language.ts",
+            "src/types/catalog-sdk-family-detail-response.ts",
+            "src/types/catalog-sdk-family-detail.ts",
+            "src/types/catalog-sdk-family-page-response.ts",
+            "src/types/catalog-sdk-family-page.ts",
+            "src/types/catalog-sdk-family.ts",
+            "src/types/catalog-sdk-release.ts",
+            "src/types/common.d.ts",
+            "src/types/developer-catalog-overview-response.ts",
+            "src/types/developer-catalog-overview.ts",
+            "src/types/document-capabilities-response.d.ts",
+            "src/types/document-capabilities.d.ts",
+            "src/types/document-create-request.d.ts",
+            "src/types/document-list-response.d.ts",
+            "src/types/document-response.d.ts",
+            "src/types/document-update-request.d.ts",
+            "src/types/document.d.ts",
+            "src/types/field-error.d.ts",
+            "src/types/index.d.ts",
             "src/types/index.ts",
-            "src/types/page-info.ts",
-            "src/types/problem-detail.ts",
-            "src/types/sdk-reference-generation-request.ts",
-            "src/types/sdk-reference-response.ts",
-            "src/types/sdk-work-api-response.ts",
-            "src/types/sdk-work-command-data.ts",
-            "src/types/sdk-work-command-response.ts",
-            "src/types/sdk-work-list-response.ts",
-            "src/types/sdk-work-page-data.ts",
-            "src/types/sdk-work-platform-error-code.ts",
-            "src/types/sdk-work-resource-data.ts",
-            "src/types/sdk-work-resource-response.ts"
-          ]
-        },
-        {
-          "area": "runtime",
-          "paths": [
-            "src/auth/index.ts",
-            "src/http/client.ts",
-            "src/http/index.ts"
-          ]
-        },
-        {
-          "area": "build-metadata",
-          "paths": [
-            "package.json",
-            "sdkwork-sdk.json",
-            "tsconfig.json"
-          ]
-        },
-        {
-          "area": "publish-workflow",
-          "paths": [
-            "bin/publish.ps1",
-            "bin/publish.sh",
-            "bin/sdk-gen.bat",
-            "bin/sdk-gen.sh"
+            "src/types/page-info.d.ts",
+            "src/types/problem-detail.d.ts",
+            "src/types/sdk-reference-generation-request.d.ts",
+            "src/types/sdk-reference-response.d.ts",
+            "src/types/sdk-work-api-response.d.ts",
+            "src/types/sdk-work-command-data.d.ts",
+            "src/types/sdk-work-command-response.d.ts",
+            "src/types/sdk-work-list-response.d.ts",
+            "src/types/sdk-work-page-data.d.ts",
+            "src/types/sdk-work-platform-error-code.d.ts",
+            "src/types/sdk-work-resource-data.d.ts",
+            "src/types/sdk-work-resource-response.d.ts"
           ]
         },
         {
           "area": "documentation",
           "paths": [
-            "CHANGELOG.md",
             "README.md"
-          ]
-        },
-        {
-          "area": "unknown",
-          "paths": [
-            "LICENSE",
-            "src/index.ts"
           ]
         }
       ],
       "requiresVerification": true,
-      "summary": "Detected impact areas: api-surface, models, runtime, build-metadata, publish-workflow, documentation, unknown. Verification is required."
+      "summary": "Detected impact areas: api-surface, models, documentation. Verification is required."
     },
     "verificationPlan": {
       "shouldRun": true,
       "runPhase": "now",
-      "summary": "Detected impact areas: api-surface, models, runtime, build-metadata, publish-workflow, documentation, unknown. Verification is required. Run the required verification commands now against the generated SDK output.",
+      "summary": "Detected impact areas: api-surface, models, documentation. Verification is required. Run the required verification commands now against the generated SDK output.",
       "steps": [
         {
           "id": "check",
           "title": "Unified package check",
           "required": true,
-          "rationale": "Validate the generated package with the unified publish helper. Triggered by: api-surface, models, runtime, build-metadata, publish-workflow, documentation, unknown.",
+          "rationale": "Validate the generated package with the unified publish helper. Triggered by: api-surface, models, documentation.",
           "workingDirectory": "D:\\sdkwork-space\\sdkwork-documents\\sdks\\sdkwork-documents-app-sdk\\sdkwork-documents-app-sdk-typescript\\generated\\server-openapi",
           "command": "node",
           "args": [
@@ -452,7 +474,7 @@
           "id": "build",
           "title": "Unified package build",
           "required": true,
-          "rationale": "Run the full package build because this language uses a lighter check path than the final build. Triggered by: api-surface, models, runtime, build-metadata, publish-workflow, documentation, unknown.",
+          "rationale": "Run the full package build because this language uses a lighter check path than the final build. Triggered by: api-surface, models, documentation.",
           "workingDirectory": "D:\\sdkwork-space\\sdkwork-documents\\sdks\\sdkwork-documents-app-sdk\\sdkwork-documents-app-sdk-typescript\\generated\\server-openapi",
           "command": "node",
           "args": [
@@ -477,53 +499,38 @@
       "summary": "Changes have been applied. Run the required verification plan now.",
       "reasons": [
         "backed-up-generated-files",
+        "deleted-generated-files",
         "manual-review-required",
-        "unknown-impact",
         "verification-required"
       ]
     },
     "backedUpFiles": [
-      "bin/publish.ps1",
-      "bin/publish.sh",
-      "bin/sdk-gen.bat",
-      "bin/sdk-gen.sh",
-      "CHANGELOG.md",
-      "LICENSE",
-      "package.json",
-      "README.md",
-      "sdkwork-sdk.json",
-      "src/api/base.ts",
-      "src/api/documents.ts",
-      "src/api/index.ts",
-      "src/api/paths.ts",
-      "src/auth/index.ts",
-      "src/http/client.ts",
-      "src/http/index.ts",
-      "src/index.ts",
-      "src/sdk.ts",
-      "src/types/common.ts",
-      "src/types/document-capabilities-response.ts",
-      "src/types/document-capabilities.ts",
-      "src/types/document-create-request.ts",
-      "src/types/document-list-response.ts",
-      "src/types/document-response.ts",
-      "src/types/document-update-request.ts",
-      "src/types/document.ts",
-      "src/types/field-error.ts",
-      "src/types/index.ts",
-      "src/types/page-info.ts",
-      "src/types/problem-detail.ts",
-      "src/types/sdk-reference-generation-request.ts",
-      "src/types/sdk-reference-response.ts",
-      "src/types/sdk-work-api-response.ts",
-      "src/types/sdk-work-command-data.ts",
-      "src/types/sdk-work-command-response.ts",
-      "src/types/sdk-work-list-response.ts",
-      "src/types/sdk-work-page-data.ts",
-      "src/types/sdk-work-platform-error-code.ts",
-      "src/types/sdk-work-resource-data.ts",
-      "src/types/sdk-work-resource-response.ts",
-      "tsconfig.json"
+      "src/api/base.d.ts",
+      "src/api/documents.d.ts",
+      "src/api/index.d.ts",
+      "src/api/paths.d.ts",
+      "src/types/common.d.ts",
+      "src/types/document-capabilities-response.d.ts",
+      "src/types/document-capabilities.d.ts",
+      "src/types/document-create-request.d.ts",
+      "src/types/document-list-response.d.ts",
+      "src/types/document-response.d.ts",
+      "src/types/document-update-request.d.ts",
+      "src/types/document.d.ts",
+      "src/types/field-error.d.ts",
+      "src/types/index.d.ts",
+      "src/types/page-info.d.ts",
+      "src/types/problem-detail.d.ts",
+      "src/types/sdk-reference-generation-request.d.ts",
+      "src/types/sdk-reference-response.d.ts",
+      "src/types/sdk-work-api-response.d.ts",
+      "src/types/sdk-work-command-data.d.ts",
+      "src/types/sdk-work-command-response.d.ts",
+      "src/types/sdk-work-list-response.d.ts",
+      "src/types/sdk-work-page-data.d.ts",
+      "src/types/sdk-work-platform-error-code.d.ts",
+      "src/types/sdk-work-resource-data.d.ts",
+      "src/types/sdk-work-resource-response.d.ts"
     ],
     "preservedLegacyFiles": false
   }

@@ -10,6 +10,7 @@ workspace = true
 [dependencies]
 async-trait.workspace = true
 dotenvy.workspace = true
+serde_json.workspace = true
 sqlx = { workspace = true, features = ["migrate", "sqlite"] }
 uuid.workspace = true
 sdkwork-documents-contract.workspace = true

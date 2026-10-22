@@ -41,4 +41,58 @@ pub const ROUTES: &[RouteManifestEntry] = &[
         operation_id: "documents.update",
         auth_mode: AUTH_MODE,
     },
+    RouteManifestEntry {
+        method: "GET",
+        path: "/app/v3/api/developer_catalog/overview",
+        operation_id: "developerCatalog.overviewRetrieve",
+        auth_mode: AUTH_MODE,
+    },
+    RouteManifestEntry {
+        method: "GET",
+        path: "/app/v3/api/developer_catalog/categories",
+        operation_id: "developerCatalog.categoriesList",
+        auth_mode: AUTH_MODE,
+    },
+    RouteManifestEntry {
+        method: "GET",
+        path: "/app/v3/api/developer_catalog/languages",
+        operation_id: "developerCatalog.languagesList",
+        auth_mode: AUTH_MODE,
+    },
+    RouteManifestEntry {
+        method: "GET",
+        path: "/app/v3/api/developer_catalog/apis",
+        operation_id: "developerCatalog.apisList",
+        auth_mode: AUTH_MODE,
+    },
+    RouteManifestEntry {
+        method: "GET",
+        path: "/app/v3/api/developer_catalog/apis/{surfaceId}",
+        operation_id: "developerCatalog.apiRetrieve",
+        auth_mode: AUTH_MODE,
+    },
+    RouteManifestEntry {
+        method: "GET",
+        path: "/app/v3/api/developer_catalog/apis/{surfaceId}/schema",
+        operation_id: "developerCatalog.apiSchemaRetrieve",
+        auth_mode: AUTH_MODE,
+    },
+    RouteManifestEntry {
+        method: "GET",
+        path: "/app/v3/api/developer_catalog/apis/{surfaceId}/operations",
+        operation_id: "developerCatalog.apiOperationsList",
+        auth_mode: AUTH_MODE,
+    },
+    RouteManifestEntry {
+        method: "GET",
+        path: "/app/v3/api/developer_catalog/sdks",
+        operation_id: "developerCatalog.sdksList",
+        auth_mode: AUTH_MODE,
+    },
+    RouteManifestEntry {
+        method: "GET",
+        path: "/app/v3/api/developer_catalog/sdks/{sdkId}",
+        operation_id: "developerCatalog.sdkRetrieve",
+        auth_mode: AUTH_MODE,
+    },
 ];

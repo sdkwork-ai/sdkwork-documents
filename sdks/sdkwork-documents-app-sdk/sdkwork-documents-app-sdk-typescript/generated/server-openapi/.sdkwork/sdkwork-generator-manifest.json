@@ -44,7 +44,7 @@
     },
     {
       "path": "README.md",
-      "sha256": "14c3ad8e668b169719c988db6aa2ff713298fd6ee92ca7fd6f49051174a002a0"
+      "sha256": "50237e788750378c021b49c24b88679eca51cc5496820145664eaa5128f22d3d"
     },
     {
       "path": "sdkwork-sdk.json",
@@ -55,12 +55,16 @@
       "sha256": "94d136c54a008dfe7602e373a0b2c79176bbf2fc6e7c899fc23b1f12f750380f"
     },
     {
+      "path": "src/api/developer-catalog.ts",
+      "sha256": "e4ee4fcf8a0ff5a52aaf199d27b4c672b4355e993aba1b421c8dce4ffbf06fb7"
+    },
+    {
       "path": "src/api/documents.ts",
       "sha256": "94521a34ec90ac526bc68911ef0dd32cd08192316254b96660f8fe692c2ea542"
     },
     {
       "path": "src/api/index.ts",
-      "sha256": "5123919e9484c5f900fac51eddb80b100da5a52efd0a9d75c396345374bd02c9"
+      "sha256": "706d7a584e4e63430d839997f431e9f016762baacb2b8b13872336f0e0e52080"
     },
     {
       "path": "src/api/paths.ts",
@@ -84,11 +88,115 @@
     },
     {
       "path": "src/sdk.ts",
-      "sha256": "f4942e1b454124fd978aa99e2a9e2be934d9adf3690d485b20fa0ae62b4f413a"
+      "sha256": "ed9fe499bfccf635e0db1eccc8500df1ed7e5d2a07e5f6b2fa263df3b737489c"
+    },
+    {
+      "path": "src/types/catalog-api-operation-page-response.ts",
+      "sha256": "86720e80c325ae1f988a68469c68dec4a93f6b90ae1e5f942cd2430380a89f71"
+    },
+    {
+      "path": "src/types/catalog-api-operation-page.ts",
+      "sha256": "4fbb231d95a7819940dcd99e459417c75f9dab4308f7ad37a9e8aaea2987d85c"
+    },
+    {
+      "path": "src/types/catalog-api-operation.ts",
+      "sha256": "3297550685df3fa56506c14e1392eb6c94dfe0a1e02cf3985fb6ed6b5cb8ef25"
+    },
+    {
+      "path": "src/types/catalog-api-schema-response.ts",
+      "sha256": "c26b3aad2e5e5d0dadf0f23d9f6fbc7f6afe169621e8a4659a488def5299400d"
+    },
+    {
+      "path": "src/types/catalog-api-schema.ts",
+      "sha256": "3b7b24bcefb88791c0f8042b782821127644abbb8f4b19cf0d84e4f24cf36ce1"
+    },
+    {
+      "path": "src/types/catalog-api-surface-detail-response.ts",
+      "sha256": "8cf90084900ef1d8e9457427224212042a3b20eefb27e4c27488f7e18284f704"
+    },
+    {
+      "path": "src/types/catalog-api-surface-detail.ts",
+      "sha256": "fc98ec00911ec1fcc4a60cfac1c97e29c2de4fb615fcce3f156f67f8a840c802"
+    },
+    {
+      "path": "src/types/catalog-api-surface-page-response.ts",
+      "sha256": "d9148c01d355d91475a143a4f0ec5ec4b7b454573e925c76813a252c09bfbcd2"
+    },
+    {
+      "path": "src/types/catalog-api-surface-page.ts",
+      "sha256": "98e8ef67144e05569c5c9b45dfe7181380fb791e4db71091fa60e965e849f9b9"
+    },
+    {
+      "path": "src/types/catalog-api-surface.ts",
+      "sha256": "a9f5bf7f1c88405a4ccf586ea58fecac758c6294cbd736f0f9cbc7df39c17e43"
+    },
+    {
+      "path": "src/types/catalog-category-list-response.ts",
+      "sha256": "a274e43e9aef70059cd1fba2b30d26a72efa1d4813f8c8596a6d0bd4bfcf2851"
+    },
+    {
+      "path": "src/types/catalog-category-list.ts",
+      "sha256": "8bed9a65dfc17538826be9af7873740821917216f4b847f9637bf1420d56fbc5"
+    },
+    {
+      "path": "src/types/catalog-category.ts",
+      "sha256": "caddb48083459b148b22e87edfb549ea4ac374e30e4ceec4eeb57791e847df09"
+    },
+    {
+      "path": "src/types/catalog-counts.ts",
+      "sha256": "048b193bc8e66e74813c17be56f9bc75d6d09eed8dc50dbac0568fb1aefc8115"
+    },
+    {
+      "path": "src/types/catalog-facet.ts",
+      "sha256": "537a01d3b533da812ae79b93e5cbfba7eecb8398034331123de8531049f35e26"
+    },
+    {
+      "path": "src/types/catalog-language-list-response.ts",
+      "sha256": "3f9fb8eb3bb196e024a94faa354d101d462a39a272b6c1e6f86eb1b9fcccd70a"
+    },
+    {
+      "path": "src/types/catalog-language-list.ts",
+      "sha256": "641b6048ccf01a899716d02ea8aa2c7cf9b33a39c531632b9f30b49bc8f3b794"
+    },
+    {
+      "path": "src/types/catalog-language.ts",
+      "sha256": "75a537a0d40f3b9a245bd4c1864f9742f561d8783175224039b70615712360fb"
+    },
+    {
+      "path": "src/types/catalog-sdk-family-detail-response.ts",
+      "sha256": "0063a6b82e06bc98c0e08cbfe380b45ad73428cc120852cba9bbbfc5c65d36a5"
+    },
+    {
+      "path": "src/types/catalog-sdk-family-detail.ts",
+      "sha256": "5b1d6be7ac7eda8e3214a604f78925b5a429b1ae1c6c7d084a030dff9efad407"
+    },
+    {
+      "path": "src/types/catalog-sdk-family-page-response.ts",
+      "sha256": "d632d97527d25630c996b73780a646dd113e4881d77a78f6e94d848f7438e1e2"
+    },
+    {
+      "path": "src/types/catalog-sdk-family-page.ts",
+      "sha256": "b27ee7b3d5dc5a3635557502eabac21443062e77033b14f82059223ffd8611e1"
+    },
+    {
+      "path": "src/types/catalog-sdk-family.ts",
+      "sha256": "e8e64833618d6c04b731f06647a9cb9a6b73fd31d059fd9e035d195a1855cf8b"
+    },
+    {
+      "path": "src/types/catalog-sdk-release.ts",
+      "sha256": "506bd903bd8465f49db1f4f62d868ab79f1fa43e84463434e348c2006a9c26f2"
     },
     {
       "path": "src/types/common.ts",
       "sha256": "d2506be8c4bdbe8e7059393467e6e71d75ef1d8c018dbf997bb0ab2a77b6c7b6"
+    },
+    {
+      "path": "src/types/developer-catalog-overview-response.ts",
+      "sha256": "2f2569d8f97291ef2f9bbe853d5948b879c467cd60ec0590bdc2dda6dca6a95c"
+    },
+    {
+      "path": "src/types/developer-catalog-overview.ts",
+      "sha256": "6e95bf66b13da159954380376dabd193869e0937d1b7ac4136213f0def227abd"
     },
     {
       "path": "src/types/document-capabilities-response.ts",
@@ -124,7 +232,7 @@
     },
     {
       "path": "src/types/index.ts",
-      "sha256": "2d7ffa72809998c15fcfd2e2cd8459f932bed51c8c8fc6927b7dea60ccd716d5"
+      "sha256": "33f0361c1d47260fe0fd4817523b97d394c123ce4713deb1a8dd5f06df146a7e"
     },
     {
       "path": "src/types/page-info.ts",

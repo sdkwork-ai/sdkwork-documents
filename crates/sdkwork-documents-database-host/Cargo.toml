@@ -13,3 +13,6 @@ sdkwork-database-config.workspace = true
 sdkwork-database-lifecycle.workspace = true
 sdkwork-database-spi.workspace = true
 sdkwork-database-sqlx.workspace = true
+
+[dev-dependencies]
+tokio.workspace = true

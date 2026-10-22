@@ -805,6 +805,1039 @@
         },
         "x-sdkwork-source-route-crate": "sdkwork-routes-documents-app-api"
       }
+    },
+    "/app/v3/api/developer_catalog/overview": {
+      "get": {
+        "operationId": "developerCatalog.overviewRetrieve",
+        "tags": [
+          "developerCatalog"
+        ],
+        "summary": "Developer catalog overview and facets",
+        "x-sdkwork-owner": "sdkwork-documents",
+        "x-sdkwork-api-authority": "sdkwork-documents-app-api",
+        "x-sdkwork-sdk-family": "sdkwork-documents-app-sdk",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-source-route-crate": "sdkwork-routes-documents-app-api",
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-auth-mode": "dual-token",
+        "x-sdkwork-permission": "developer_catalog.read",
+        "x-sdkwork-audit-event": "developer_catalog.overview",
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeveloperCatalogOverviewResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/app/v3/api/developer_catalog/categories": {
+      "get": {
+        "operationId": "developerCatalog.categoriesList",
+        "tags": [
+          "developerCatalog"
+        ],
+        "summary": "Developer catalog categories",
+        "x-sdkwork-owner": "sdkwork-documents",
+        "x-sdkwork-api-authority": "sdkwork-documents-app-api",
+        "x-sdkwork-sdk-family": "sdkwork-documents-app-sdk",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-source-route-crate": "sdkwork-routes-documents-app-api",
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-auth-mode": "dual-token",
+        "x-sdkwork-permission": "developer_catalog.read",
+        "x-sdkwork-audit-event": "developer_catalog.categories",
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogCategoryListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/app/v3/api/developer_catalog/languages": {
+      "get": {
+        "operationId": "developerCatalog.languagesList",
+        "tags": [
+          "developerCatalog"
+        ],
+        "summary": "SDK language catalog",
+        "x-sdkwork-owner": "sdkwork-documents",
+        "x-sdkwork-api-authority": "sdkwork-documents-app-api",
+        "x-sdkwork-sdk-family": "sdkwork-documents-app-sdk",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-source-route-crate": "sdkwork-routes-documents-app-api",
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-auth-mode": "dual-token",
+        "x-sdkwork-permission": "developer_catalog.read",
+        "x-sdkwork-audit-event": "developer_catalog.languages",
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogLanguageListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/app/v3/api/developer_catalog/apis": {
+      "get": {
+        "operationId": "developerCatalog.apisList",
+        "tags": [
+          "developerCatalog"
+        ],
+        "summary": "List API surfaces across the SDKWork workspace",
+        "x-sdkwork-owner": "sdkwork-documents",
+        "x-sdkwork-api-authority": "sdkwork-documents-app-api",
+        "x-sdkwork-sdk-family": "sdkwork-documents-app-sdk",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-source-route-crate": "sdkwork-routes-documents-app-api",
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-auth-mode": "dual-token",
+        "x-sdkwork-permission": "developer_catalog.read",
+        "x-sdkwork-audit-event": "developer_catalog.apis",
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "categoryCode",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "moduleCode",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "surfaceCode",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogApiSurfacePageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/app/v3/api/developer_catalog/apis/{surfaceId}": {
+      "get": {
+        "operationId": "developerCatalog.apiRetrieve",
+        "tags": [
+          "developerCatalog"
+        ],
+        "summary": "Retrieve one API surface",
+        "x-sdkwork-owner": "sdkwork-documents",
+        "x-sdkwork-api-authority": "sdkwork-documents-app-api",
+        "x-sdkwork-sdk-family": "sdkwork-documents-app-sdk",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-source-route-crate": "sdkwork-routes-documents-app-api",
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-auth-mode": "dual-token",
+        "x-sdkwork-permission": "developer_catalog.read",
+        "x-sdkwork-audit-event": "developer_catalog.api_retrieved",
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "surfaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogApiSurfaceDetailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/app/v3/api/developer_catalog/apis/{surfaceId}/schema": {
+      "get": {
+        "operationId": "developerCatalog.apiSchemaRetrieve",
+        "tags": [
+          "developerCatalog"
+        ],
+        "summary": "Retrieve the stored OpenAPI document for one API surface",
+        "x-sdkwork-owner": "sdkwork-documents",
+        "x-sdkwork-api-authority": "sdkwork-documents-app-api",
+        "x-sdkwork-sdk-family": "sdkwork-documents-app-sdk",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-source-route-crate": "sdkwork-routes-documents-app-api",
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-auth-mode": "dual-token",
+        "x-sdkwork-permission": "developer_catalog.read",
+        "x-sdkwork-audit-event": "developer_catalog.schema_opened",
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "surfaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogApiSchemaResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/app/v3/api/developer_catalog/apis/{surfaceId}/operations": {
+      "get": {
+        "operationId": "developerCatalog.apiOperationsList",
+        "tags": [
+          "developerCatalog"
+        ],
+        "summary": "List normalized operations for one API surface",
+        "x-sdkwork-owner": "sdkwork-documents",
+        "x-sdkwork-api-authority": "sdkwork-documents-app-api",
+        "x-sdkwork-sdk-family": "sdkwork-documents-app-sdk",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-source-route-crate": "sdkwork-routes-documents-app-api",
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-auth-mode": "dual-token",
+        "x-sdkwork-permission": "developer_catalog.read",
+        "x-sdkwork-audit-event": "developer_catalog.operations",
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "surfaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogApiOperationPageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/app/v3/api/developer_catalog/sdks": {
+      "get": {
+        "operationId": "developerCatalog.sdksList",
+        "tags": [
+          "developerCatalog"
+        ],
+        "summary": "List generated SDK families across the SDKWork workspace",
+        "x-sdkwork-owner": "sdkwork-documents",
+        "x-sdkwork-api-authority": "sdkwork-documents-app-api",
+        "x-sdkwork-sdk-family": "sdkwork-documents-app-sdk",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-source-route-crate": "sdkwork-routes-documents-app-api",
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-auth-mode": "dual-token",
+        "x-sdkwork-permission": "developer_catalog.read",
+        "x-sdkwork-audit-event": "developer_catalog.sdks",
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "categoryCode",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "moduleCode",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "languageCode",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sdkType",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogSdkFamilyPageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/app/v3/api/developer_catalog/sdks/{sdkId}": {
+      "get": {
+        "operationId": "developerCatalog.sdkRetrieve",
+        "tags": [
+          "developerCatalog"
+        ],
+        "summary": "Retrieve one SDK family with its language releases",
+        "x-sdkwork-owner": "sdkwork-documents",
+        "x-sdkwork-api-authority": "sdkwork-documents-app-api",
+        "x-sdkwork-sdk-family": "sdkwork-documents-app-sdk",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-source-route-crate": "sdkwork-routes-documents-app-api",
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-auth-mode": "dual-token",
+        "x-sdkwork-permission": "developer_catalog.read",
+        "x-sdkwork-audit-event": "developer_catalog.sdk_retrieved",
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "sdkId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogSdkFamilyDetailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1311,9 +2344,838 @@
             }
           }
         ]
+      },
+      "CatalogFacet": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "count"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer"
+          }
+        }
+      },
+      "CatalogCounts": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "modules",
+          "apiSurfaces",
+          "apiOperations",
+          "sdkFamilies",
+          "sdkReleases",
+          "languages"
+        ],
+        "properties": {
+          "modules": {
+            "type": "integer"
+          },
+          "apiSurfaces": {
+            "type": "integer"
+          },
+          "apiOperations": {
+            "type": "integer"
+          },
+          "sdkFamilies": {
+            "type": "integer"
+          },
+          "sdkReleases": {
+            "type": "integer"
+          },
+          "languages": {
+            "type": "integer"
+          }
+        }
+      },
+      "CatalogCategory": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "name",
+          "description",
+          "icon",
+          "sortOrder",
+          "apiCount",
+          "sdkCount"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "integer"
+          },
+          "parentCode": {
+            "type": "string"
+          },
+          "apiCount": {
+            "type": "integer"
+          },
+          "sdkCount": {
+            "type": "integer"
+          }
+        }
+      },
+      "CatalogCategoryList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogCategory"
+            }
+          }
+        }
+      },
+      "CatalogLanguage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "name",
+          "family",
+          "icon",
+          "fileExtension",
+          "officialUrl",
+          "sortOrder",
+          "releaseCount"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "family": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "fileExtension": {
+            "type": "string"
+          },
+          "officialUrl": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "integer"
+          },
+          "releaseCount": {
+            "type": "integer"
+          }
+        }
+      },
+      "CatalogLanguageList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogLanguage"
+            }
+          }
+        }
+      },
+      "DeveloperCatalogOverview": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "counts",
+          "categories",
+          "surfaceFacets",
+          "sdkTypeFacets",
+          "languageFacets",
+          "featuredApiSurfaceIds",
+          "featuredSdkIds"
+        ],
+        "properties": {
+          "counts": {
+            "$ref": "#/components/schemas/CatalogCounts"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogCategory"
+            }
+          },
+          "surfaceFacets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogFacet"
+            }
+          },
+          "sdkTypeFacets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogFacet"
+            }
+          },
+          "languageFacets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogFacet"
+            }
+          },
+          "featuredApiSurfaceIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "featuredSdkIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CatalogApiSurface": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "moduleCode",
+          "moduleName",
+          "surfaceCode",
+          "surfaceName",
+          "title",
+          "description",
+          "apiVersion",
+          "apiAuthority",
+          "apiPrefix",
+          "categoryCode",
+          "categories",
+          "operationCount",
+          "tagCount",
+          "authModes",
+          "tags",
+          "featured",
+          "deprecated",
+          "schemaAvailable"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "moduleCode": {
+            "type": "string"
+          },
+          "moduleName": {
+            "type": "string"
+          },
+          "surfaceCode": {
+            "type": "string"
+          },
+          "surfaceName": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "apiVersion": {
+            "type": "string"
+          },
+          "apiAuthority": {
+            "type": "string"
+          },
+          "apiPrefix": {
+            "type": "string"
+          },
+          "categoryCode": {
+            "type": "string"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "operationCount": {
+            "type": "integer"
+          },
+          "tagCount": {
+            "type": "integer"
+          },
+          "authModes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "featured": {
+            "type": "boolean"
+          },
+          "deprecated": {
+            "type": "boolean"
+          },
+          "schemaAvailable": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CatalogApiSurfacePage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogApiSurface"
+            }
+          },
+          "total": {
+            "type": "integer"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "pageSize": {
+            "type": "integer"
+          }
+        }
+      },
+      "CatalogApiSurfaceDetail": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "surface",
+          "servers"
+        ],
+        "properties": {
+          "surface": {
+            "$ref": "#/components/schemas/CatalogApiSurface"
+          },
+          "servers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "schemaVersion": {
+            "type": "string"
+          },
+          "schemaChecksum": {
+            "type": "string"
+          },
+          "sourcePath": {
+            "type": "string"
+          }
+        }
+      },
+      "CatalogApiOperation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "operationKey",
+          "method",
+          "path",
+          "summary",
+          "description",
+          "tags",
+          "deprecated",
+          "sortOrder"
+        ],
+        "properties": {
+          "operationKey": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "deprecated": {
+            "type": "boolean"
+          },
+          "sortOrder": {
+            "type": "integer"
+          }
+        }
+      },
+      "CatalogApiOperationPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogApiOperation"
+            }
+          },
+          "total": {
+            "type": "integer"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "pageSize": {
+            "type": "integer"
+          }
+        }
+      },
+      "CatalogApiSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "surfaceId",
+          "apiAuthority",
+          "schemaVersion",
+          "schemaChecksum",
+          "spec"
+        ],
+        "properties": {
+          "surfaceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "apiAuthority": {
+            "type": "string"
+          },
+          "schemaVersion": {
+            "type": "string"
+          },
+          "schemaChecksum": {
+            "type": "string"
+          },
+          "spec": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "CatalogSdkRelease": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "languageCode",
+          "languageName",
+          "family",
+          "packageName",
+          "version",
+          "generationState",
+          "releaseState",
+          "isLatest"
+        ],
+        "properties": {
+          "languageCode": {
+            "type": "string"
+          },
+          "languageName": {
+            "type": "string"
+          },
+          "family": {
+            "type": "string"
+          },
+          "packageName": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "installCommand": {
+            "type": "string"
+          },
+          "downloadUrl": {
+            "type": "string"
+          },
+          "archiveName": {
+            "type": "string"
+          },
+          "generationState": {
+            "type": "string"
+          },
+          "releaseState": {
+            "type": "string"
+          },
+          "isLatest": {
+            "type": "boolean"
+          },
+          "releasedAt": {
+            "type": "string"
+          }
+        }
+      },
+      "CatalogSdkFamily": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "moduleCode",
+          "moduleName",
+          "sdkCode",
+          "sdkName",
+          "sdkType",
+          "surfaceCode",
+          "packageName",
+          "description",
+          "sdkVersion",
+          "categoryCode",
+          "categories",
+          "languages",
+          "releaseCount",
+          "featured",
+          "deprecated",
+          "downloadCount",
+          "rating"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "moduleCode": {
+            "type": "string"
+          },
+          "moduleName": {
+            "type": "string"
+          },
+          "sdkCode": {
+            "type": "string"
+          },
+          "sdkName": {
+            "type": "string"
+          },
+          "sdkType": {
+            "type": "string"
+          },
+          "surfaceCode": {
+            "type": "string"
+          },
+          "packageName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "sdkVersion": {
+            "type": "string"
+          },
+          "categoryCode": {
+            "type": "string"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "languages": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "releaseCount": {
+            "type": "integer"
+          },
+          "featured": {
+            "type": "boolean"
+          },
+          "deprecated": {
+            "type": "boolean"
+          },
+          "downloadCount": {
+            "type": "integer"
+          },
+          "rating": {
+            "type": "number"
+          }
+        }
+      },
+      "CatalogSdkFamilyPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogSdkFamily"
+            }
+          },
+          "total": {
+            "type": "integer"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "pageSize": {
+            "type": "integer"
+          }
+        }
+      },
+      "CatalogSdkFamilyDetail": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sdk",
+          "releases"
+        ],
+        "properties": {
+          "sdk": {
+            "$ref": "#/components/schemas/CatalogSdkFamily"
+          },
+          "repositoryUrl": {
+            "type": "string"
+          },
+          "docsUrl": {
+            "type": "string"
+          },
+          "licenseCode": {
+            "type": "string"
+          },
+          "supportLevel": {
+            "type": "string"
+          },
+          "pricingTier": {
+            "type": "string"
+          },
+          "releases": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogSdkRelease"
+            }
+          }
+        }
+      },
+      "DeveloperCatalogOverviewResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SdkWorkApiResponse"
+          },
+          {
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/DeveloperCatalogOverview"
+              }
+            }
+          }
+        ]
+      },
+      "CatalogCategoryListResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SdkWorkApiResponse"
+          },
+          {
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/CatalogCategoryList"
+              }
+            }
+          }
+        ]
+      },
+      "CatalogLanguageListResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SdkWorkApiResponse"
+          },
+          {
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/CatalogLanguageList"
+              }
+            }
+          }
+        ]
+      },
+      "CatalogApiSurfacePageResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SdkWorkApiResponse"
+          },
+          {
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/CatalogApiSurfacePage"
+              }
+            }
+          }
+        ]
+      },
+      "CatalogApiSurfaceDetailResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SdkWorkApiResponse"
+          },
+          {
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/CatalogApiSurfaceDetail"
+              }
+            }
+          }
+        ]
+      },
+      "CatalogApiSchemaResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SdkWorkApiResponse"
+          },
+          {
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/CatalogApiSchema"
+              }
+            }
+          }
+        ]
+      },
+      "CatalogApiOperationPageResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SdkWorkApiResponse"
+          },
+          {
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/CatalogApiOperationPage"
+              }
+            }
+          }
+        ]
+      },
+      "CatalogSdkFamilyPageResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SdkWorkApiResponse"
+          },
+          {
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/CatalogSdkFamilyPage"
+              }
+            }
+          }
+        ]
+      },
+      "CatalogSdkFamilyDetailResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SdkWorkApiResponse"
+          },
+          {
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/CatalogSdkFamilyDetail"
+              }
+            }
+          }
+        ]
       }
     }
   },
   "x-sdkwork-owner-only-input": true,
-  "x-sdkwork-standard-version": "2026-06-20"
+  "x-sdkwork-standard-version": "2026-06-20",
+  "tags": [
+    {
+      "name": "developerCatalog",
+      "description": "Developer catalog: API market and SDK market."
+    }
+  ]
 }

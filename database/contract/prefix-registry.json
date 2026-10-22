@@ -4,7 +4,8 @@
   "prefixes": [
     {
       "prefix": "documents_",
-      "owner": "documents-platform"
+      "owner": "documents-platform",
+      "domain": "documents"
     }
   ]
 }

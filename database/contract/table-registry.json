@@ -19,6 +19,72 @@
       "owner": "documents-platform",
       "compliance_level": "L2",
       "lifecycle_status": "active"
+    },
+    {
+      "table_name": "documents_catalog_category",
+      "owner": "documents-platform",
+      "compliance_level": "L2",
+      "lifecycle_status": "active"
+    },
+    {
+      "table_name": "documents_catalog_module",
+      "owner": "documents-platform",
+      "compliance_level": "L2",
+      "lifecycle_status": "active"
+    },
+    {
+      "table_name": "documents_api_surface",
+      "owner": "documents-platform",
+      "compliance_level": "L2",
+      "lifecycle_status": "active"
+    },
+    {
+      "table_name": "documents_api_schema",
+      "owner": "documents-platform",
+      "compliance_level": "L2",
+      "lifecycle_status": "active"
+    },
+    {
+      "table_name": "documents_api_operation",
+      "owner": "documents-platform",
+      "compliance_level": "L2",
+      "lifecycle_status": "active"
+    },
+    {
+      "table_name": "documents_api_surface_category",
+      "owner": "documents-platform",
+      "compliance_level": "L2",
+      "lifecycle_status": "active"
+    },
+    {
+      "table_name": "documents_sdk_language",
+      "owner": "documents-platform",
+      "compliance_level": "L2",
+      "lifecycle_status": "active"
+    },
+    {
+      "table_name": "documents_sdk_family",
+      "owner": "documents-platform",
+      "compliance_level": "L2",
+      "lifecycle_status": "active"
+    },
+    {
+      "table_name": "documents_sdk_release",
+      "owner": "documents-platform",
+      "compliance_level": "L2",
+      "lifecycle_status": "active"
+    },
+    {
+      "table_name": "documents_sdk_category",
+      "owner": "documents-platform",
+      "compliance_level": "L2",
+      "lifecycle_status": "active"
+    },
+    {
+      "table_name": "documents_catalog_sync",
+      "owner": "documents-platform",
+      "compliance_level": "L2",
+      "lifecycle_status": "active"
     }
   ]
 }

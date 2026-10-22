@@ -4,6 +4,8 @@ export const SdkworkDocumentsPcRoutePaths = {
   docs: '/docs',
   apiReference: '/api-reference',
   sdkReference: '/sdk-reference',
+  apiMarket: '/api-market',
+  sdkMarket: '/sdk-market',
 } as const;
 
 export function listSdkworkDocumentsPcAppSdkFamilies(): string[] {
@@ -13,10 +15,13 @@ export function listSdkworkDocumentsPcAppSdkFamilies(): string[] {
 export function listSdkworkDocumentsPcNavigationItems(): Array<{
   path: string;
   labelKey: string;
+  label?: string;
 }> {
   return [
     { path: SdkworkDocumentsPcRoutePaths.productDocs, labelKey: 'nav.productDocs' },
     { path: SdkworkDocumentsPcRoutePaths.docs, labelKey: 'nav.docs' },
+    { path: SdkworkDocumentsPcRoutePaths.apiMarket, labelKey: 'nav.apiMarket', label: 'API 市场' },
+    { path: SdkworkDocumentsPcRoutePaths.sdkMarket, labelKey: 'nav.sdkMarket', label: 'SDK 市场' },
     { path: SdkworkDocumentsPcRoutePaths.apiReference, labelKey: 'nav.apiReference' },
     { path: SdkworkDocumentsPcRoutePaths.sdkReference, labelKey: 'nav.sdkReference' },
   ];

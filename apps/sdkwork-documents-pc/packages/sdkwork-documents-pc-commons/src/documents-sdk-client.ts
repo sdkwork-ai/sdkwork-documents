@@ -23,7 +23,7 @@ export interface SdkReferenceArchiveResponse {
  * parallel shape) keeps the reference runtime aligned with the SDK family the
  * generator owns.
  */
-export type DocumentsAppSdkClient = Pick<SdkworkDocumentsAppClient, 'documents'>;
+export type DocumentsAppSdkClient = Pick<SdkworkDocumentsAppClient, 'documents' | 'developerCatalog'>;
 
 let documentsReferenceRuntime: DocumentsReferenceRuntime | null = null;
 

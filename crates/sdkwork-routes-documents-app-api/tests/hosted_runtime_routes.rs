@@ -9,9 +9,9 @@ use tower::util::ServiceExt;
 #[tokio::test]
 async fn hosted_app_router_mounts_protected_documents_route() {
     let Some(runtime) = test_runtime().await else {
-    eprintln!("skipping hosted runtime routes test: set SDKWORK_DATABASE_URL or DATABASE_URL to a postgres URL");
-    return;
-};
+        eprintln!("skipping hosted runtime routes test: set SDKWORK_DATABASE_URL or DATABASE_URL to a postgres URL");
+        return;
+    };
     let app = runtime
         .build_app_router_with_web_framework_resolver(IamWebRequestContextResolver::new(None));
 
@@ -39,9 +39,9 @@ async fn hosted_app_router_mounts_protected_documents_route() {
 #[tokio::test]
 async fn hosted_backend_router_mounts_protected_documents_route() {
     let Some(runtime) = test_runtime().await else {
-    eprintln!("skipping hosted runtime routes test: set SDKWORK_DATABASE_URL or DATABASE_URL to a postgres URL");
-    return;
-};
+        eprintln!("skipping hosted runtime routes test: set SDKWORK_DATABASE_URL or DATABASE_URL to a postgres URL");
+        return;
+    };
     let app = runtime
         .build_backend_router_with_web_framework_resolver(IamWebRequestContextResolver::new(None));
 
@@ -69,9 +69,9 @@ async fn hosted_backend_router_mounts_protected_documents_route() {
 #[tokio::test]
 async fn hosted_open_router_mounts_protected_capabilities_route() {
     let Some(runtime) = test_runtime().await else {
-    eprintln!("skipping hosted runtime routes test: set SDKWORK_DATABASE_URL or DATABASE_URL to a postgres URL");
-    return;
-};
+        eprintln!("skipping hosted runtime routes test: set SDKWORK_DATABASE_URL or DATABASE_URL to a postgres URL");
+        return;
+    };
     let app = runtime
         .build_open_router_with_web_framework_resolver(IamWebRequestContextResolver::new(None));
 

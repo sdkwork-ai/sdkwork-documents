@@ -2,6 +2,9 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use sdkwork_documents_contract::{
+    CatalogApiOperationPage, CatalogApiOperationQuery, CatalogApiSchema, CatalogApiSurfaceDetail,
+    CatalogApiSurfacePage, CatalogApiSurfaceQuery, CatalogCategoryList, CatalogLanguageList,
+    CatalogSdkFamilyDetail, CatalogSdkFamilyPage, CatalogSdkQuery, DeveloperCatalogOverview,
     Document, DocumentCapabilities, DocumentCreateRequest, DocumentList, DocumentUpdateRequest,
     DocumentsAppApi, DocumentsAppRequestContext, DocumentsBackendApi,
     DocumentsBackendRequestContext, DocumentsOpenApi, DocumentsOpenApiRequestContext,
@@ -119,6 +122,140 @@ impl DocumentsAppApi for DocumentsService {
             .update(ctx.tenant_id, &document_id, request)
             .await
     }
+
+    async fn developer_catalog_overview(
+        &self,
+        ctx: DocumentsAppRequestContext,
+    ) -> DocumentsServiceResult<DeveloperCatalogOverview> {
+        self.repository
+            .developer_catalog_overview(ctx.tenant_id)
+            .await
+    }
+
+    async fn list_developer_catalog_categories(
+        &self,
+        ctx: DocumentsAppRequestContext,
+    ) -> DocumentsServiceResult<CatalogCategoryList> {
+        self.repository
+            .developer_catalog_categories(ctx.tenant_id)
+            .await
+    }
+
+    async fn list_developer_catalog_languages(
+        &self,
+        ctx: DocumentsAppRequestContext,
+    ) -> DocumentsServiceResult<CatalogLanguageList> {
+        self.repository
+            .developer_catalog_languages(ctx.tenant_id)
+            .await
+    }
+
+    async fn list_developer_catalog_apis(
+        &self,
+        ctx: DocumentsAppRequestContext,
+        query: CatalogApiSurfaceQuery,
+    ) -> DocumentsServiceResult<CatalogApiSurfacePage> {
+        self.repository
+            .developer_catalog_api_surfaces(ctx.tenant_id, normalize_api_query(query))
+            .await
+    }
+
+    async fn retrieve_developer_catalog_api(
+        &self,
+        ctx: DocumentsAppRequestContext,
+        surface_id: String,
+    ) -> DocumentsServiceResult<CatalogApiSurfaceDetail> {
+        self.repository
+            .developer_catalog_api_surface(ctx.tenant_id, &surface_id)
+            .await?
+            .ok_or(DocumentsServiceError::NotFound(surface_id))
+    }
+
+    async fn retrieve_developer_catalog_api_schema(
+        &self,
+        ctx: DocumentsAppRequestContext,
+        surface_id: String,
+    ) -> DocumentsServiceResult<CatalogApiSchema> {
+        self.repository
+            .developer_catalog_api_schema(ctx.tenant_id, &surface_id)
+            .await?
+            .ok_or(DocumentsServiceError::NotFound(surface_id))
+    }
+
+    async fn list_developer_catalog_api_operations(
+        &self,
+        ctx: DocumentsAppRequestContext,
+        surface_id: String,
+        query: CatalogApiOperationQuery,
+    ) -> DocumentsServiceResult<CatalogApiOperationPage> {
+        self.repository
+            .developer_catalog_api_operations(
+                ctx.tenant_id,
+                &surface_id,
+                normalize_operation_query(query),
+            )
+            .await
+    }
+
+    async fn list_developer_catalog_sdks(
+        &self,
+        ctx: DocumentsAppRequestContext,
+        query: CatalogSdkQuery,
+    ) -> DocumentsServiceResult<CatalogSdkFamilyPage> {
+        self.repository
+            .developer_catalog_sdks(ctx.tenant_id, normalize_sdk_query(query))
+            .await
+    }
+
+    async fn retrieve_developer_catalog_sdk(
+        &self,
+        ctx: DocumentsAppRequestContext,
+        sdk_id: String,
+    ) -> DocumentsServiceResult<CatalogSdkFamilyDetail> {
+        self.repository
+            .developer_catalog_sdk(ctx.tenant_id, &sdk_id)
+            .await?
+            .ok_or(DocumentsServiceError::NotFound(sdk_id))
+    }
+}
+
+fn normalize_page(page: Option<i64>, page_size: Option<i64>) -> (i64, i64) {
+    let page = page.unwrap_or(1).max(1);
+    let page_size = page_size.unwrap_or(24).clamp(1, 100);
+    (page, page_size)
+}
+
+fn normalize_api_query(mut query: CatalogApiSurfaceQuery) -> CatalogApiSurfaceQuery {
+    let (page, page_size) = normalize_page(query.page, query.page_size);
+    query.page = Some(page);
+    query.page_size = Some(page_size);
+    query.q = query
+        .q
+        .map(|value| value.trim().to_owned())
+        .filter(|value| !value.is_empty());
+    query
+}
+
+fn normalize_sdk_query(mut query: CatalogSdkQuery) -> CatalogSdkQuery {
+    let (page, page_size) = normalize_page(query.page, query.page_size);
+    query.page = Some(page);
+    query.page_size = Some(page_size);
+    query.q = query
+        .q
+        .map(|value| value.trim().to_owned())
+        .filter(|value| !value.is_empty());
+    query
+}
+
+fn normalize_operation_query(mut query: CatalogApiOperationQuery) -> CatalogApiOperationQuery {
+    let (page, page_size) = normalize_page(query.page, query.page_size);
+    query.page = Some(page);
+    query.page_size = Some(page_size);
+    query.q = query
+        .q
+        .map(|value| value.trim().to_owned())
+        .filter(|value| !value.is_empty());
+    query
 }
 
 #[async_trait]

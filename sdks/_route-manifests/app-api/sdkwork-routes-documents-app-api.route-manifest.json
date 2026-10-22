@@ -146,6 +146,204 @@
       },
       "requestContext": "WebRequestContext",
       "apiSurface": "app-api"
+    },
+    {
+      "method": "GET",
+      "path": "/app/v3/api/developer_catalog/overview",
+      "operationId": "developerCatalog.overviewRetrieve",
+      "tags": [
+        "developerCatalog"
+      ],
+      "auth": {
+        "mode": "dual-token",
+        "required": true
+      },
+      "handler": {
+        "module": "crate::routes",
+        "name": null
+      },
+      "ownership": {
+        "owner": "sdkwork-documents",
+        "apiAuthority": "sdkwork-documents-app-api"
+      },
+      "requestContext": "WebRequestContext",
+      "apiSurface": "app-api"
+    },
+    {
+      "method": "GET",
+      "path": "/app/v3/api/developer_catalog/categories",
+      "operationId": "developerCatalog.categoriesList",
+      "tags": [
+        "developerCatalog"
+      ],
+      "auth": {
+        "mode": "dual-token",
+        "required": true
+      },
+      "handler": {
+        "module": "crate::routes",
+        "name": null
+      },
+      "ownership": {
+        "owner": "sdkwork-documents",
+        "apiAuthority": "sdkwork-documents-app-api"
+      },
+      "requestContext": "WebRequestContext",
+      "apiSurface": "app-api"
+    },
+    {
+      "method": "GET",
+      "path": "/app/v3/api/developer_catalog/languages",
+      "operationId": "developerCatalog.languagesList",
+      "tags": [
+        "developerCatalog"
+      ],
+      "auth": {
+        "mode": "dual-token",
+        "required": true
+      },
+      "handler": {
+        "module": "crate::routes",
+        "name": null
+      },
+      "ownership": {
+        "owner": "sdkwork-documents",
+        "apiAuthority": "sdkwork-documents-app-api"
+      },
+      "requestContext": "WebRequestContext",
+      "apiSurface": "app-api"
+    },
+    {
+      "method": "GET",
+      "path": "/app/v3/api/developer_catalog/apis",
+      "operationId": "developerCatalog.apisList",
+      "tags": [
+        "developerCatalog"
+      ],
+      "auth": {
+        "mode": "dual-token",
+        "required": true
+      },
+      "handler": {
+        "module": "crate::routes",
+        "name": null
+      },
+      "ownership": {
+        "owner": "sdkwork-documents",
+        "apiAuthority": "sdkwork-documents-app-api"
+      },
+      "requestContext": "WebRequestContext",
+      "apiSurface": "app-api"
+    },
+    {
+      "method": "GET",
+      "path": "/app/v3/api/developer_catalog/apis/{surfaceId}",
+      "operationId": "developerCatalog.apiRetrieve",
+      "tags": [
+        "developerCatalog"
+      ],
+      "auth": {
+        "mode": "dual-token",
+        "required": true
+      },
+      "handler": {
+        "module": "crate::routes",
+        "name": null
+      },
+      "ownership": {
+        "owner": "sdkwork-documents",
+        "apiAuthority": "sdkwork-documents-app-api"
+      },
+      "requestContext": "WebRequestContext",
+      "apiSurface": "app-api"
+    },
+    {
+      "method": "GET",
+      "path": "/app/v3/api/developer_catalog/apis/{surfaceId}/schema",
+      "operationId": "developerCatalog.apiSchemaRetrieve",
+      "tags": [
+        "developerCatalog"
+      ],
+      "auth": {
+        "mode": "dual-token",
+        "required": true
+      },
+      "handler": {
+        "module": "crate::routes",
+        "name": null
+      },
+      "ownership": {
+        "owner": "sdkwork-documents",
+        "apiAuthority": "sdkwork-documents-app-api"
+      },
+      "requestContext": "WebRequestContext",
+      "apiSurface": "app-api"
+    },
+    {
+      "method": "GET",
+      "path": "/app/v3/api/developer_catalog/apis/{surfaceId}/operations",
+      "operationId": "developerCatalog.apiOperationsList",
+      "tags": [
+        "developerCatalog"
+      ],
+      "auth": {
+        "mode": "dual-token",
+        "required": true
+      },
+      "handler": {
+        "module": "crate::routes",
+        "name": null
+      },
+      "ownership": {
+        "owner": "sdkwork-documents",
+        "apiAuthority": "sdkwork-documents-app-api"
+      },
+      "requestContext": "WebRequestContext",
+      "apiSurface": "app-api"
+    },
+    {
+      "method": "GET",
+      "path": "/app/v3/api/developer_catalog/sdks",
+      "operationId": "developerCatalog.sdksList",
+      "tags": [
+        "developerCatalog"
+      ],
+      "auth": {
+        "mode": "dual-token",
+        "required": true
+      },
+      "handler": {
+        "module": "crate::routes",
+        "name": null
+      },
+      "ownership": {
+        "owner": "sdkwork-documents",
+        "apiAuthority": "sdkwork-documents-app-api"
+      },
+      "requestContext": "WebRequestContext",
+      "apiSurface": "app-api"
+    },
+    {
+      "method": "GET",
+      "path": "/app/v3/api/developer_catalog/sdks/{sdkId}",
+      "operationId": "developerCatalog.sdkRetrieve",
+      "tags": [
+        "developerCatalog"
+      ],
+      "auth": {
+        "mode": "dual-token",
+        "required": true
+      },
+      "handler": {
+        "module": "crate::routes",
+        "name": null
+      },
+      "ownership": {
+        "owner": "sdkwork-documents",
+        "apiAuthority": "sdkwork-documents-app-api"
+      },
+      "requestContext": "WebRequestContext",
+      "apiSurface": "app-api"
     }
   ]
 }

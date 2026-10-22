@@ -51,6 +51,41 @@ export function createSdkworkDocumentsPcRuntime(): SdkworkDocumentsPcRuntime {
     resolveRuntimeBoolean: resolveDocumentsRuntimeBoolean,
     sdkSystemConfig: DOCUMENTS_SDK_SYSTEM_CONFIG,
     getDocumentsAppSdkClient: () => getDocumentsAppSdkClientForReference(),
+    developerMarket: {
+      async listSystems() {
+        const response = await sdkClients.documentsAppClient.developerCatalog.apisList({
+          pageSize: 100,
+        });
+        return response.items.map((surface) => ({
+          systemCode: surface.id,
+          systemName: surface.title,
+          description: surface.description,
+          availability: surface.deprecated ? 'planned' : 'available',
+          sortWeight: surface.operationCount,
+          schemaKey: surface.id,
+          aliases: [surface.apiAuthority],
+        }));
+      },
+      async loadSchema(surfaceId) {
+        const schema = await sdkClients.documentsAppClient.developerCatalog.apiSchemaRetrieve(
+          surfaceId,
+        );
+        return schema.spec;
+      },
+      resolveRequestBaseUrl(_systemCode, apiPrefix) {
+        const prefix = apiPrefix.trim();
+        if (!prefix || /^https?:\/\//u.test(prefix)) {
+          return prefix;
+        }
+        // `appApiBaseUrl` already ends with `/app/v3/api`; the playground prefix
+        // is absolute, so resolve it against the gateway origin.
+        const appApiBaseUrl = sdkClients.appApiBaseUrl.replace(/\/+$/u, '');
+        const origin = appApiBaseUrl.endsWith('/app/v3/api')
+          ? appApiBaseUrl.slice(0, -'/app/v3/api'.length)
+          : appApiBaseUrl;
+        return `${origin}${prefix.startsWith('/') ? prefix : `/${prefix}`}`;
+      },
+    },
     playgroundUserAgent: 'SDKWork-Documents-PC/1.0.0',
   };
 

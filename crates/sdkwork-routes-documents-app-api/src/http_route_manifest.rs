@@ -37,6 +37,60 @@ const HTTP_ROUTES: &[HttpRoute] = &[
         "sdkReference",
         "documentation.create",
     ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/developer_catalog/overview",
+        "developerCatalog",
+        "developerCatalog.overviewRetrieve",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/developer_catalog/categories",
+        "developerCatalog",
+        "developerCatalog.categoriesList",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/developer_catalog/languages",
+        "developerCatalog",
+        "developerCatalog.languagesList",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/developer_catalog/apis",
+        "developerCatalog",
+        "developerCatalog.apisList",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/developer_catalog/apis/{surfaceId}",
+        "developerCatalog",
+        "developerCatalog.apiRetrieve",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/developer_catalog/apis/{surfaceId}/schema",
+        "developerCatalog",
+        "developerCatalog.apiSchemaRetrieve",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/developer_catalog/apis/{surfaceId}/operations",
+        "developerCatalog",
+        "developerCatalog.apiOperationsList",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/developer_catalog/sdks",
+        "developerCatalog",
+        "developerCatalog.sdksList",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/developer_catalog/sdks/{sdkId}",
+        "developerCatalog",
+        "developerCatalog.sdkRetrieve",
+    ),
 ];
 
 pub fn app_route_manifest() -> HttpRouteManifest {

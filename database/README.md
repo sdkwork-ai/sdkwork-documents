@@ -7,11 +7,33 @@ Canonical authoritative-server lifecycle assets for `sdkwork-documents` under `D
 - `serviceCode`: `DOCUMENTS`
 - `owner`: `documents-platform`
 - `tablePrefix`: `documents_`
-- `contract tables`: 3, listed in `contract/schema.yaml`
+- `contract tables`: 14, listed in `contract/schema.yaml`
 - `engine`: PostgreSQL only
 - `autoMigrate`: disabled by default
 
 SQLite is not part of this authoritative database root. Any embedded SQLite adapter is non-authoritative and must own a separate `client-local` lifecycle contract before production use.
+
+## Developer catalog
+
+The module also owns the platform-wide developer catalog served by the API market
+and SDK market:
+
+- `documents_catalog_category`, `documents_catalog_module`, `documents_api_surface`,
+  `documents_api_schema`, `documents_api_operation`, `documents_api_surface_category`,
+  `documents_sdk_language`, `documents_sdk_family`, `documents_sdk_release`,
+  `documents_sdk_category`, and `documents_catalog_sync`.
+- Every sdkwork-space module contributes its OpenAPI surfaces (`open-api`,
+  `app-api`, `backend-api`, `internal-api`, `gateway-api`, ...), normalized
+  operations, and generated SDK families in every declared language.
+- `database/seeds/catalog/generate_catalog_seed.py` scans the sibling
+  `sdkwork-*` checkouts and emits the committed seed files
+  (`database/seeds/common/100_*` through `121_*`) plus
+  `database/seeds/catalog/catalog.summary.json`. Refresh with
+  `python database/seeds/catalog/generate_catalog_seed.py`; verify with
+  `python database/seeds/catalog/generate_catalog_seed.py --check`.
+- The App Store embeds the documents API market and SDK market; both read this
+  catalog through the documents app-api and its generated SDK.
+
 
 ## Layout
 
@@ -26,8 +48,8 @@ This module is in initialization state per `DATABASE_FRAMEWORK_SPEC.md` section 
 
 - `baselineStrategy`: `baseline-plus-migrations`
 - Primary baseline: `ddl/baseline/postgres/0001_documents_baseline.sql` (immutable bootstrap anchor; not the complete active table inventory by itself)
-- Ordered migrations: none yet — `migrations/postgres/` is empty until the contract evolves. A fresh install applies the baseline followed by the ordered migrations, so the baseline and the migration files jointly define the contract.
-- Seeds: `common/001_bootstrap.sql` plus the `zh-CN` default locale; `en-US` is declared active and the remaining locales are reserved placeholders per section 8.1.
+- Ordered migrations: `migrations/postgres/0001_developer_catalog.up.sql` adds the developer catalog tables.
+- Seeds: `common/001_bootstrap.sql`, the developer catalog seed files, plus the `zh-CN` default locale; `en-US` is declared active and the remaining locales are reserved placeholders per section 8.1.
 - Consolidation level: baseline is current; no migration has been folded into it and no tracked migration has been rewritten.
 
 ## Commands

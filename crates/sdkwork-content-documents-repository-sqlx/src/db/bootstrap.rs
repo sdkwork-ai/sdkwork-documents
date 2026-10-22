@@ -37,7 +37,6 @@ fn map_pool_error(error: PoolError) -> sqlx::Error {
     sqlx::Error::Configuration(error.to_string().into())
 }
 
-
 pub async fn install_postgres_schema(pool: &sqlx::PgPool) -> Result<(), sqlx::Error> {
     for migration in crate::migrations::POSTGRES_MIGRATIONS {
         for statement in migration.split(';') {
@@ -68,4 +67,3 @@ pub async fn connect_postgres_and_install_schema(
     install_postgres_schema(postgres).await?;
     Ok(pool)
 }
-
