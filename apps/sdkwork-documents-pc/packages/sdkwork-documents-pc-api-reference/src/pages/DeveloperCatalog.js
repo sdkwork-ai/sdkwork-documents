@@ -51,13 +51,13 @@ function StatCard({ label, value, hint }) {
     return (_jsxs("div", { className: "rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/5", children: [_jsx("p", { className: "text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400", children: label }), _jsx("p", { className: "mt-1 text-2xl font-bold text-slate-900 dark:text-white", children: value }), _jsx("p", { className: "mt-0.5 text-xs text-slate-500 dark:text-slate-400", children: hint })] }));
 }
 function CategoryChips({ categories, active, onChange, countLabel, }) {
-    return (_jsxs("div", { className: "-mx-1 flex gap-2 overflow-x-auto px-1 pb-1", children: [_jsx("button", { type: "button", onClick: () => onChange(''), className: `shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition ${active === ''
+    return (_jsxs("div", { className: "flex flex-wrap items-center gap-2", role: "group", "aria-label": "Filter by category", children: [_jsx("button", { type: "button", onClick: () => onChange(''), "aria-pressed": active === '', className: `max-w-full rounded-full border px-3 py-1.5 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40 ${active === ''
                     ? 'border-teal-600 bg-teal-600 text-white'
                     : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:text-white'}`, children: "All" }), categories.map((category) => {
                 const selected = active === category.code;
-                return (_jsxs("button", { type: "button", onClick: () => onChange(selected ? '' : category.code), className: `shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition ${selected
+                return (_jsxs("button", { type: "button", onClick: () => onChange(selected ? '' : category.code), "aria-pressed": selected, title: category.name, className: `max-w-full rounded-full border px-3 py-1.5 text-left text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40 ${selected
                         ? 'border-teal-600 bg-teal-600 text-white'
-                        : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:text-white'}`, children: [category.name, _jsx("span", { className: `ml-1.5 text-[10px] ${selected ? 'text-white/80' : 'text-slate-400 dark:text-slate-500'}`, children: formatCount(countLabel(category)) })] }, category.code));
+                        : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:text-white'}`, children: [_jsx("span", { className: "break-words", children: category.name }), _jsx("span", { className: `ml-1.5 text-[10px] ${selected ? 'text-white/80' : 'text-slate-400 dark:text-slate-500'}`, children: formatCount(countLabel(category)) })] }, category.code));
             })] }));
 }
 function SearchField({ value, onChange, placeholder }) {
