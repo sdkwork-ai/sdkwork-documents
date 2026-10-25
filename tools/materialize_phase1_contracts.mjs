@@ -31,7 +31,7 @@ const backendSchemaUrl = "/backend/v3/openapi.json";
 const PHASE1_REQUIRED_ARTIFACTS = [
   "AGENTS.md",
   "agent.app.config.json",
-  "sdkwork.workflow.json",
+  "agent.workflow.json",
   "specs/component.spec.json",
   "apis/authority-manifest.json",
   "database/database.manifest.json",

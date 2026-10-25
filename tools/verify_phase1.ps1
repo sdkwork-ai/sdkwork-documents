@@ -82,7 +82,7 @@ $requiredFiles = @(
     "sdks/sdkwork-documents-backend-sdk/sdk-manifest.json",
     "apis/authority-manifest.json",
     "database/database.manifest.json",
-    "package.json", "sdkwork.workflow.json", ".github/workflows/package.yml",
+    "package.json", "agent.workflow.json", ".github/workflows/package.yml",
     ".github/workflows/verify.yml",
     "Cargo.toml"
 )
