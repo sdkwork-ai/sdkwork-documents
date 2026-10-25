@@ -450,7 +450,7 @@ class Catalog:
             sdk["sort_order"] = index * 10
 
     def discover_module(self, repo: Path) -> None:
-        app_config = repo / "sdkwork.app.config.json"
+        app_config = repo / "agent.app.config.json"
         package_json = repo / "package.json"
         app: dict[str, Any] = {}
         backend: dict[str, Any] = {}

@@ -72,7 +72,7 @@ Invoke-Checked powershell -ExecutionPolicy Bypass -File tools/verify_sdkwork_str
 $requiredFiles = @(
     "AGENTS.md", "CODEX.md", "CLAUDE.md", "GEMINI.md",
     ".sdkwork/README.md", ".sdkwork/skills/README.md", ".sdkwork/plugins/README.md",
-    "sdkwork.app.config.json", "specs/README.md", "specs/component.spec.json",
+    "agent.app.config.json", "specs/README.md", "specs/component.spec.json",
     "docs/superpowers/specs/2026-06-20-documents-architecture-design.md",
     "docs/schema-registry/README.md",
     "docs/schema-registry/tables/001-documents-core.yaml",
@@ -91,9 +91,9 @@ foreach ($file in $requiredFiles) {
     if (!(Test-Path $file)) { throw "Missing required phase1 artifact: $file" }
 }
 
-$appConfig = Read-JsonFile "sdkwork.app.config.json"
+$appConfig = Read-JsonFile "agent.app.config.json"
 if ($appConfig.app.key -ne "sdkwork-documents") {
-    throw "sdkwork.app.config.json app.key must be sdkwork-documents"
+    throw "agent.app.config.json app.key must be sdkwork-documents"
 }
 
 $rootSpec = Read-JsonFile "specs/component.spec.json"

@@ -253,7 +253,7 @@ function buildRuntimeEnv(settings, profileId, profileEnv) {
 
   return mergeRepoDevBootstrapAccessTokenEnv({
     repoRoot: REPO_ROOT,
-    manifestPath: 'sdkwork.app.config.json',
+    manifestPath: 'agent.app.config.json',
     appId: 'sdkwork-documents',
     env: mergeRuntimeEnv(
       iamSourceEnv,

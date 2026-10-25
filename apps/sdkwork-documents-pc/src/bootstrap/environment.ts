@@ -2,7 +2,7 @@ import {
   readDocumentsRuntimeEnv,
   resolveDocumentsRuntimeBoolean,
 } from '@sdkwork/documents-pc-commons/runtime';
-import manifest from '../../../../sdkwork.app.config.json';
+import manifest from '../../../../agent.app.config.json';
 import {resolveBaseUrlWithAlignProtocol} from '@sdkwork/sdk-common';
 
 export type SdkworkDocumentsPcEnvironment = 'development' | 'test' | 'staging' | 'production';

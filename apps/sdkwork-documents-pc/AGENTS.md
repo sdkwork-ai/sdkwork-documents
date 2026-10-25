@@ -17,7 +17,7 @@ Canonical SDKWORK specs path from this app surface:
 
 ## Application Identity
 
-This is the PC browser/desktop app surface for SDKWork Documents. Read `../../sdkwork.app.config.json` when the task touches app identity, runtime config, SDK wiring, release metadata, packaging, or deployment.
+This is the PC browser/desktop app surface for SDKWork Documents. Read `../../agent.app.config.json` when the task touches app identity, runtime config, SDK wiring, release metadata, packaging, or deployment.
 
 ## Local Dictionary Structure
 

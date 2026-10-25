@@ -17,7 +17,7 @@
     "generated": false,
     "status": "draft",
     "manifests": [
-      "sdkwork.app.config.json",
+      "agent.app.config.json",
       "AGENTS.md",
       "specs/component.spec.json",
       "sdks/sdkwork-documents-sdk/sdk-manifest.json",

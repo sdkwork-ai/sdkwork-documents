@@ -31,14 +31,14 @@ settlement, ratings, anonymous (unauthenticated) browsing, and application listi
 ## 3. Ingest contract (data sources)
 
 Scanner priority, because the declaration plane is not uniform across modules
-(`sdkwork.app.config.json` exists in 58 repositories; `apis/authority-manifest.json` only in some):
+(`agent.app.config.json` exists in 58 repositories; `apis/authority-manifest.json` only in some):
 
 1. `<repo>/specs/component.spec.json` → `contracts.apiAuthorities[]` (`name`, `prefix`, `authorityOpenApi`, `sdkFamily`) — primary API index.
 2. `<repo>/apis/authority-manifest.json`, `apis/**/authority-index.json`, `apis/manifest.json` → authority↔SDK path pairs, `pathPrefix`, `sha256`.
 3. `<repo>/sdks/<family>/sdk-manifest.json` → SDK identity, `apiVersion`, `discoverySurface`, `languages[]`, `packageName`.
 4. `<repo>/sdks/_route-manifests/**/*.route-manifest.json` → endpoint inventory (`method`, `path`, `operationId`, `tags`, `auth`) for `documents_market_api_endpoint`.
 5. `<repo>/apis/**/*.openapi.json` → titles, summaries, tags, operation counts (enrichment).
-6. `<repo>/sdkwork.app.config.json` → module identity, `backend.domain/capability`, release version, icon (tolerate absence).
+6. `<repo>/agent.app.config.json` → module identity, `backend.domain/capability`, release version, icon (tolerate absence).
 7. `<repo>/generated/composition.resolved.json` → consumer edges (later phase: "used by").
 
 Bundle: deterministically ordered JSON plus `sha256`; importer is idempotent by natural key

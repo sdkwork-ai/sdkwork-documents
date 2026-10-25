@@ -30,7 +30,7 @@ const backendSchemaUrl = "/backend/v3/openapi.json";
 
 const PHASE1_REQUIRED_ARTIFACTS = [
   "AGENTS.md",
-  "sdkwork.app.config.json",
+  "agent.app.config.json",
   "sdkwork.workflow.json",
   "specs/component.spec.json",
   "apis/authority-manifest.json",
@@ -1075,7 +1075,7 @@ writeJson("specs/component.spec.json", {
     generated: false,
     status: "draft",
     manifests: [
-      "sdkwork.app.config.json",
+      "agent.app.config.json",
       "AGENTS.md",
       "specs/component.spec.json",
       ...sdkFamilies.map((f) => `${f.dir}/sdk-manifest.json`),
