@@ -69,79 +69,93 @@ const SYSTEM_NAMES: Record<ApiSystem, string> = {
   'backend-api': 'Backend API',
 };
 
-const OPEN_API_PACKAGES: LanguagePackageSet = packageSetFromMetadata(
-  getSdkSystemConfig()['llm-open-api'],
-  'open',
-  'Open',
-);
+let cachedSystemPackageNames: Record<ApiSystem, LanguagePackageSet> | null = null;
 
-const DRIVE_OPEN_API_PACKAGES: LanguagePackageSet = {
-  ts: getSdkSystemConfig()['drive-open-api'].packageName,
-  py: 'sdkwork-drive-sdk-generated',
-  go: 'github.com/sdkwork/drive-sdk-generated',
-  java: 'drive-sdk-generated',
-  ruby: 'sdkwork-drive-sdk',
-  php: 'sdkwork/drive-sdk-php',
-  csharp: 'Sdkwork.DriveSdk',
-  rust: 'sdkwork-drive-sdk-generated',
-  flutter: 'sdkwork_drive_sdk',
-};
+// Lazily resolved on first use: `getSdkSystemConfig()` reads the host-registered
+// documents reference runtime, which only exists after the React provider
+// mounts. Module-scope evaluation would throw in Node tests and SSR.
+function systemPackageNames(): Record<ApiSystem, LanguagePackageSet> {
+  if (!cachedSystemPackageNames) {
+    const openApiPackages = packageSetFromMetadata(
+      getSdkSystemConfig()['llm-open-api'],
+      'open',
+      'Open',
+    );
+    const driveOpenApiPackages: LanguagePackageSet = {
+      ts: getSdkSystemConfig()['drive-open-api'].packageName,
+      py: 'sdkwork-drive-sdk-generated',
+      go: 'github.com/sdkwork/drive-sdk-generated',
+      java: 'drive-sdk-generated',
+      ruby: 'sdkwork-drive-sdk',
+      php: 'sdkwork/drive-sdk-php',
+      csharp: 'Sdkwork.DriveSdk',
+      rust: 'sdkwork-drive-sdk-generated',
+      flutter: 'sdkwork_drive_sdk',
+    };
+    const memoryOpenApiPackages: LanguagePackageSet = {
+      ts: getSdkSystemConfig()['memory-open-api'].packageName,
+      py: 'sdkwork-memory-sdk',
+      go: 'github.com/sdkwork/memory-sdk',
+      java: 'memory-sdk',
+      ruby: 'sdkwork-memory-sdk',
+      php: 'sdkwork/memory-sdk-php',
+      csharp: 'Sdkwork.MemorySdk',
+      rust: 'sdkwork-memory-sdk',
+      flutter: 'sdkwork_memory_sdk',
+    };
+    const agentOpenApiPackages: LanguagePackageSet = {
+      ts: getSdkSystemConfig()['agent-open-api'].packageName,
+      py: 'sdkwork-agent-sdk',
+      go: 'github.com/sdkwork/agent-sdk',
+      java: 'agent-sdk',
+      ruby: 'sdkwork-agent-sdk',
+      php: 'sdkwork/agent-sdk-php',
+      csharp: 'Sdkwork.AgentSdk',
+      rust: 'sdkwork-agent-sdk',
+      flutter: 'sdkwork_agent_sdk',
+    };
+    cachedSystemPackageNames = {
+      'llm-open-api': openApiPackages,
+      'image-open-api': openApiPackages,
+      'video-open-api': openApiPackages,
+      'audio-open-api': openApiPackages,
+      'drive-open-api': driveOpenApiPackages,
+      'knowledgebase-open-api': openApiPackages,
+      'memory-open-api': memoryOpenApiPackages,
+      'agent-open-api': agentOpenApiPackages,
+      'payment-open-api': packageSet('payment-open-api', 'payment', 'Payment'),
+      'iaas-open-api': packageSet('iaas-open-api', 'iaas', 'Iaas'),
+      'paas-open-api': packageSet('paas-open-api', 'paas', 'Paas'),
+      'app-api': packageSet('app-api', 'app', 'App'),
+      'backend-api': packageSet('backend-api', 'backend', 'Backend'),
+    };
+  }
+  return cachedSystemPackageNames;
+}
 
-const MEMORY_OPEN_API_PACKAGES: LanguagePackageSet = {
-  ts: getSdkSystemConfig()['memory-open-api'].packageName,
-  py: 'sdkwork-memory-sdk',
-  go: 'github.com/sdkwork/memory-sdk',
-  java: 'memory-sdk',
-  ruby: 'sdkwork-memory-sdk',
-  php: 'sdkwork/memory-sdk-php',
-  csharp: 'Sdkwork.MemorySdk',
-  rust: 'sdkwork-memory-sdk',
-  flutter: 'sdkwork_memory_sdk',
-};
+let cachedSystemClassNames: Record<ApiSystem, string> | null = null;
 
-const AGENT_OPEN_API_PACKAGES: LanguagePackageSet = {
-  ts: getSdkSystemConfig()['agent-open-api'].packageName,
-  py: 'sdkwork-agent-sdk',
-  go: 'github.com/sdkwork/agent-sdk',
-  java: 'agent-sdk',
-  ruby: 'sdkwork-agent-sdk',
-  php: 'sdkwork/agent-sdk-php',
-  csharp: 'Sdkwork.AgentSdk',
-  rust: 'sdkwork-agent-sdk',
-  flutter: 'sdkwork_agent_sdk',
-};
-
-const SYSTEM_PACKAGE_NAMES: Record<ApiSystem, LanguagePackageSet> = {
-  'llm-open-api': OPEN_API_PACKAGES,
-  'image-open-api': OPEN_API_PACKAGES,
-  'video-open-api': OPEN_API_PACKAGES,
-  'audio-open-api': OPEN_API_PACKAGES,
-  'drive-open-api': DRIVE_OPEN_API_PACKAGES,
-  'knowledgebase-open-api': OPEN_API_PACKAGES,
-  'memory-open-api': MEMORY_OPEN_API_PACKAGES,
-  'agent-open-api': AGENT_OPEN_API_PACKAGES,
-  'payment-open-api': packageSet('payment-open-api', 'payment', 'Payment'),
-  'iaas-open-api': packageSet('iaas-open-api', 'iaas', 'Iaas'),
-  'paas-open-api': packageSet('paas-open-api', 'paas', 'Paas'),
-  'app-api': packageSet('app-api', 'app', 'App'),
-  'backend-api': packageSet('backend-api', 'backend', 'Backend'),
-};
-
-const SYSTEM_CLASS_NAMES: Record<ApiSystem, string> = {
-  'llm-open-api': getSdkSystemConfig()['llm-open-api'].name,
-  'image-open-api': getSdkSystemConfig()['image-open-api'].name,
-  'video-open-api': getSdkSystemConfig()['video-open-api'].name,
-  'audio-open-api': getSdkSystemConfig()['audio-open-api'].name,
-  'drive-open-api': getSdkSystemConfig()['drive-open-api'].name,
-  'knowledgebase-open-api': getSdkSystemConfig()['knowledgebase-open-api'].name,
-  'memory-open-api': getSdkSystemConfig()['memory-open-api'].name,
-  'agent-open-api': getSdkSystemConfig()['agent-open-api'].name,
-  'payment-open-api': getSdkSystemConfig()['payment-open-api'].name,
-  'iaas-open-api': getSdkSystemConfig()['iaas-open-api'].name,
-  'paas-open-api': getSdkSystemConfig()['paas-open-api'].name,
-  'app-api': getSdkSystemConfig()['app-api'].name,
-  'backend-api': getSdkSystemConfig()['backend-api'].name,
-};
+function systemClassNames(): Record<ApiSystem, string> {
+  if (!cachedSystemClassNames) {
+    const systemConfig = getSdkSystemConfig();
+    cachedSystemClassNames = {
+      'llm-open-api': systemConfig['llm-open-api'].name,
+      'image-open-api': systemConfig['image-open-api'].name,
+      'video-open-api': systemConfig['video-open-api'].name,
+      'audio-open-api': systemConfig['audio-open-api'].name,
+      'drive-open-api': systemConfig['drive-open-api'].name,
+      'knowledgebase-open-api': systemConfig['knowledgebase-open-api'].name,
+      'memory-open-api': systemConfig['memory-open-api'].name,
+      'agent-open-api': systemConfig['agent-open-api'].name,
+      'payment-open-api': systemConfig['payment-open-api'].name,
+      'iaas-open-api': systemConfig['iaas-open-api'].name,
+      'paas-open-api': systemConfig['paas-open-api'].name,
+      'app-api': systemConfig['app-api'].name,
+      'backend-api': systemConfig['backend-api'].name,
+    };
+  }
+  return cachedSystemClassNames;
+}
 
 const SYSTEM_EXAMPLES: Record<ApiSystem, LanguageExampleSet> = {
   'llm-open-api': exampleSet(
@@ -243,8 +257,8 @@ const SYSTEM_EXAMPLES: Record<ApiSystem, LanguageExampleSet> = {
 };
 
 export const getSdkDataForSystem = (system: ApiSystem): SdkLanguage[] => {
-  const pkgs = SYSTEM_PACKAGE_NAMES[system];
-  const cls = SYSTEM_CLASS_NAMES[system];
+  const pkgs = systemPackageNames()[system];
+  const cls = systemClassNames()[system];
   const ex = SYSTEM_EXAMPLES[system];
   const sysName = SYSTEM_NAMES[system];
   const generatedSdk = getSdkSystemConfig()[system];
@@ -354,8 +368,6 @@ export const getSdkDataForSystem = (system: ApiSystem): SdkLanguage[] => {
     },
   ];
 };
-
-export const SDK_DATA = getSdkDataForSystem('llm-open-api');
 
 function packageSet(system: ApiSystem, stem: string, classStem: string): LanguagePackageSet {
   return packageSetFromMetadata(getSdkSystemConfig()[system], stem, classStem);

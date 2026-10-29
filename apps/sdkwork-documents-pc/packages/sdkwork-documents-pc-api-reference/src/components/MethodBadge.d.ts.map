@@ -1,1 +1,1 @@
-{"version":3,"file":"MethodBadge.d.ts","sourceRoot":"","sources":["MethodBadge.tsx"],"names":[],"mappings":"AAAA,OAAO,KAAK,MAAM,OAAO,CAAC;AAE1B,eAAO,MAAM,WAAW,GAAI,YAAY;IAAE,MAAM,EAAE,MAAM,CAAA;CAAE,sBAezD,CAAC"}
+{"version":3,"file":"MethodBadge.d.ts","sourceRoot":"","sources":["MethodBadge.tsx"],"names":[],"mappings":"AAEA,eAAO,MAAM,WAAW,GAAI,YAAY;IAAE,MAAM,EAAE,MAAM,CAAA;CAAE,gCAezD,CAAC"}

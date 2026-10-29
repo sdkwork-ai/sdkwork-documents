@@ -1,3 +1,2 @@
-import React from 'react';
-export declare function ProductDocs(): React.JSX.Element;
+export declare function ProductDocs(): import("react").JSX.Element;
 //# sourceMappingURL=ProductDocs.d.ts.map
