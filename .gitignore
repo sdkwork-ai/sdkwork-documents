@@ -17,7 +17,7 @@ sdks/**/generated/server-openapi/package-lock.json
 **/node_modules/
 **/target/
 !.env.*.example
-!.env.postgres.example
+!config/host/postgres.env.example
 coverage/
 **/.pnpm-store/
 .DS_Store
