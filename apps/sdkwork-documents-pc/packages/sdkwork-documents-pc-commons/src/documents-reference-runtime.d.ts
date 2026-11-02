@@ -78,6 +78,13 @@ export interface DocumentsReferenceRuntime {
     getDocumentsAppSdkClient: () => DocumentsAppSdkClient;
     playgroundUserAgent?: string;
     /**
+     * Additional origins that serve the same reference JSON documents as the
+     * page origin (typically the API gateway in a cross-origin deployment).
+     * Reference loaders try the page origin first and then each origin here, so
+     * a statically hosted portal can still read the gateway's OpenAPI documents.
+     */
+    schemaDocumentOrigins?: string[];
+    /**
      * Database-backed developer-market catalog. When present, the API reference
      * and SDK reference surfaces load their roster and OpenAPI documents from the
      * host instead of addressing static gateway JSON through the page origin.

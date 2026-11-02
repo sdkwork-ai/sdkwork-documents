@@ -129,6 +129,51 @@ type OpenApiSchemaTabDomain =
   | 'memory'
   | 'agent';
 
+interface OpenApiSchemaTabDefinition {
+  domain: OpenApiSchemaTabDomain;
+  id: string;
+  name: string;
+  order: number;
+}
+
+/**
+ * Canonical order and display name of the AI-gateway capability groups. The
+ * gateway publishes every capability through one `/openapi.json` document, so
+ * the API Reference splits that single document into these systems whenever the
+ * multi-system schema-tabs manifest is unreachable (a statically hosted portal
+ * ships only the bundled `/openapi.json` snapshot).
+ */
+const OPEN_API_SCHEMA_TAB_DEFINITIONS: readonly OpenApiSchemaTabDefinition[] = [
+  { domain: 'llm', id: 'llm-open-api', name: 'LLM Open API', order: 10 },
+  { domain: 'image', id: 'image-open-api', name: 'Image Open API', order: 20 },
+  { domain: 'video', id: 'video-open-api', name: 'Video Open API', order: 30 },
+  { domain: 'audio', id: 'audio-open-api', name: 'Audio Open API', order: 40 },
+  { domain: 'drive', id: 'drive-open-api', name: 'Drive Open API', order: 50 },
+  { domain: 'knowledgebase', id: 'knowledgebase-open-api', name: 'Knowledgebase Open API', order: 60 },
+  { domain: 'memory', id: 'memory-open-api', name: 'Memory Open API', order: 70 },
+  { domain: 'agent', id: 'agent-open-api', name: 'Agent Open API', order: 80 },
+];
+
+interface FallbackSchemaDocumentTab {
+  id: string;
+  name: string;
+  order: number;
+  schemaPath: string;
+}
+
+/**
+ * Product surfaces that are not part of the gateway document. They are probed
+ * when the manifest is unavailable, so a deployment still lists every surface
+ * whose OpenAPI document it can reach instead of collapsing to the LLM group.
+ */
+const FALLBACK_SCHEMA_DOCUMENT_TABS: readonly FallbackSchemaDocumentTab[] = [
+  { id: 'payment-open-api', name: 'Payment Open API', order: 90, schemaPath: '/payments/v3/openapi.json' },
+  { id: 'iaas-open-api', name: 'IaaS Open API', order: 100, schemaPath: '/cloud/v3/openapi.json' },
+  { id: 'paas-open-api', name: 'PaaS Open API', order: 110, schemaPath: '/paas/v3/openapi.json' },
+  { id: 'app-api', name: 'App API', order: 120, schemaPath: `${APP_API_PREFIX}/openapi.json` },
+  { id: 'backend-api', name: 'Backend API', order: 130, schemaPath: `${BACKEND_API_PREFIX}/openapi.json` },
+];
+
 export function sortApiSchemaTabs(tabs: ApiSchemaTab[]): ApiSchemaTab[] {
   return [...tabs].sort((left, right) => {
     if (left.order !== right.order) {
@@ -146,11 +191,33 @@ export async function loadApiReferenceSchemaTabs(
     return loadDeveloperMarketSchemaTabsDocument(developerMarket);
   }
   try {
-    const manifestPayload = await fetchJson(API_SCHEMA_TABS_URL);
-    return normalizeApiSchemaTabsDocument(manifestPayload);
+    return await loadSchemaTabsManifest(fetchJson);
   } catch {
-    return legacyApiSchemaTabsDocument();
+    const fallback = await loadDocumentDerivedSchemaTabsDocument(fetchJson);
+    return fallback.document;
   }
+}
+
+/**
+ * Reads the multi-system manifest from the page origin, then from every
+ * configured document origin (a cross-origin portal is a static bundle whose
+ * page origin never serves the gateway manifest).
+ */
+async function loadSchemaTabsManifest(
+  fetchJson: ApiReferenceFetchJson,
+): Promise<ApiSchemaTabsDocument> {
+  let lastError: unknown;
+  for (const url of resolveSchemaDocumentUrls(API_SCHEMA_TABS_URL, true)) {
+    try {
+      const payload = await withSchemaDocumentTimeout(fetchJson(url), API_SCHEMA_TABS_URL);
+      return normalizeApiSchemaTabsDocument(payload);
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError instanceof Error
+    ? lastError
+    : new Error('API schema tabs manifest is unavailable');
 }
 
 function readDeveloperMarketRuntime() {
@@ -270,47 +337,197 @@ export async function loadApiReferenceSystems(fetchJson: ApiReferenceFetchJson =
     return buildApiReferenceSystemsFromTabs(marketManifest, fetchJson);
   }
   try {
-    const manifestPayload = await fetchJson(API_SCHEMA_TABS_URL);
-    const manifest = normalizeApiSchemaTabsDocument(manifestPayload);
+    const manifest = await loadSchemaTabsManifest(fetchJson);
     return buildApiReferenceSystemsFromTabs(manifest, fetchJson);
   } catch {
-    const legacyPayload = await fetchJson(LEGACY_OPENAPI_URL);
-    if (!isOpenApiDocument(legacyPayload)) {
+    const fallback = await loadDocumentDerivedSchemaTabsDocument(fetchJson);
+    const systems = await buildApiReferenceSystemsFromTabs(
+      fallback.document,
+      (url) => Promise.resolve(fallback.readSchema(url) ?? fetchJson(url)),
+    );
+    if (systems.length === 0) {
       throw new Error('Invalid OpenAPI document');
     }
-    return buildApiReferenceSystemsFromTabs({
-      tabs: [{
-        id: 'llm-open-api',
-        name: 'LLM Open API',
-        aliases: ['gateway'],
-        order: 10,
-        schemaUrls: [LEGACY_OPENAPI_URL],
-        defaultSchemaUrl: LEGACY_OPENAPI_URL,
-        status: 'available',
-      }],
-    }, async () => legacyPayload);
+    return systems;
   }
 }
 
-function legacyApiSchemaTabsDocument(): ApiSchemaTabsDocument {
-  return {
-    tabs: [{
-      id: 'llm-open-api',
-      name: 'LLM Open API',
-      aliases: ['gateway'],
-      order: 10,
-      schemaUrls: [LEGACY_OPENAPI_URL],
-      defaultSchemaUrl: LEGACY_OPENAPI_URL,
-      status: 'available',
-    }],
+interface DocumentDerivedSchemaTabs {
+  document: ApiSchemaTabsDocument;
+  /** Re-serves an already fetched document so tab building never refetches it. */
+  readSchema: (url: string) => OpenApiDocument | undefined;
+}
+
+/**
+ * Upper bound for one reference document request, so an unreachable document
+ * origin can never hold the reference page hostage.
+ */
+const SCHEMA_DOCUMENT_REQUEST_TIMEOUT_MS = 6_000;
+
+function withSchemaDocumentTimeout<T>(work: Promise<T>, path: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error(`Timed out loading OpenAPI document: ${path}`));
+    }, SCHEMA_DOCUMENT_REQUEST_TIMEOUT_MS);
+    work.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error: unknown) => {
+        clearTimeout(timer);
+        reject(error);
+      },
+    );
+  });
+}
+
+/**
+ * Builds the reference roster from the documents this deployment can actually
+ * serve when the schema-tabs manifest is unavailable.
+ *
+ * The gateway document is split into its capability groups, and each product
+ * surface document is probed independently. A document that is missing or
+ * unreachable removes only its own group; a static portal that ships just the
+ * bundled `/openapi.json` snapshot therefore keeps every capability browsable
+ * instead of degrading to the single legacy "LLM Open API" entry.
+ */
+async function loadDocumentDerivedSchemaTabsDocument(
+  fetchJson: ApiReferenceFetchJson,
+): Promise<DocumentDerivedSchemaTabs> {
+  const documents = new Map<string, OpenApiDocument>();
+
+  const loadDocument = async (
+    path: string,
+    allowOriginFallback: boolean,
+  ): Promise<{ url: string; spec: OpenApiDocument }> => {
+    let lastError: unknown;
+    for (const url of resolveSchemaDocumentUrls(path, allowOriginFallback)) {
+      try {
+        const payload = await withSchemaDocumentTimeout(fetchJson(url), url);
+        if (!isOpenApiDocument(payload)) {
+          lastError = new Error(`Invalid OpenAPI document: ${url}`);
+          continue;
+        }
+        documents.set(url, payload);
+        return { url, spec: payload };
+      } catch (error) {
+        lastError = error;
+      }
+    }
+    throw lastError instanceof Error
+      ? lastError
+      : new Error(`Failed to load OpenAPI document: ${path}`);
   };
+
+  const gateway = await loadDocument(LEGACY_OPENAPI_URL, false);
+  const domains = detectOpenApiDocumentDomains(gateway.spec);
+  const gatewayTabs: ApiSchemaTab[] = OPEN_API_SCHEMA_TAB_DEFINITIONS
+    .filter((definition) => domains.has(definition.domain))
+    .map((definition) => ({
+      id: definition.id,
+      name: definition.name,
+      aliases: definition.domain === 'llm' ? ['gateway'] : [],
+      order: definition.order,
+      schemaUrls: [gateway.url],
+      defaultSchemaUrl: gateway.url,
+      status: 'available',
+    }));
+
+  const surfaceResults = await Promise.allSettled(
+    FALLBACK_SCHEMA_DOCUMENT_TABS.map(async (definition): Promise<ApiSchemaTab> => {
+      const document = await loadDocument(definition.schemaPath, true);
+      return {
+        id: definition.id,
+        name: definition.name,
+        order: definition.order,
+        schemaUrls: [document.url],
+        defaultSchemaUrl: document.url,
+        status: 'available',
+      };
+    }),
+  );
+  const surfaceTabs = surfaceResults
+    .filter((result): result is PromiseFulfilledResult<ApiSchemaTab> => result.status === 'fulfilled')
+    .map((result) => result.value);
+  const tabs = [...gatewayTabs, ...surfaceTabs];
+  if (tabs.length === 0) {
+    throw new Error('No documented API systems are available');
+  }
+
+  return {
+    document: { tabs },
+    readSchema: (url) => documents.get(url),
+  };
+}
+
+/**
+ * Candidate URLs for one reference document, in priority order: the
+ * page-relative path first, then the same path on every configured document
+ * origin (a cross-origin portal is a static bundle whose page origin never
+ * serves the gateway documents). Exported so the fallback ordering stays
+ * unit-testable without registering the host runtime.
+ */
+export function resolveSchemaDocumentUrls(
+  path: string,
+  allowOriginFallback: boolean,
+  origins: readonly string[] = readSchemaDocumentOrigins(),
+): string[] {
+  const urls = [path];
+  if (!allowOriginFallback || !path.startsWith('/')) {
+    return urls;
+  }
+  for (const rawOrigin of origins) {
+    const origin = rawOrigin.trim().replace(/\/+$/g, '');
+    if (!/^https?:\/\//i.test(origin)) {
+      continue;
+    }
+    const url = `${origin}${path}`;
+    if (!urls.includes(url)) {
+      urls.push(url);
+    }
+  }
+  return urls;
+}
+
+function readSchemaDocumentOrigins(): string[] {
+  try {
+    return getDocumentsReferenceRuntime().schemaDocumentOrigins ?? [];
+  } catch {
+    return [];
+  }
+}
+
+function detectOpenApiDocumentDomains(spec: OpenApiDocument): Set<OpenApiSchemaTabDomain> {
+  const domains = new Set<OpenApiSchemaTabDomain>();
+  Object.entries(spec.paths).forEach(([path, pathItem]) => {
+    Object.entries(pathItem).forEach(([method, operation]) => {
+      if (!isOperationMethod(method) || !isOpenApiOperation(operation)) {
+        return;
+      }
+      domains.add(classifyOpenApiOperationDomain(operation, path) ?? 'llm');
+    });
+  });
+  return domains;
+}
+
+function classifyOpenApiOperationDomain(
+  operation: OpenApiOperation,
+  path: string,
+): Exclude<OpenApiSchemaTabDomain, 'llm'> | undefined {
+  const operationTagDomain = operation.tags
+    ?.map(classifyOpenApiCategoryName)
+    .find((domain): domain is Exclude<OpenApiSchemaTabDomain, 'llm'> => domain !== undefined);
+  return operationTagDomain
+    ?? classifyOpenApiPathDomain(path)
+    ?? classifyOpenApiOperationIdDomain(operation.operationId ?? '');
 }
 
 export async function buildApiReferenceSystemsFromTabs(
   manifest: ApiSchemaTabsDocument,
   fetchJson: ApiReferenceFetchJson,
 ): Promise<ApiSystemData[]> {
-  const systems = await Promise.all(sortApiSchemaTabs(manifest.tabs).map(async (tab) => {
+  const systems = await Promise.all(sortApiSchemaTabs(manifest.tabs).map(async (tab): Promise<ApiSystemData | null> => {
     if (tab.status === 'planned' && tab.schemaUrls.length === 0) {
       return {
         id: tab.id,
@@ -326,36 +543,45 @@ export async function buildApiReferenceSystemsFromTabs(
       };
     }
 
-    const schemaDocs = await Promise.all(tab.schemaUrls.map(async (url) => {
-      const payload = await fetchJson(url);
-      if (!isOpenApiDocument(payload)) {
-        throw new Error(`Invalid OpenAPI document: ${url}`);
-      }
-      return { url, spec: payload };
-    }));
-    const schemaUrl = tab.defaultSchemaUrl || tab.schemaUrls[0];
-    const defaultSchemaDoc = schemaDocs.find((schemaDoc) => schemaDoc.url === schemaUrl) ?? schemaDocs[0];
-    const requestBaseUrl = resolveApiSystemRequestBaseUrl(tab.id, schemaUrl, defaultSchemaDoc?.spec);
-    const developerMarket = readDeveloperMarketRuntime();
+    try {
+      const schemaDocs = await Promise.all(tab.schemaUrls.map(async (url) => {
+        const payload = await fetchJson(url);
+        if (!isOpenApiDocument(payload)) {
+          throw new Error(`Invalid OpenAPI document: ${url}`);
+        }
+        return { url, spec: payload };
+      }));
+      const schemaUrl = tab.defaultSchemaUrl || tab.schemaUrls[0];
+      const defaultSchemaDoc = schemaDocs.find((schemaDoc) => schemaDoc.url === schemaUrl) ?? schemaDocs[0];
+      const requestBaseUrl = resolveApiSystemRequestBaseUrl(tab.id, schemaUrl, defaultSchemaDoc?.spec);
+      const developerMarket = readDeveloperMarketRuntime();
 
-    return {
-      id: tab.id,
-      name: tab.name,
-      icon: iconForTab(tab.id),
-      schemaTab: tab,
-      schemaUrl,
-      requestBaseUrl: developerMarket?.resolveRequestBaseUrl?.(tab.id, requestBaseUrl) ?? requestBaseUrl,
-      openApiSpec: defaultSchemaDoc?.spec,
-      categories: schemaDocs.flatMap((schemaDoc) => (
-        filterApiCategoriesForSchemaTab(tab.id, openApiDocumentToCategories(schemaDoc.spec))
-      )),
-      status: tab.status ?? 'available',
-      description: tab.description,
-      serviceGroups: tab.serviceGroups ?? [],
-    };
+      return {
+        id: tab.id,
+        name: tab.name,
+        icon: iconForTab(tab.id),
+        schemaTab: tab,
+        schemaUrl,
+        requestBaseUrl: developerMarket?.resolveRequestBaseUrl?.(tab.id, requestBaseUrl) ?? requestBaseUrl,
+        openApiSpec: defaultSchemaDoc?.spec,
+        categories: schemaDocs.flatMap((schemaDoc) => (
+          filterApiCategoriesForSchemaTab(tab.id, openApiDocumentToCategories(schemaDoc.spec))
+        )),
+        status: tab.status ?? 'available',
+        description: tab.description,
+        serviceGroups: tab.serviceGroups ?? [],
+      };
+    } catch {
+      // One unreachable or malformed document must not erase every other API
+      // group from the reference; the failed tab is reported as empty and the
+      // remaining systems keep rendering.
+      return null;
+    }
   }));
 
-  return systems.filter((system) => system.status === 'planned' || system.categories.length > 0);
+  return systems.filter((system): system is ApiSystemData => (
+    system !== null && (system.status === 'planned' || system.categories.length > 0)
+  ));
 }
 
 export function getApiSystemDisplayName(system: Pick<ApiSystemData, 'id' | 'name'>): string {

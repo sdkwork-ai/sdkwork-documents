@@ -157,8 +157,8 @@
       "runtimeTarget": "server"
     },
     {
-      "id": "linux-x64-cloud-container-oci",
-      "profile": "server",
+      "id": "linux-x64-cloud-container-tar-gz",
+      "profile": "container",
       "platform": "linux",
       "architecture": "x64",
       "formats": [

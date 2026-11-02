@@ -1,4 +1,3 @@
-import React from 'react';
 import type { ParamRow } from '../apiPlaygroundRows';
 export type { ParamRow } from '../apiPlaygroundRows';
 interface ApiPlaygroundParamsTableProps {
@@ -11,5 +10,5 @@ interface ApiPlaygroundParamsTableProps {
     hideDescription?: boolean;
     onBulkEdit?: (text: string) => void;
 }
-export declare function ApiPlaygroundParamsTable({ title, params, errors, onChange, onRemove, hideEnabled, hideDescription, onBulkEdit, }: ApiPlaygroundParamsTableProps): React.JSX.Element | null;
+export declare function ApiPlaygroundParamsTable({ title, params, errors, onChange, onRemove, hideEnabled, hideDescription, onBulkEdit, }: ApiPlaygroundParamsTableProps): import("react").JSX.Element | null;
 //# sourceMappingURL=ApiPlaygroundParamsTable.d.ts.map

@@ -67,6 +67,14 @@ export declare function createApiReferenceSystemSummaries(manifest: ApiSchemaTab
 export declare function loadApiReferenceSystem(tab: ApiSchemaTab, fetchJson?: ApiReferenceFetchJson): Promise<ApiSystemData>;
 export declare function buildApiCategorySidebarTree(categories: ApiCategory[]): ApiCategorySidebarNode[];
 export declare function loadApiReferenceSystems(fetchJson?: ApiReferenceFetchJson): Promise<ApiSystemData[]>;
+/**
+ * Candidate URLs for one reference document, in priority order: the
+ * page-relative path first, then the same path on every configured document
+ * origin (a cross-origin portal is a static bundle whose page origin never
+ * serves the gateway documents). Exported so the fallback ordering stays
+ * unit-testable without registering the host runtime.
+ */
+export declare function resolveSchemaDocumentUrls(path: string, allowOriginFallback: boolean, origins?: readonly string[]): string[];
 export declare function buildApiReferenceSystemsFromTabs(manifest: ApiSchemaTabsDocument, fetchJson: ApiReferenceFetchJson): Promise<ApiSystemData[]>;
 export declare function getApiSystemDisplayName(system: Pick<ApiSystemData, 'id' | 'name'>): string;
 export declare function getDefaultApiReferenceEndpoint(system: ApiSystemData): ApiReferenceEndpoint | null;
