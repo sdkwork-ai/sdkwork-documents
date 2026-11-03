@@ -13,7 +13,7 @@ SDKWork Documents is the content-domain document storage and delivery service.
 | `sdks/` | SDK family workspaces and route manifests |
 | `database/` | Database contract, baseline DDL, migrations, seeds |
 | `deployments/` | Container and Kubernetes deployment descriptors |
-| `configs/` | Safe checked-in runtime config templates |
+| `etc/configs/` | Safe checked-in runtime config templates |
 | `scripts/` | Thin command entrypoints |
 | `docs/` | Architecture notes, schema registry, runbooks |
 | `tests/` | Cross-package contract and integration tests |

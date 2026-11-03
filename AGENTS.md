@@ -38,7 +38,7 @@ Read `agent.app.config.json` only when the task touches Documents application be
 - `crates/`: reusable Rust service, repository, route, and API server crates.
 - `sdks/`: SDK families, SDK generation manifests, route manifests, and generated SDK artifacts.
 - `database/`: database contract, baseline DDL, migrations, seeds, and drift policy.
-- `configs/`, `deployments/`, `scripts/`, `tools/`, `docs/`, `tests/`: config templates, deployment descriptors, thin command entrypoints, validators, documentation, and verification assets.
+- `etc/configs/`, `deployments/`, `scripts/`, `tools/`, `docs/`, `tests/`: config templates, deployment descriptors, thin command entrypoints, validators, documentation, and verification assets.
 - `package.json`, `Cargo.toml`: language/build manifests.
 
 ## Documentation Canon

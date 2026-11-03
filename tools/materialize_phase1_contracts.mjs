@@ -1508,7 +1508,7 @@ const readmeDirs = [
   "deployments/docker/README.md",
   "deployments/kubernetes/README.md",
   "deployments/runbooks/README.md",
-  "configs/README.md",
+  "etc/configs/README.md",
   "scripts/README.md",
   "docs/README.md",
   "tests/README.md",

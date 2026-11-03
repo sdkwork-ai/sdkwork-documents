@@ -43,7 +43,7 @@ const requiredDirectories = [
   "sdks",
   "database",
   "deployments",
-  "configs",
+  "etc/configs",
   "scripts",
   "docs",
   "tests",
@@ -145,8 +145,8 @@ for (const surface of authorityManifest.surfaces ?? []) {
 
 for (const configFile of topologySpec.packaging?.cloudConfigFiles ?? []) {
   assert(
-    fs.existsSync(path.join(repoRoot, "configs", configFile)),
-    `configs/${configFile} must exist`,
+    fs.existsSync(path.join(repoRoot, "etc", "configs", configFile)),
+    `etc/configs/${configFile} must exist`,
   );
 }
 
