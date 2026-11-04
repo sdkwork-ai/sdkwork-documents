@@ -1,4 +1,5 @@
+import React from 'react';
 export declare const MethodBadge: ({ method }: {
     method: string;
-}) => import("react").JSX.Element;
+}) => React.JSX.Element;
 //# sourceMappingURL=MethodBadge.d.ts.map
