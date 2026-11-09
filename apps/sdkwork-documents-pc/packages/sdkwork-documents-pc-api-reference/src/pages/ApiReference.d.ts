@@ -1,3 +1,2 @@
-import React from 'react';
-export declare function ApiReference(): React.JSX.Element;
+export declare function ApiReference(): import("react").JSX.Element;
 //# sourceMappingURL=ApiReference.d.ts.map
