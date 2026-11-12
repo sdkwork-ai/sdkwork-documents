@@ -5,12 +5,15 @@ use sdkwork_documents_contract::{
     CatalogApiOperationPage, CatalogApiOperationQuery, CatalogApiSchema, CatalogApiSurfaceDetail,
     CatalogApiSurfacePage, CatalogApiSurfaceQuery, CatalogCategoryList, CatalogLanguageList,
     CatalogSdkFamilyDetail, CatalogSdkFamilyPage, CatalogSdkQuery, DeveloperCatalogOverview,
-    Document, DocumentCapabilities, DocumentCreateRequest, DocumentDriveBindingRequest,
-    DocumentIdentity, DocumentIdentityUpdateRequest, DocumentList, DocumentRevision,
-    DocumentRevisionContent, DocumentRevisionList, DocumentUpdateRequest, DocumentsAppApi,
-    DocumentsAppRequestContext, DocumentsBackendApi, DocumentsBackendRequestContext,
-    DocumentsOpenApi, DocumentsOpenApiRequestContext, DocumentsRepository, DocumentsServiceError,
-    DocumentsServiceResult, PublishedDocument, PublishedDocumentList,
+    Document, DocumentCapabilities, DocumentCategory, DocumentCategoryCreateRequest,
+    DocumentCategoryList, DocumentCategoryUpdateRequest, DocumentCreateRequest,
+    DocumentDriveBindingRequest, DocumentIdentity, DocumentIdentityUpdateRequest, DocumentList,
+    DocumentOverviewList, DocumentRevision, DocumentRevisionContent, DocumentRevisionList,
+    DocumentTagList, DocumentTaxonomy, DocumentTaxonomyUpdateRequest, DocumentUpdateRequest,
+    DocumentsAppApi, DocumentsAppRequestContext, DocumentsBackendApi,
+    DocumentsBackendRequestContext, DocumentsOpenApi, DocumentsOpenApiRequestContext,
+    DocumentsRepository, DocumentsServiceError, DocumentsServiceResult, PublishedDocument,
+    PublishedDocumentList,
 };
 use sdkwork_utils_rust::{is_blank, trim, uuid};
 
@@ -38,6 +41,21 @@ impl DocumentsService {
     ) -> Self {
         self.drive_content = Some(drive_content);
         self
+    }
+
+    fn validate_taxonomy_slug(raw: &str) -> DocumentsServiceResult<String> {
+        let slug = raw.trim().to_ascii_lowercase().replace(' ', "-");
+        if slug.is_empty()
+            || slug.len() > 64
+            || !slug
+                .chars()
+                .all(|value| value.is_ascii_alphanumeric() || value == '-' || value == '_')
+        {
+            return Err(DocumentsServiceError::Validation(
+                "slug must be 1-64 lowercase letters, digits, hyphens, or underscores".to_owned(),
+            ));
+        }
+        Ok(slug)
     }
 
     /// Writes the published body to Drive and records the immutable revision.
@@ -353,6 +371,117 @@ impl DocumentsAppApi for DocumentsService {
             .list_revisions(ctx.tenant_id, &document_id)
             .await?;
         Ok(DocumentRevisionList { items })
+    }
+
+    async fn list_document_overview(
+        &self,
+        ctx: DocumentsAppRequestContext,
+    ) -> DocumentsServiceResult<DocumentOverviewList> {
+        let items = self.repository.list_overview(ctx.tenant_id).await?;
+        Ok(DocumentOverviewList { items })
+    }
+
+    async fn list_document_categories(
+        &self,
+        ctx: DocumentsAppRequestContext,
+    ) -> DocumentsServiceResult<DocumentCategoryList> {
+        Ok(DocumentCategoryList {
+            items: self.repository.list_categories(ctx.tenant_id).await?,
+        })
+    }
+
+    async fn create_document_category(
+        &self,
+        ctx: DocumentsAppRequestContext,
+        request: DocumentCategoryCreateRequest,
+    ) -> DocumentsServiceResult<DocumentCategory> {
+        let slug = Self::validate_taxonomy_slug(&request.slug)?;
+        if request.name.trim().is_empty() {
+            return Err(DocumentsServiceError::Validation(
+                "category name is required".to_owned(),
+            ));
+        }
+        self.repository
+            .create_category(
+                ctx.tenant_id,
+                DocumentCategoryCreateRequest {
+                    slug,
+                    name: request.name.trim().to_owned(),
+                    name_en: request.name_en.map(|value| value.trim().to_owned()),
+                    description: request.description.map(|value| value.trim().to_owned()),
+                    sort_order: request.sort_order,
+                },
+            )
+            .await
+    }
+
+    async fn update_document_category(
+        &self,
+        ctx: DocumentsAppRequestContext,
+        category_id: String,
+        request: DocumentCategoryUpdateRequest,
+    ) -> DocumentsServiceResult<DocumentCategory> {
+        if let Some(status) = request.status.as_deref() {
+            if !matches!(status, "active" | "hidden") {
+                return Err(DocumentsServiceError::Validation(
+                    "category status must be active or hidden".to_owned(),
+                ));
+            }
+        }
+        self.repository
+            .update_category(ctx.tenant_id, &category_id, request)
+            .await
+    }
+
+    async fn delete_document_category(
+        &self,
+        ctx: DocumentsAppRequestContext,
+        category_id: String,
+    ) -> DocumentsServiceResult<()> {
+        self.repository
+            .delete_category(ctx.tenant_id, &category_id)
+            .await
+    }
+
+    async fn list_document_tags(
+        &self,
+        ctx: DocumentsAppRequestContext,
+    ) -> DocumentsServiceResult<DocumentTagList> {
+        Ok(DocumentTagList {
+            items: self.repository.list_tags(ctx.tenant_id).await?,
+        })
+    }
+
+    async fn get_document_taxonomy(
+        &self,
+        ctx: DocumentsAppRequestContext,
+        document_id: String,
+    ) -> DocumentsServiceResult<DocumentTaxonomy> {
+        self.repository
+            .get_taxonomy(ctx.tenant_id, &document_id)
+            .await
+    }
+
+    async fn update_document_taxonomy(
+        &self,
+        ctx: DocumentsAppRequestContext,
+        document_id: String,
+        request: DocumentTaxonomyUpdateRequest,
+    ) -> DocumentsServiceResult<DocumentTaxonomy> {
+        let category = match request.category {
+            Some(value) if !value.trim().is_empty() => Self::validate_taxonomy_slug(&value)?,
+            _ => String::new(),
+        };
+        let mut tags = Vec::with_capacity(request.tags.len());
+        for tag in request.tags {
+            let slug = Self::validate_taxonomy_slug(&tag)?;
+            if !tags.contains(&slug) {
+                tags.push(slug);
+            }
+        }
+        self.repository
+            .set_taxonomy(ctx.tenant_id, &document_id, &category, &tags)
+            .await
     }
 
     async fn get_document_identity(

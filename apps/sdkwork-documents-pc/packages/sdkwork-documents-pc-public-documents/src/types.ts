@@ -6,6 +6,8 @@ export interface PublicDocument {
   summary: string;
   body: string;
   category: string;
+  categoryName?: string;
+  tags?: { id: string; slug: string; name: string }[];
   publishedAt: string;
 }
 

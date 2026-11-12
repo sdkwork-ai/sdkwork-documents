@@ -27,6 +27,10 @@ pub fn build_business_router_with_shared_app_api(api: Arc<dyn DocumentsAppApi>) 
             get(handlers::list_documents).post(handlers::create_document),
         )
         .route(
+            paths::DOCUMENTS_OVERVIEW,
+            get(handlers::list_document_overview),
+        )
+        .route(
             paths::DOCUMENT,
             get(handlers::retrieve_document)
                 .patch(handlers::update_document)
@@ -52,6 +56,20 @@ pub fn build_business_router_with_shared_app_api(api: Arc<dyn DocumentsAppApi>) 
             paths::DOCUMENT_IDENTITY,
             get(handlers::get_document_identity).patch(handlers::update_document_identity),
         )
+        .route(
+            paths::DOCUMENT_TAXONOMY,
+            get(handlers::get_document_taxonomy).patch(handlers::update_document_taxonomy),
+        )
+        .route(
+            paths::DOCUMENT_CATEGORIES,
+            get(handlers::list_document_categories).post(handlers::create_document_category),
+        )
+        .route(
+            paths::DOCUMENT_CATEGORY,
+            axum::routing::patch(handlers::update_document_category)
+                .delete(handlers::delete_document_category),
+        )
+        .route(paths::DOCUMENT_TAGS, get(handlers::list_document_tags))
         .route(
             paths::PUBLIC_DOCUMENTS,
             get(handlers::list_published_documents),

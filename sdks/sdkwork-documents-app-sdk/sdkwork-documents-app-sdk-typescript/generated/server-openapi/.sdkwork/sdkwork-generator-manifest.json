@@ -44,7 +44,7 @@
     },
     {
       "path": "README.md",
-      "sha256": "270e36b8331edc9e1e5cef78879a845280e3c574c6d73a46c637d5fb51cdcbfb"
+      "sha256": "9936960d6b3a1ca71a621cfe8b74b23685283fa36a445166961cc0f81f18ab4a"
     },
     {
       "path": "sdkwork-sdk.json",
@@ -59,8 +59,24 @@
       "sha256": "e4ee4fcf8a0ff5a52aaf199d27b4c672b4355e993aba1b421c8dce4ffbf06fb7"
     },
     {
+      "path": "src/api/document-categories.ts",
+      "sha256": "0af2cddebccc8360ed5da57cad4214928b67a99b52554d4ca5eac3a68943bd5c"
+    },
+    {
       "path": "src/api/document-identity.ts",
       "sha256": "9bca9066a2252af1dd0c1b6898e8ee45867da5f4c29d179325d3a8c4cf6443d3"
+    },
+    {
+      "path": "src/api/document-overview.ts",
+      "sha256": "8c18b22187beb8062b773ba192da6ea70b02dcfe4866b3128ba2284459fd1d87"
+    },
+    {
+      "path": "src/api/document-tags.ts",
+      "sha256": "e5634eeb58ca94ac18695f3bb86c2fe88187c3e6f0ce887b4df73a11549dd56a"
+    },
+    {
+      "path": "src/api/document-taxonomy.ts",
+      "sha256": "21eeb14227bdbbede0abaad2d83dea190d45df8aceca361b275305f26278176a"
     },
     {
       "path": "src/api/documents.ts",
@@ -68,7 +84,7 @@
     },
     {
       "path": "src/api/index.ts",
-      "sha256": "13138076a9aa5326d3e4fa051bfdd451c5e8dd4fec9e94a74b84e84bf523b848"
+      "sha256": "755a1e4fb5d1259bd91f8d1837e4b6965e5ab08646af9b6c8a01aacdb7de665a"
     },
     {
       "path": "src/api/paths.ts",
@@ -96,7 +112,7 @@
     },
     {
       "path": "src/sdk.ts",
-      "sha256": "7dbd70eb40489b37c0b6ff3ebd2f8b7c479cdca92e8acb51121ac2572416d11f"
+      "sha256": "e2fcabca8b1e1045657eb679c95eaeea8112fcd075b197393476721a44cc4713"
     },
     {
       "path": "src/types/catalog-api-operation-page-response.ts",
@@ -215,6 +231,30 @@
       "sha256": "becc5a5cfda8d63aba273555d8746a50effa3305c5dcba236917ad8868cc200b"
     },
     {
+      "path": "src/types/document-category-create-request.ts",
+      "sha256": "0bdf1060c22e6f071255e5da156e057fa67abcc200f1cad4f11e860156a66e99"
+    },
+    {
+      "path": "src/types/document-category-list-response.ts",
+      "sha256": "0afd9b8fc21d8ea193f971c4403ef4f8e7cd8a31beda09b31c251f14396b0354"
+    },
+    {
+      "path": "src/types/document-category-list.ts",
+      "sha256": "a40bcdd7ad5872a768716c9311f1387a0f958fa8702363bbc5bbb96479d95681"
+    },
+    {
+      "path": "src/types/document-category-response.ts",
+      "sha256": "36c50b366ba9280e66c1b5179457caa4a5b8634bba9105f6d697e11acacf2d6f"
+    },
+    {
+      "path": "src/types/document-category-update-request.ts",
+      "sha256": "6629c580bfaa648a154240e842f088c11256d78973aa6a59295b346dcf762c60"
+    },
+    {
+      "path": "src/types/document-category.ts",
+      "sha256": "eb3a947c3f126f3a0161ac11be740bc55c94ce4a69cdfbef72f3a1758d1ce573"
+    },
+    {
       "path": "src/types/document-create-request.ts",
       "sha256": "73dcdec8d931a63227edefd64f1ad8e8b47238a1b875538319e91ba69cbe9ccd"
     },
@@ -237,6 +277,18 @@
     {
       "path": "src/types/document-list-response.ts",
       "sha256": "788d2c47fd950880ffb1bc987ba63922e1a74357a82bdc12095ef3406612d2b3"
+    },
+    {
+      "path": "src/types/document-overview-item.ts",
+      "sha256": "6ada54bed49578f05827754a6ba35fa43b71d15c1cd694295c112d5bc044d2b6"
+    },
+    {
+      "path": "src/types/document-overview-list-response.ts",
+      "sha256": "1d72bea852546ec970df4add3d6a62a20592f9436a26bab63d485286ba813ead"
+    },
+    {
+      "path": "src/types/document-overview-list.ts",
+      "sha256": "5e7fbe63c1ad150f2bc4b891b49c092410d046bb623fc786ce3ab3b57adb6fb6"
     },
     {
       "path": "src/types/document-response.ts",
@@ -263,6 +315,30 @@
       "sha256": "ebf7e2092a509280a0d5588e7c8b898bbcd24ffe5539ea9347bfbf1d71331166"
     },
     {
+      "path": "src/types/document-tag-list-response.ts",
+      "sha256": "5bd9d4da0cb4a3fab1e96f21c71314f1de5ec462226e8b9d9ae91c103de9c21d"
+    },
+    {
+      "path": "src/types/document-tag-list.ts",
+      "sha256": "964c33baede040b65d15b562921953c2d9a2571ad578d7cc9f1fd5fcd757071d"
+    },
+    {
+      "path": "src/types/document-tag.ts",
+      "sha256": "f927f29e2399013fef3edcb5fd7de835e66e5c81257861242d5787585133639e"
+    },
+    {
+      "path": "src/types/document-taxonomy-response.ts",
+      "sha256": "d24e10f364f51d575b354ce8b0c370b01ab9cc93a59a2c19890c767764ddd573"
+    },
+    {
+      "path": "src/types/document-taxonomy-update-request.ts",
+      "sha256": "2f749524c7e60dbfe62bfd1804c137cd4d03d55f8908e94c5f9369104994584e"
+    },
+    {
+      "path": "src/types/document-taxonomy.ts",
+      "sha256": "a4a9641740fb251901dc1036b4be2555190c18dc1a157692c5e9bd5b3abcbb66"
+    },
+    {
       "path": "src/types/document-update-request.ts",
       "sha256": "b444706bc5199f21136c7a7d8d6380a4168d12f1a32ebb539c127c4d7204ef84"
     },
@@ -276,7 +352,7 @@
     },
     {
       "path": "src/types/index.ts",
-      "sha256": "4f5f64af8b181e8878b6a89ece9673db38c11e5241d87cf888c14c23265c8ccf"
+      "sha256": "054e95fab7ec74b823d532f8450055158cf2b2918d369cfb1359e2be7978f5a4"
     },
     {
       "path": "src/types/page-info.ts",
@@ -296,7 +372,7 @@
     },
     {
       "path": "src/types/published-document.ts",
-      "sha256": "890edaf1a9012a28211ba50fdad60673431281f1cea54815e30a4f78d0b324cc"
+      "sha256": "a442ef735e46f34fe5d4326061bc9ee14b9267edcfdc094660aa5850645ded36"
     },
     {
       "path": "src/types/sdk-reference-generation-request.ts",

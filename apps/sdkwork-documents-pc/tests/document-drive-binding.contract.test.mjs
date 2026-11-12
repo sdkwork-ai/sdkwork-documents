@@ -93,3 +93,18 @@ test('publishes record immutable Drive revisions', () => {
   );
 });
 
+test('document categories and tags are normalized', () => {
+  const sql = fs.readFileSync(
+    path.join(
+      documentsRoot,
+      'database/migrations/postgres/0006_document_categories_and_tags.up.sql',
+    ),
+    'utf8',
+  );
+  for (const table of ['documents_category', 'documents_tag', 'documents_document_tag']) {
+    assert.match(sql, new RegExp(`CREATE TABLE IF NOT EXISTS ${table}`), `missing ${table}`);
+  }
+  assert.match(sql, /UNIQUE \(tenant_id, app_key, slug\)/);
+  assert.match(sql, /ON DELETE CASCADE/);
+});
+

@@ -10,8 +10,9 @@ use sdkwork_content_documents_repository_sqlx::{
 };
 use sdkwork_content_documents_service::DocumentsService;
 use sdkwork_documents_contract::{
-    DocumentCreateRequest, DocumentIdentityUpdateRequest, DocumentUpdateRequest, DocumentsAppApi,
-    DocumentsAppRequestContext,
+    DocumentCategoryCreateRequest, DocumentCategoryUpdateRequest, DocumentCreateRequest,
+    DocumentIdentityUpdateRequest, DocumentTaxonomyUpdateRequest, DocumentUpdateRequest,
+    DocumentsAppApi, DocumentsAppRequestContext,
 };
 use sdkwork_documents_drive::{connect_documents_drive_pool, DocumentsDriveContentAdapter};
 
@@ -137,6 +138,89 @@ async fn publishes_to_drive_and_records_a_revision() {
         .expect("read public identity");
     assert_eq!(identity.slug, "live-drive-restored");
 
+    let overview = service
+        .list_document_overview(context.clone())
+        .await
+        .expect("list document overview");
+    let row = overview
+        .items
+        .iter()
+        .find(|item| item.id == created.id)
+        .expect("overview row exists");
+    assert_eq!(row.locale, "en-US");
+    assert_eq!(row.slug, "live-drive-restored");
+    assert!(!row.updated_at.is_empty());
+
+    let category = service
+        .create_document_category(
+            context.clone(),
+            DocumentCategoryCreateRequest {
+                slug: format!("test-cat-{suffix}"),
+                name: "Test category".to_owned(),
+                name_en: Some("Test category".to_owned()),
+                description: None,
+                sort_order: Some(10),
+            },
+        )
+        .await
+        .expect("create category");
+    let category = service
+        .update_document_category(
+            context.clone(),
+            category.id.clone(),
+            DocumentCategoryUpdateRequest {
+                name: Some("Renamed category".to_owned()),
+                name_en: None,
+                description: None,
+                sort_order: None,
+                status: None,
+            },
+        )
+        .await
+        .expect("update category");
+    assert_eq!(category.name, "Renamed category");
+
+    let taxonomy = service
+        .update_document_taxonomy(
+            context.clone(),
+            created.id.clone(),
+            DocumentTaxonomyUpdateRequest {
+                category: Some(category.slug.clone()),
+                tags: vec!["alpha".to_owned(), "beta".to_owned()],
+            },
+        )
+        .await
+        .expect("update taxonomy");
+    assert_eq!(taxonomy.category, category.slug);
+    assert_eq!(taxonomy.tags.len(), 2);
+
+    let overview = service
+        .list_document_overview(context.clone())
+        .await
+        .expect("overview after taxonomy");
+    let row = overview
+        .items
+        .iter()
+        .find(|item| item.id == created.id)
+        .expect("overview row after taxonomy");
+    assert_eq!(row.category, category.slug);
+    assert_eq!(row.tags.len(), 2);
+
+    let public_row = service
+        .retrieve_published_document(100_001, &created.id, "en-US")
+        .await
+        .expect("public row with taxonomy");
+    assert_eq!(public_row.category_name, "Renamed category");
+    assert_eq!(public_row.tags.len(), 2);
+
+    assert!(
+        service
+            .delete_document_category(context.clone(), category.id.clone())
+            .await
+            .is_err(),
+        "a category used by a document must not be deleted"
+    );
+
     let published = service
         .retrieve_published_document(100_001, &created.id, "zh-CN")
         .await
@@ -176,10 +260,15 @@ async fn publishes_to_drive_and_records_a_revision() {
         "deleted documents must not be retrievable"
     );
     let revisions = service
-        .list_document_revisions(context, created.id)
+        .list_document_revisions(context.clone(), created.id)
         .await
         .expect("list revisions after delete");
     assert!(revisions.items.is_empty(), "delete must cascade revisions");
+
+    service
+        .delete_document_category(context, category.id.clone())
+        .await
+        .expect("delete unused category after document delete");
 
     let node_status: String = sqlx::query_scalar(
         "SELECT lifecycle_status FROM dr_drive_node WHERE tenant_id = $1 AND id = $2",

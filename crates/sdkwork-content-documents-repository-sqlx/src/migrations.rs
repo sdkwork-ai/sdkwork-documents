@@ -24,6 +24,10 @@ pub const POSTGRES_DOCUMENT_DRIVE_BINDING_MIGRATION: &str =
 pub const POSTGRES_DOCUMENT_REVISIONS_MIGRATION: &str =
     include_str!("../../../database/migrations/postgres/0005_document_revisions.up.sql");
 
+/// Normalized categories and reusable tags for the document center.
+pub const POSTGRES_DOCUMENT_TAXONOMY_MIGRATION: &str =
+    include_str!("../../../database/migrations/postgres/0006_document_categories_and_tags.up.sql");
+
 pub const POSTGRES_MIGRATIONS: &[&str] = &[
     POSTGRES_CORE_MIGRATION,
     POSTGRES_REVISION_AUDIT_MIGRATION,
@@ -32,4 +36,5 @@ pub const POSTGRES_MIGRATIONS: &[&str] = &[
     POSTGRES_DOCUMENT_CENTER_PAGES_MIGRATION,
     POSTGRES_DOCUMENT_DRIVE_BINDING_MIGRATION,
     POSTGRES_DOCUMENT_REVISIONS_MIGRATION,
+    POSTGRES_DOCUMENT_TAXONOMY_MIGRATION,
 ];

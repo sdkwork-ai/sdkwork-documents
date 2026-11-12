@@ -58,6 +58,10 @@ const client = new SdkworkDocumentsAppClient({
 - `client.developerCatalog` - developer_catalog API
 - `client.revisions` - revisions API
 - `client.documentIdentity` - document_identity API
+- `client.documentOverview` - document_overview API
+- `client.documentCategories` - document_categories API
+- `client.documentTags` - document_tags API
+- `client.documentTaxonomy` - document_taxonomy API
 
 ## Usage Examples
 
@@ -89,6 +93,35 @@ const result = await client.revisions.list(documentId);
 // Read editable public identity
 const documentId = '1';
 const result = await client.documentIdentity.identity.retrieve(documentId);
+```
+
+### document_overview
+
+```typescript
+// List document center rows with status, locale, slug, and updated time
+const result = await client.documentOverview.overview.list();
+```
+
+### document_categories
+
+```typescript
+// List document categories
+const result = await client.documentCategories.categories.list();
+```
+
+### document_tags
+
+```typescript
+// List reusable document tags
+const result = await client.documentTags.tags.list();
+```
+
+### document_taxonomy
+
+```typescript
+// Read document category and tags
+const documentId = '1';
+const result = await client.documentTaxonomy.taxonomy.retrieve(documentId);
 ```
 
 ## Error Handling

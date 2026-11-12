@@ -1,3 +1,5 @@
+import type { DocumentTag } from './document-tag';
+
 export interface PublishedDocument {
   id: string;
   slug: string;
@@ -7,4 +9,6 @@ export interface PublishedDocument {
   body: string;
   category?: string;
   publishedAt?: string;
+  categoryName?: string;
+  tags?: DocumentTag[];
 }

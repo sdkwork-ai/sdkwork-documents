@@ -47,9 +47,57 @@ const HTTP_ROUTES: &[HttpRoute] = &[
     ),
     HttpRoute::dual_token(
         HttpMethod::Get,
+        "/app/v3/api/documents/overview",
+        "documents",
+        "overview.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
         "/app/v3/api/documents/{documentId}/revisions",
         "documents",
         "revision.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/documents/{documentId}/taxonomy",
+        "documents",
+        "taxonomy.retrieve",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Patch,
+        "/app/v3/api/documents/{documentId}/taxonomy",
+        "documents",
+        "taxonomy.update",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/documents/categories",
+        "documents",
+        "categories.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Post,
+        "/app/v3/api/documents/categories",
+        "documents",
+        "categories.create",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Patch,
+        "/app/v3/api/documents/categories/{categoryId}",
+        "documents",
+        "categories.update",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Delete,
+        "/app/v3/api/documents/categories/{categoryId}",
+        "documents",
+        "categories.delete",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/documents/tags",
+        "documents",
+        "tags.list",
     ),
     HttpRoute::dual_token(
         HttpMethod::Get,

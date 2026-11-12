@@ -5,10 +5,12 @@ use crate::dto::{
     CatalogApiOperationPage, CatalogApiOperationQuery, CatalogApiSchema, CatalogApiSurfaceDetail,
     CatalogApiSurfacePage, CatalogApiSurfaceQuery, CatalogCategoryList, CatalogLanguageList,
     CatalogSdkFamilyDetail, CatalogSdkFamilyPage, CatalogSdkQuery, DeveloperCatalogOverview,
-    Document, DocumentCapabilities, DocumentCreateRequest, DocumentDriveBindingRequest,
-    DocumentIdentity, DocumentIdentityUpdateRequest, DocumentList, DocumentRevision,
-    DocumentRevisionContent, DocumentRevisionList, DocumentUpdateRequest, PublishedDocument,
-    PublishedDocumentList,
+    Document, DocumentCapabilities, DocumentCategory, DocumentCategoryCreateRequest,
+    DocumentCategoryList, DocumentCategoryUpdateRequest, DocumentCreateRequest,
+    DocumentDriveBindingRequest, DocumentIdentity, DocumentIdentityUpdateRequest, DocumentList,
+    DocumentOverviewList, DocumentRevision, DocumentRevisionContent, DocumentRevisionList,
+    DocumentTagList, DocumentTaxonomy, DocumentTaxonomyUpdateRequest, DocumentUpdateRequest,
+    PublishedDocument, PublishedDocumentList,
 };
 
 pub type DocumentsServiceResult<T> = Result<T, DocumentsServiceError>;
@@ -113,6 +115,85 @@ pub trait DocumentsAppApi: Send + Sync {
     ) -> DocumentsServiceResult<DocumentRevisionList> {
         Err(DocumentsServiceError::Internal(
             "document revisions are not available on this surface".to_owned(),
+        ))
+    }
+
+    async fn list_document_overview(
+        &self,
+        _ctx: DocumentsAppRequestContext,
+    ) -> DocumentsServiceResult<DocumentOverviewList> {
+        Err(DocumentsServiceError::Internal(
+            "document overview is not available on this surface".to_owned(),
+        ))
+    }
+
+    async fn list_document_categories(
+        &self,
+        _ctx: DocumentsAppRequestContext,
+    ) -> DocumentsServiceResult<DocumentCategoryList> {
+        Err(DocumentsServiceError::Internal(
+            "document categories are not available on this surface".to_owned(),
+        ))
+    }
+
+    async fn create_document_category(
+        &self,
+        _ctx: DocumentsAppRequestContext,
+        _request: DocumentCategoryCreateRequest,
+    ) -> DocumentsServiceResult<DocumentCategory> {
+        Err(DocumentsServiceError::Internal(
+            "document categories are not available on this surface".to_owned(),
+        ))
+    }
+
+    async fn update_document_category(
+        &self,
+        _ctx: DocumentsAppRequestContext,
+        _category_id: String,
+        _request: DocumentCategoryUpdateRequest,
+    ) -> DocumentsServiceResult<DocumentCategory> {
+        Err(DocumentsServiceError::Internal(
+            "document categories are not available on this surface".to_owned(),
+        ))
+    }
+
+    async fn delete_document_category(
+        &self,
+        _ctx: DocumentsAppRequestContext,
+        _category_id: String,
+    ) -> DocumentsServiceResult<()> {
+        Err(DocumentsServiceError::Internal(
+            "document categories are not available on this surface".to_owned(),
+        ))
+    }
+
+    async fn list_document_tags(
+        &self,
+        _ctx: DocumentsAppRequestContext,
+    ) -> DocumentsServiceResult<DocumentTagList> {
+        Err(DocumentsServiceError::Internal(
+            "document tags are not available on this surface".to_owned(),
+        ))
+    }
+
+    async fn get_document_taxonomy(
+        &self,
+        _ctx: DocumentsAppRequestContext,
+        _document_id: String,
+    ) -> DocumentsServiceResult<DocumentTaxonomy> {
+        Err(DocumentsServiceError::Internal(
+            "document taxonomy is not available on this surface".to_owned(),
+        ))
+    }
+
+    async fn update_document_taxonomy(
+        &self,
+        _ctx: DocumentsAppRequestContext,
+        _document_id: String,
+        _request: DocumentTaxonomyUpdateRequest,
+    ) -> DocumentsServiceResult<DocumentTaxonomy> {
+        Err(DocumentsServiceError::Internal(
+            "document taxonomy is not available on this surface".to_owned(),
         ))
     }
 
@@ -309,6 +390,80 @@ pub trait DocumentsBackendApi: Send + Sync {
 #[async_trait]
 pub trait DocumentsRepository: Send + Sync {
     async fn list_by_tenant(&self, tenant_id: i64) -> DocumentsServiceResult<Vec<Document>>;
+
+    /// Lists list-page projections with locale, slug, and updated time.
+    async fn list_overview(
+        &self,
+        _tenant_id: i64,
+    ) -> DocumentsServiceResult<Vec<crate::dto::DocumentOverviewItem>> {
+        Ok(Vec::new())
+    }
+
+    async fn list_categories(
+        &self,
+        _tenant_id: i64,
+    ) -> DocumentsServiceResult<Vec<crate::dto::DocumentCategory>> {
+        Ok(Vec::new())
+    }
+
+    async fn create_category(
+        &self,
+        _tenant_id: i64,
+        _request: crate::dto::DocumentCategoryCreateRequest,
+    ) -> DocumentsServiceResult<crate::dto::DocumentCategory> {
+        Err(DocumentsServiceError::Internal(
+            "document categories are not available in this repository".to_owned(),
+        ))
+    }
+
+    async fn update_category(
+        &self,
+        _tenant_id: i64,
+        _category_id: &str,
+        _request: crate::dto::DocumentCategoryUpdateRequest,
+    ) -> DocumentsServiceResult<crate::dto::DocumentCategory> {
+        Err(DocumentsServiceError::Internal(
+            "document categories are not available in this repository".to_owned(),
+        ))
+    }
+
+    async fn delete_category(
+        &self,
+        _tenant_id: i64,
+        _category_id: &str,
+    ) -> DocumentsServiceResult<()> {
+        Err(DocumentsServiceError::Internal(
+            "document categories are not available in this repository".to_owned(),
+        ))
+    }
+
+    async fn list_tags(
+        &self,
+        _tenant_id: i64,
+    ) -> DocumentsServiceResult<Vec<crate::dto::DocumentTag>> {
+        Ok(Vec::new())
+    }
+
+    async fn get_taxonomy(
+        &self,
+        _tenant_id: i64,
+        _document_id: &str,
+    ) -> DocumentsServiceResult<crate::dto::DocumentTaxonomy> {
+        Ok(crate::dto::DocumentTaxonomy::default())
+    }
+
+    async fn set_taxonomy(
+        &self,
+        _tenant_id: i64,
+        _document_id: &str,
+        _category: &str,
+        _tags: &[String],
+    ) -> DocumentsServiceResult<crate::dto::DocumentTaxonomy> {
+        Err(DocumentsServiceError::Internal(
+            "document taxonomy is not available in this repository".to_owned(),
+        ))
+    }
+
     async fn find_by_id(
         &self,
         tenant_id: i64,

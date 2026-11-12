@@ -168,6 +168,8 @@ impl DocumentsAppApi for RecordingAppApi {
                 summary: String::new(),
                 body: "<p>demo</p>".to_owned(),
                 category: "policy".to_owned(),
+                category_name: "平台政策".to_owned(),
+                tags: Vec::new(),
                 published_at: "2026-11-12".to_owned(),
                 space_id: String::new(),
                 node_id: String::new(),

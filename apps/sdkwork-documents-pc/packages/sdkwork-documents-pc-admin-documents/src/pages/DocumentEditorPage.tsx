@@ -22,7 +22,11 @@ import {
   Undo2,
 } from 'lucide-react';
 import { useDocumentsAdminRuntime } from '../runtime.tsx';
-import type { DocumentsAdminRevision } from '@sdkwork/documents-pc-commons';
+import type {
+  DocumentsAdminCategory,
+  DocumentsAdminRevision,
+  DocumentsAdminTag,
+} from '@sdkwork/documents-pc-commons';
 
 const STATUS_OPTIONS = ['draft', 'published', 'archived'] as const;
 
@@ -64,7 +68,7 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
     return null;
   }
   return (
-    <div className="flex flex-wrap items-center gap-1 border-b border-slate-200 px-2 py-2 dark:border-white/10">
+    <div className="sticky top-0 z-10 flex flex-wrap items-center gap-1 border-b border-slate-200 bg-white/95 px-2 py-2 backdrop-blur dark:border-white/10 dark:bg-[#0a0a0a]/95">
       <ToolbarButton
         active={editor.isActive('bold')}
         label={t('documentsAdmin.toolbar.bold', { defaultValue: 'Bold' })}
@@ -177,6 +181,12 @@ export function DocumentEditorPage({ documentId, basePath }: DocumentEditorPageP
   const [identitySlug, setIdentitySlug] = useState('');
   const [identitySaving, setIdentitySaving] = useState(false);
   const [identitySaved, setIdentitySaved] = useState(false);
+  const [categories, setCategories] = useState<DocumentsAdminCategory[]>([]);
+  const [tags, setTags] = useState<DocumentsAdminTag[]>([]);
+  const [taxonomyCategory, setTaxonomyCategory] = useState('');
+  const [taxonomyTags, setTaxonomyTags] = useState('');
+  const [taxonomySaving, setTaxonomySaving] = useState(false);
+  const [taxonomySaved, setTaxonomySaved] = useState(false);
 
   useEffect(() => {
     if (!documentId) {
@@ -218,6 +228,49 @@ export function DocumentEditorPage({ documentId, basePath }: DocumentEditorPageP
         if (!cancelled) {
           setIdentityLocale('');
           setIdentitySlug('');
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [client, documentId, saved]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void client
+      .listCategories()
+      .then((items) => {
+        if (!cancelled) {
+          setCategories(items);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setCategories([]);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [client]);
+
+  useEffect(() => {
+    if (!documentId) {
+      return;
+    }
+    let cancelled = false;
+    void client
+      .getTaxonomy(documentId)
+      .then((taxonomy) => {
+        if (!cancelled) {
+          setTaxonomyCategory(taxonomy.category);
+          setTaxonomyTags(taxonomy.tags.map((tag) => tag.slug).join(', '));
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setTaxonomyCategory('');
+          setTaxonomyTags('');
         }
       });
     return () => {
@@ -374,6 +427,35 @@ export function DocumentEditorPage({ documentId, basePath }: DocumentEditorPageP
     }
   }, [client, documentId, identityLocale, identitySlug, t]);
 
+  const handleSaveTaxonomy = useCallback(async () => {
+    if (!documentId) {
+      return;
+    }
+    setTaxonomySaving(true);
+    setTaxonomySaved(false);
+    setError(null);
+    try {
+      const taxonomy = await client.updateTaxonomy(documentId, {
+        category: taxonomyCategory.trim() || undefined,
+        tags: taxonomyTags
+          .split(',')
+          .map((value) => value.trim())
+          .filter(Boolean),
+      });
+      setTaxonomyCategory(taxonomy.category);
+      setTaxonomyTags(taxonomy.tags.map((tag) => tag.slug).join(', '));
+      setTaxonomySaved(true);
+    } catch {
+      setError(
+        t('documentsAdmin.editor.taxonomyError', {
+          defaultValue: 'Could not save the category and tags.',
+        }),
+      );
+    } finally {
+      setTaxonomySaving(false);
+    }
+  }, [client, documentId, t, taxonomyCategory, taxonomyTags]);
+
   const handlePreviewRevision = useCallback(
     async (revision: DocumentsAdminRevision) => {
       if (!documentId) {
@@ -434,21 +516,26 @@ export function DocumentEditorPage({ documentId, basePath }: DocumentEditorPageP
   );
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-6 px-4 py-8 md:px-6">
+    <div className="w-full max-w-none space-y-6 px-4 py-6 md:px-6 md:py-8">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+        <div className="flex min-w-0 items-center gap-3">
           <Link
-            className="mb-3 inline-flex items-center gap-1.5 text-sm text-slate-500 transition-colors hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition-colors hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/5"
             to={resolvedBasePath}
+            aria-label={t('documentsAdmin.editor.back', { defaultValue: 'Back to documents' })}
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            {t('documentsAdmin.editor.back', { defaultValue: 'Back to documents' })}
           </Link>
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
-            {documentId
-              ? t('documentsAdmin.editor.editTitle', { defaultValue: 'Edit document' })
-              : t('documentsAdmin.editor.newTitle', { defaultValue: 'New document' })}
-          </h1>
+          <div className="min-w-0">
+            <h1 className="truncate text-xl font-semibold tracking-tight text-slate-900 dark:text-white">
+              {documentId
+                ? t('documentsAdmin.editor.editTitle', { defaultValue: 'Edit document' })
+                : t('documentsAdmin.editor.newTitle', { defaultValue: 'New document' })}
+            </h1>
+            <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-slate-400">
+              {documentId || t('documentsAdmin.editor.newHint', { defaultValue: 'Draft a new document' })}
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-3">
           {saved && !dirty ? (
@@ -515,7 +602,7 @@ export function DocumentEditorPage({ documentId, basePath }: DocumentEditorPageP
                 {t('documentsAdmin.editor.titleLabel', { defaultValue: 'Title' })}
               </span>
               <input
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-base text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white"
                 onChange={(event) => {
                   setTitle(event.target.value);
                   setDirty(true);
@@ -553,7 +640,7 @@ export function DocumentEditorPage({ documentId, basePath }: DocumentEditorPageP
             <span className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">
               {t('documentsAdmin.editor.bodyLabel', { defaultValue: 'Content' })}
             </span>
-            <div className="sdkwork-doc-editor overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-white/10 dark:bg-[#0a0a0a]">
+            <div className="sdkwork-doc-editor min-h-[60vh] overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-white/10 dark:bg-[#0a0a0a]">
               <EditorToolbar editor={editor} />
               <EditorContent editor={editor} />
             </div>
@@ -632,6 +719,101 @@ export function DocumentEditorPage({ documentId, basePath }: DocumentEditorPageP
             {t('documentsAdmin.editor.driveHint', {
               defaultValue:
                 'Clear the node ID to fall back to the database copy. The body file must follow <space>/<locale>/<slug>.html.',
+            })}
+          </p>
+        </section>
+      ) : null}
+
+      {documentId && !loading ? (
+        <section className="space-y-4 rounded-xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.03]">
+          <div>
+            <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+              {t('documentsAdmin.editor.taxonomyTitle', { defaultValue: 'Category and tags' })}
+            </h2>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+              {t('documentsAdmin.editor.taxonomyDescription', {
+                defaultValue:
+                  'Categories organize the public index; tags make documents searchable across categories.',
+              })}
+            </p>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="block">
+              <span className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                {t('documentsAdmin.editor.taxonomyCategory', { defaultValue: 'Category' })}
+              </span>
+              <select
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-slate-400 focus:outline-none dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white"
+                onChange={(event) => {
+                  setTaxonomyCategory(event.target.value);
+                  setTaxonomySaved(false);
+                }}
+                value={taxonomyCategory}
+              >
+                <option value="">
+                  {t('documentsAdmin.editor.taxonomyNoCategory', { defaultValue: 'No category' })}
+                </option>
+                {categories
+                  .filter((category) => category.status === 'active')
+                  .map((category) => (
+                    <option key={category.id} value={category.slug}>
+                      {category.name}
+                    </option>
+                  ))}
+              </select>
+            </label>
+            <label className="block">
+              <span className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                {t('documentsAdmin.editor.taxonomyTags', { defaultValue: 'Tags' })}
+              </span>
+              <input
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-sm text-slate-900 focus:border-slate-400 focus:outline-none dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white"
+                list="documents-admin-tags"
+                onChange={(event) => {
+                  setTaxonomyTags(event.target.value);
+                  setTaxonomySaved(false);
+                }}
+                placeholder={t('documentsAdmin.editor.taxonomyTagsPlaceholder', {
+                  defaultValue: 'gdpr, privacy, retention',
+                })}
+                value={taxonomyTags}
+              />
+              <datalist id="documents-admin-tags">
+                {tags.map((tag) => (
+                  <option key={tag.id} value={tag.slug}>
+                    {tag.name}
+                  </option>
+                ))}
+              </datalist>
+            </label>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-800 transition-colors hover:bg-slate-50 disabled:opacity-60 dark:border-white/15 dark:text-slate-100 dark:hover:bg-white/5"
+              disabled={taxonomySaving}
+              onClick={() => void handleSaveTaxonomy()}
+              type="button"
+            >
+              {taxonomySaving ? (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              ) : (
+                <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+              )}
+              {taxonomySaving
+                ? t('documentsAdmin.editor.taxonomySaving', { defaultValue: 'Saving...' })
+                : t('documentsAdmin.editor.taxonomySave', { defaultValue: 'Save category and tags' })}
+            </button>
+            {taxonomySaved ? (
+              <span className="text-sm text-emerald-600 dark:text-emerald-400" role="status">
+                {t('documentsAdmin.editor.taxonomySaved', {
+                  defaultValue: 'Category and tags saved.',
+                })}
+              </span>
+            ) : null}
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            {t('documentsAdmin.editor.taxonomyHint', {
+              defaultValue: 'Separate tags with commas. New tags are created automatically.',
             })}
           </p>
         </section>

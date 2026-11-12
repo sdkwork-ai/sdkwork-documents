@@ -9,22 +9,11 @@
     "protocol": "http",
     "packageName": "@sdkwork/documents-app-sdk"
   },
-  "changeFingerprint": "1339e06b222eb09305e97b8ff409877797add007590b954135293871b35718af",
+  "changeFingerprint": "88633055142192361540247f871134a42eabb00e34147e5bac1ff7076c935c81",
   "changes": {
-    "createdGeneratedFiles": [
-      "src/api/document-identity.ts",
-      "src/types/document-identity-response.ts",
-      "src/types/document-identity-update-request.ts",
-      "src/types/document-identity.ts",
-      "src/types/document-revision-content-response.ts",
-      "src/types/document-revision-content.ts"
-    ],
+    "createdGeneratedFiles": [],
     "updatedGeneratedFiles": [
-      "README.md",
-      "src/api/index.ts",
-      "src/api/revisions.ts",
-      "src/sdk.ts",
-      "src/types/index.ts"
+      "src/types/published-document.ts"
     ],
     "unchangedGeneratedFiles": [
       "bin/publish-core.mjs",
@@ -35,15 +24,24 @@
       "CHANGELOG.md",
       "LICENSE",
       "package.json",
+      "README.md",
       "sdkwork-sdk.json",
       "src/api/base.ts",
       "src/api/developer-catalog.ts",
+      "src/api/document-categories.ts",
+      "src/api/document-identity.ts",
+      "src/api/document-overview.ts",
+      "src/api/document-tags.ts",
+      "src/api/document-taxonomy.ts",
       "src/api/documents.ts",
+      "src/api/index.ts",
       "src/api/paths.ts",
+      "src/api/revisions.ts",
       "src/auth/index.ts",
       "src/http/client.ts",
       "src/http/index.ts",
       "src/index.ts",
+      "src/sdk.ts",
       "src/types/catalog-api-operation-page-response.ts",
       "src/types/catalog-api-operation-page.ts",
       "src/types/catalog-api-operation.ts",
@@ -73,21 +71,41 @@
       "src/types/developer-catalog-overview.ts",
       "src/types/document-capabilities-response.ts",
       "src/types/document-capabilities.ts",
+      "src/types/document-category-create-request.ts",
+      "src/types/document-category-list-response.ts",
+      "src/types/document-category-list.ts",
+      "src/types/document-category-response.ts",
+      "src/types/document-category-update-request.ts",
+      "src/types/document-category.ts",
       "src/types/document-create-request.ts",
       "src/types/document-drive-binding-request.ts",
+      "src/types/document-identity-response.ts",
+      "src/types/document-identity-update-request.ts",
+      "src/types/document-identity.ts",
       "src/types/document-list-response.ts",
+      "src/types/document-overview-item.ts",
+      "src/types/document-overview-list-response.ts",
+      "src/types/document-overview-list.ts",
       "src/types/document-response.ts",
+      "src/types/document-revision-content-response.ts",
+      "src/types/document-revision-content.ts",
       "src/types/document-revision-list-response.ts",
       "src/types/document-revision-list.ts",
       "src/types/document-revision.ts",
+      "src/types/document-tag-list-response.ts",
+      "src/types/document-tag-list.ts",
+      "src/types/document-tag.ts",
+      "src/types/document-taxonomy-response.ts",
+      "src/types/document-taxonomy-update-request.ts",
+      "src/types/document-taxonomy.ts",
       "src/types/document-update-request.ts",
       "src/types/document.ts",
       "src/types/field-error.ts",
+      "src/types/index.ts",
       "src/types/page-info.ts",
       "src/types/problem-detail.ts",
       "src/types/published-document-list-response.ts",
       "src/types/published-document-response.ts",
-      "src/types/published-document.ts",
       "src/types/sdk-reference-generation-request.ts",
       "src/types/sdk-reference-response.ts",
       "src/types/sdk-work-api-response.ts",
@@ -100,97 +118,40 @@
       "src/types/sdk-work-resource-response.ts",
       "tsconfig.json"
     ],
-    "deletedGeneratedFiles": [
-      "src/api/documents.d.ts",
-      "src/api/index.d.ts",
-      "src/api/revisions.d.ts",
-      "src/types/document-drive-binding-request.d.ts",
-      "src/types/document-revision-list-response.d.ts",
-      "src/types/document-revision-list.d.ts",
-      "src/types/document-revision.d.ts",
-      "src/types/index.d.ts",
-      "src/types/published-document-list-response.d.ts",
-      "src/types/published-document-response.d.ts",
-      "src/types/published-document.d.ts"
-    ],
+    "deletedGeneratedFiles": [],
     "scaffoldedFiles": [],
     "preservedScaffoldFiles": [
       "custom/build-runtime.mjs",
       "custom/README.md"
     ],
-    "backedUpFiles": [
-      "src/api/documents.d.ts",
-      "src/api/index.d.ts",
-      "src/api/revisions.d.ts",
-      "src/types/document-drive-binding-request.d.ts",
-      "src/types/document-revision-list-response.d.ts",
-      "src/types/document-revision-list.d.ts",
-      "src/types/document-revision.d.ts",
-      "src/types/index.d.ts",
-      "src/types/published-document-list-response.d.ts",
-      "src/types/published-document-response.d.ts",
-      "src/types/published-document.d.ts"
-    ]
+    "backedUpFiles": []
   },
   "impact": {
     "schemaVersion": 1,
     "areas": [
-      "api-surface",
-      "models",
-      "documentation"
+      "models"
     ],
     "details": [
       {
-        "area": "api-surface",
-        "paths": [
-          "src/api/document-identity.ts",
-          "src/api/documents.d.ts",
-          "src/api/index.d.ts",
-          "src/api/index.ts",
-          "src/api/revisions.d.ts",
-          "src/api/revisions.ts",
-          "src/sdk.ts"
-        ]
-      },
-      {
         "area": "models",
         "paths": [
-          "src/types/document-drive-binding-request.d.ts",
-          "src/types/document-identity-response.ts",
-          "src/types/document-identity-update-request.ts",
-          "src/types/document-identity.ts",
-          "src/types/document-revision-content-response.ts",
-          "src/types/document-revision-content.ts",
-          "src/types/document-revision-list-response.d.ts",
-          "src/types/document-revision-list.d.ts",
-          "src/types/document-revision.d.ts",
-          "src/types/index.d.ts",
-          "src/types/index.ts",
-          "src/types/published-document-list-response.d.ts",
-          "src/types/published-document-response.d.ts",
-          "src/types/published-document.d.ts"
-        ]
-      },
-      {
-        "area": "documentation",
-        "paths": [
-          "README.md"
+          "src/types/published-document.ts"
         ]
       }
     ],
     "requiresVerification": true,
-    "summary": "Detected impact areas: api-surface, models, documentation. Verification is required."
+    "summary": "Detected impact areas: models. Verification is required."
   },
   "verificationPlan": {
     "shouldRun": true,
     "runPhase": "now",
-    "summary": "Detected impact areas: api-surface, models, documentation. Verification is required. Run the required verification commands now against the generated SDK output.",
+    "summary": "Detected impact areas: models. Verification is required. Run the required verification commands now against the generated SDK output.",
     "steps": [
       {
         "id": "check",
         "title": "Unified package check",
         "required": true,
-        "rationale": "Validate the generated package with the unified publish helper. Triggered by: api-surface, models, documentation.",
+        "rationale": "Validate the generated package with the unified publish helper. Triggered by: models.",
         "workingDirectory": "D:\\sdkwork-space\\sdkwork-documents\\sdks\\sdkwork-documents-app-sdk\\sdkwork-documents-app-sdk-typescript\\generated\\server-openapi",
         "command": "node",
         "args": [
@@ -208,7 +169,7 @@
         "id": "build",
         "title": "Unified package build",
         "required": true,
-        "rationale": "Run the full package build because this language uses a lighter check path than the final build. Triggered by: api-surface, models, documentation.",
+        "rationale": "Run the full package build because this language uses a lighter check path than the final build. Triggered by: models.",
         "workingDirectory": "D:\\sdkwork-space\\sdkwork-documents\\sdks\\sdkwork-documents-app-sdk\\sdkwork-documents-app-sdk-typescript\\generated\\server-openapi",
         "command": "node",
         "args": [
@@ -226,15 +187,12 @@
   },
   "executionDecision": {
     "schemaVersion": 1,
-    "riskLevel": "high",
+    "riskLevel": "medium",
     "nextAction": "verify",
     "requiresManualReview": false,
     "applyRequiresExpectedFingerprint": false,
     "summary": "Changes have been applied. Run the required verification plan now.",
     "reasons": [
-      "backed-up-generated-files",
-      "deleted-generated-files",
-      "manual-review-required",
       "verification-required"
     ]
   },

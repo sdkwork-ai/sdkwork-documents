@@ -5,9 +5,10 @@ use sdkwork_documents_contract::{
     CatalogApiSurface, CatalogApiSurfaceDetail, CatalogApiSurfacePage, CatalogApiSurfaceQuery,
     CatalogCategory, CatalogCategoryList, CatalogCounts, CatalogFacet, CatalogLanguage,
     CatalogLanguageList, CatalogSdkFamily, CatalogSdkFamilyDetail, CatalogSdkFamilyPage,
-    CatalogSdkQuery, CatalogSdkRelease, DeveloperCatalogOverview, Document, DocumentRevision,
-    DocumentUpdateRequest, DocumentsRepository, DocumentsServiceError, DocumentsServiceResult,
-    PublishedDocument, PublishedDocumentList,
+    CatalogSdkQuery, CatalogSdkRelease, DeveloperCatalogOverview, Document, DocumentCategory,
+    DocumentCategoryCreateRequest, DocumentCategoryUpdateRequest, DocumentOverviewItem,
+    DocumentRevision, DocumentTag, DocumentTaxonomy, DocumentUpdateRequest, DocumentsRepository,
+    DocumentsServiceError, DocumentsServiceResult, PublishedDocument, PublishedDocumentList,
 };
 use sdkwork_utils_rust::{is_uuid, trim};
 
@@ -279,6 +280,343 @@ impl DocumentsRepository for DocumentsSqlxRepository {
             .collect())
     }
 
+    async fn list_overview(
+        &self,
+        tenant_id: i64,
+    ) -> DocumentsServiceResult<Vec<DocumentOverviewItem>> {
+        let pg = self.postgres()?;
+        let rows = sqlx::query_as::<_, (String, String, String, String, String, String, String)>(
+            "SELECT id::text,
+                    title,
+                    status,
+                    COALESCE(locale, '') AS locale,
+                    COALESCE(slug, '') AS slug,
+                    COALESCE(category, '') AS category,
+                    COALESCE(to_char(updated_at, 'YYYY-MM-DD HH24:MI'), '') AS updated_at
+             FROM documents_document
+             WHERE tenant_id = $1
+             ORDER BY updated_at DESC",
+        )
+        .bind(tenant_id)
+        .fetch_all(pg)
+        .await
+        .map_err(Self::map_sqlx_error)?;
+
+        let tag_rows = sqlx::query_as::<_, (String, String, String, String)>(
+            "SELECT dt.document_id::text, t.id::text, t.slug, t.name
+             FROM documents_document_tag dt
+             JOIN documents_tag t ON t.id = dt.tag_id
+             WHERE dt.tenant_id = $1
+             ORDER BY t.name",
+        )
+        .bind(tenant_id)
+        .fetch_all(pg)
+        .await
+        .map_err(Self::map_sqlx_error)?;
+
+        let mut tags_by_document: std::collections::HashMap<String, Vec<DocumentTag>> =
+            std::collections::HashMap::new();
+        for (document_id, id, slug, name) in tag_rows {
+            tags_by_document
+                .entry(document_id)
+                .or_default()
+                .push(DocumentTag { id, slug, name });
+        }
+
+        Ok(rows
+            .into_iter()
+            .map(
+                |(id, title, status, locale, slug, category, updated_at)| DocumentOverviewItem {
+                    tags: tags_by_document.remove(&id).unwrap_or_default(),
+                    id,
+                    title,
+                    status,
+                    locale,
+                    slug,
+                    category,
+                    updated_at,
+                },
+            )
+            .collect())
+    }
+
+    async fn list_categories(
+        &self,
+        tenant_id: i64,
+    ) -> DocumentsServiceResult<Vec<DocumentCategory>> {
+        let pg = self.postgres()?;
+        let rows = sqlx::query_as::<
+            _,
+            (
+                String,
+                String,
+                String,
+                String,
+                String,
+                i64,
+                String,
+                String,
+                String,
+            ),
+        >(
+            "SELECT id::text, slug, name, COALESCE(name_en, ''), COALESCE(description, ''),
+                    sort_order, status,
+                    to_char(created_at, 'YYYY-MM-DD HH24:MI') AS created_at,
+                    to_char(updated_at, 'YYYY-MM-DD HH24:MI') AS updated_at
+             FROM documents_category
+             WHERE tenant_id = $1
+             ORDER BY sort_order, name",
+        )
+        .bind(tenant_id)
+        .fetch_all(pg)
+        .await
+        .map_err(Self::map_sqlx_error)?;
+        Ok(rows
+            .into_iter()
+            .map(
+                |(
+                    id,
+                    slug,
+                    name,
+                    name_en,
+                    description,
+                    sort_order,
+                    status,
+                    created_at,
+                    updated_at,
+                )| {
+                    DocumentCategory {
+                        id,
+                        slug,
+                        name,
+                        name_en,
+                        description,
+                        sort_order,
+                        status,
+                        created_at,
+                        updated_at,
+                    }
+                },
+            )
+            .collect())
+    }
+
+    async fn create_category(
+        &self,
+        tenant_id: i64,
+        request: DocumentCategoryCreateRequest,
+    ) -> DocumentsServiceResult<DocumentCategory> {
+        let pg = self.postgres()?;
+        let id = uuid::Uuid::new_v4();
+        let row = sqlx::query_as::<_, (String, String, String, String, String, i64, String, String, String)>(
+            "INSERT INTO documents_category
+             (id, tenant_id, slug, name, name_en, description, sort_order, status)
+             VALUES ($1, $2, $3, $4, NULLIF($5, ''), NULLIF($6, ''), $7, 'active')
+             RETURNING id::text, slug, name, COALESCE(name_en, ''), COALESCE(description, ''),
+                       sort_order, status,
+                       to_char(created_at, 'YYYY-MM-DD HH24:MI'), to_char(updated_at, 'YYYY-MM-DD HH24:MI')",
+        )
+        .bind(id)
+        .bind(tenant_id)
+        .bind(&request.slug)
+        .bind(&request.name)
+        .bind(request.name_en.unwrap_or_default())
+        .bind(request.description.unwrap_or_default())
+        .bind(request.sort_order.unwrap_or(0))
+        .fetch_one(pg)
+        .await
+        .map_err(Self::map_sqlx_error)?;
+        Ok(category_from_row(row))
+    }
+
+    async fn update_category(
+        &self,
+        tenant_id: i64,
+        category_id: &str,
+        request: DocumentCategoryUpdateRequest,
+    ) -> DocumentsServiceResult<DocumentCategory> {
+        let pg = self.postgres()?;
+        let id = uuid::Uuid::parse_str(category_id)
+            .map_err(|_| DocumentsServiceError::Validation("invalid category id".to_owned()))?;
+        let row = sqlx::query_as::<_, (String, String, String, String, String, i64, String, String, String)>(
+            "UPDATE documents_category
+             SET name = COALESCE($3, name),
+                 name_en = COALESCE($4, name_en),
+                 description = COALESCE($5, description),
+                 sort_order = COALESCE($6, sort_order),
+                 status = COALESCE($7, status),
+                 updated_at = NOW()
+             WHERE tenant_id = $1 AND id = $2
+             RETURNING id::text, slug, name, COALESCE(name_en, ''), COALESCE(description, ''),
+                       sort_order, status,
+                       to_char(created_at, 'YYYY-MM-DD HH24:MI'), to_char(updated_at, 'YYYY-MM-DD HH24:MI')",
+        )
+        .bind(tenant_id)
+        .bind(id)
+        .bind(request.name)
+        .bind(request.name_en)
+        .bind(request.description)
+        .bind(request.sort_order)
+        .bind(request.status)
+        .fetch_optional(pg)
+        .await
+        .map_err(Self::map_sqlx_error)?
+        .ok_or_else(|| DocumentsServiceError::NotFound(category_id.to_owned()))?;
+        Ok(category_from_row(row))
+    }
+
+    async fn delete_category(
+        &self,
+        tenant_id: i64,
+        category_id: &str,
+    ) -> DocumentsServiceResult<()> {
+        let pg = self.postgres()?;
+        let id = uuid::Uuid::parse_str(category_id)
+            .map_err(|_| DocumentsServiceError::Validation("invalid category id".to_owned()))?;
+        let slug: Option<String> = sqlx::query_scalar(
+            "SELECT slug FROM documents_category WHERE tenant_id = $1 AND id = $2",
+        )
+        .bind(tenant_id)
+        .bind(id)
+        .fetch_optional(pg)
+        .await
+        .map_err(Self::map_sqlx_error)?;
+        let Some(slug) = slug else {
+            return Err(DocumentsServiceError::NotFound(category_id.to_owned()));
+        };
+        let used: i64 = sqlx::query_scalar(
+            "SELECT COUNT(*) FROM documents_document WHERE tenant_id = $1 AND category = $2",
+        )
+        .bind(tenant_id)
+        .bind(&slug)
+        .fetch_one(pg)
+        .await
+        .map_err(Self::map_sqlx_error)?;
+        if used > 0 {
+            return Err(DocumentsServiceError::Validation(
+                "category is still used by documents".to_owned(),
+            ));
+        }
+        sqlx::query("DELETE FROM documents_category WHERE tenant_id = $1 AND id = $2")
+            .bind(tenant_id)
+            .bind(id)
+            .execute(pg)
+            .await
+            .map_err(Self::map_sqlx_error)?;
+        Ok(())
+    }
+
+    async fn list_tags(&self, tenant_id: i64) -> DocumentsServiceResult<Vec<DocumentTag>> {
+        let pg = self.postgres()?;
+        let rows = sqlx::query_as::<_, (String, String, String)>(
+            "SELECT id::text, slug, name FROM documents_tag
+             WHERE tenant_id = $1 ORDER BY name",
+        )
+        .bind(tenant_id)
+        .fetch_all(pg)
+        .await
+        .map_err(Self::map_sqlx_error)?;
+        Ok(rows
+            .into_iter()
+            .map(|(id, slug, name)| DocumentTag { id, slug, name })
+            .collect())
+    }
+
+    async fn get_taxonomy(
+        &self,
+        tenant_id: i64,
+        document_id: &str,
+    ) -> DocumentsServiceResult<DocumentTaxonomy> {
+        let pg = self.postgres()?;
+        let id = Self::parse_document_id(document_id)?;
+        let category: String = sqlx::query_scalar(
+            "SELECT COALESCE(category, '') FROM documents_document WHERE tenant_id = $1 AND id = $2",
+        )
+        .bind(tenant_id)
+        .bind(id)
+        .fetch_optional(pg)
+        .await
+        .map_err(Self::map_sqlx_error)?
+        .ok_or_else(|| DocumentsServiceError::NotFound(document_id.to_owned()))?;
+        let tags = sqlx::query_as::<_, (String, String, String)>(
+            "SELECT t.id::text, t.slug, t.name
+             FROM documents_document_tag dt
+             JOIN documents_tag t ON t.id = dt.tag_id
+             WHERE dt.tenant_id = $1 AND dt.document_id = $2
+             ORDER BY t.name",
+        )
+        .bind(tenant_id)
+        .bind(id)
+        .fetch_all(pg)
+        .await
+        .map_err(Self::map_sqlx_error)?
+        .into_iter()
+        .map(|(id, slug, name)| DocumentTag { id, slug, name })
+        .collect();
+        Ok(DocumentTaxonomy { category, tags })
+    }
+
+    async fn set_taxonomy(
+        &self,
+        tenant_id: i64,
+        document_id: &str,
+        category: &str,
+        tags: &[String],
+    ) -> DocumentsServiceResult<DocumentTaxonomy> {
+        let pg = self.postgres()?;
+        let document_id = Self::parse_document_id(document_id)?;
+        let mut tx = pg.begin().await.map_err(Self::map_sqlx_error)?;
+        sqlx::query(
+            "UPDATE documents_document SET category = NULLIF($3, ''), updated_at = NOW()
+             WHERE tenant_id = $1 AND id = $2",
+        )
+        .bind(tenant_id)
+        .bind(document_id)
+        .bind(category)
+        .execute(&mut *tx)
+        .await
+        .map_err(Self::map_sqlx_error)?;
+
+        sqlx::query("DELETE FROM documents_document_tag WHERE tenant_id = $1 AND document_id = $2")
+            .bind(tenant_id)
+            .bind(document_id)
+            .execute(&mut *tx)
+            .await
+            .map_err(Self::map_sqlx_error)?;
+
+        for tag in tags {
+            let tag_id = uuid::Uuid::new_v4();
+            let row = sqlx::query_as::<_, (String, String, String)>(
+                "INSERT INTO documents_tag (id, tenant_id, slug, name)
+                 VALUES ($1, $2, $3, $4)
+                 ON CONFLICT (tenant_id, app_key, slug) DO UPDATE SET name = EXCLUDED.name
+                 RETURNING id::text, slug, name",
+            )
+            .bind(tag_id)
+            .bind(tenant_id)
+            .bind(tag)
+            .bind(tag)
+            .fetch_one(&mut *tx)
+            .await
+            .map_err(Self::map_sqlx_error)?;
+            sqlx::query(
+                "INSERT INTO documents_document_tag (tenant_id, document_id, tag_id)
+                 VALUES ($1, $2, $3) ON CONFLICT DO NOTHING",
+            )
+            .bind(tenant_id)
+            .bind(document_id)
+            .bind(
+                uuid::Uuid::parse_str(&row.0)
+                    .map_err(|_| DocumentsServiceError::Internal("invalid tag id".to_owned()))?,
+            )
+            .execute(&mut *tx)
+            .await
+            .map_err(Self::map_sqlx_error)?;
+        }
+        tx.commit().await.map_err(Self::map_sqlx_error)?;
+        self.get_taxonomy(tenant_id, &document_id.to_string()).await
+    }
+
     async fn find_by_id(
         &self,
         tenant_id: i64,
@@ -422,17 +760,25 @@ impl DocumentsRepository for DocumentsSqlxRepository {
         let pg = self.postgres()?;
         let rows = sqlx::query_as::<_, PostgresPublishedDocumentRow>(
             r#"
-            SELECT id::text AS id, COALESCE(slug, '') AS slug, COALESCE(locale, '') AS locale,
-                   title, COALESCE(summary, '') AS summary, body,
-                   COALESCE(category, '') AS category,
-                   COALESCE(to_char(published_at, 'YYYY-MM-DD'), '') AS published_at,
-                   COALESCE(drive_space_id, '') AS drive_space_id,
-                   COALESCE(drive_node_id, '') AS drive_node_id,
-                   content_source
-            FROM documents_document
-            WHERE tenant_id = $1 AND status = 'published'
-              AND (locale = $2 OR $2 = '')
-            ORDER BY category, sort_order, title
+            SELECT d.id::text AS id, COALESCE(d.slug, '') AS slug, COALESCE(d.locale, '') AS locale,
+                   d.title, COALESCE(d.summary, '') AS summary, d.body,
+                   COALESCE(d.category, '') AS category,
+                   COALESCE(c.name, '') AS category_name,
+                   COALESCE(string_agg(t.id::text || '|' || t.slug || '|' || t.name, ';;' ORDER BY t.name), '') AS tags,
+                   COALESCE(to_char(d.published_at, 'YYYY-MM-DD'), '') AS published_at,
+                   COALESCE(d.drive_space_id, '') AS drive_space_id,
+                   COALESCE(d.drive_node_id, '') AS drive_node_id,
+                   d.content_source
+            FROM documents_document d
+            LEFT JOIN documents_category c
+              ON c.tenant_id = d.tenant_id AND c.app_key = d.app_key AND c.slug = d.category
+            LEFT JOIN documents_document_tag dt
+              ON dt.tenant_id = d.tenant_id AND dt.document_id = d.id
+            LEFT JOIN documents_tag t ON t.id = dt.tag_id
+            WHERE d.tenant_id = $1 AND d.status = 'published'
+              AND (d.locale = $2 OR $2 = '')
+            GROUP BY d.id, c.name
+            ORDER BY d.category, d.sort_order, d.title
             "#,
         )
         .bind(tenant_id)
@@ -461,18 +807,26 @@ impl DocumentsRepository for DocumentsSqlxRepository {
         }
         let row = sqlx::query_as::<_, PostgresPublishedDocumentRow>(
             r#"
-            SELECT id::text AS id, COALESCE(slug, '') AS slug, COALESCE(locale, '') AS locale,
-                   title, COALESCE(summary, '') AS summary, body,
-                   COALESCE(category, '') AS category,
-                   COALESCE(to_char(published_at, 'YYYY-MM-DD'), '') AS published_at,
-                   COALESCE(drive_space_id, '') AS drive_space_id,
-                   COALESCE(drive_node_id, '') AS drive_node_id,
-                   content_source
-            FROM documents_document
-            WHERE tenant_id = $1 AND status = 'published'
-              AND (id::text = $2 OR slug = $2)
-            ORDER BY (id::text = $2) DESC, (locale = $3) DESC, (locale = 'zh-CN') DESC,
-                     updated_at DESC
+            SELECT d.id::text AS id, COALESCE(d.slug, '') AS slug, COALESCE(d.locale, '') AS locale,
+                   d.title, COALESCE(d.summary, '') AS summary, d.body,
+                   COALESCE(d.category, '') AS category,
+                   COALESCE(c.name, '') AS category_name,
+                   COALESCE(string_agg(t.id::text || '|' || t.slug || '|' || t.name, ';;' ORDER BY t.name), '') AS tags,
+                   COALESCE(to_char(d.published_at, 'YYYY-MM-DD'), '') AS published_at,
+                   COALESCE(d.drive_space_id, '') AS drive_space_id,
+                   COALESCE(d.drive_node_id, '') AS drive_node_id,
+                   d.content_source
+            FROM documents_document d
+            LEFT JOIN documents_category c
+              ON c.tenant_id = d.tenant_id AND c.app_key = d.app_key AND c.slug = d.category
+            LEFT JOIN documents_document_tag dt
+              ON dt.tenant_id = d.tenant_id AND dt.document_id = d.id
+            LEFT JOIN documents_tag t ON t.id = dt.tag_id
+            WHERE d.tenant_id = $1 AND d.status = 'published'
+              AND (d.id::text = $2 OR d.slug = $2)
+            GROUP BY d.id, c.name
+            ORDER BY (d.id::text = $2) DESC, (d.locale = $3) DESC, (d.locale = 'zh-CN') DESC,
+                     d.updated_at DESC
             LIMIT 1
             "#,
         )
@@ -1160,6 +1514,8 @@ struct PostgresPublishedDocumentRow {
     summary: String,
     body: String,
     category: String,
+    category_name: String,
+    tags: String,
     published_at: String,
     drive_space_id: String,
     drive_node_id: String,
@@ -1176,6 +1532,8 @@ impl PostgresPublishedDocumentRow {
             summary: self.summary,
             body: self.body,
             category: self.category,
+            category_name: self.category_name,
+            tags: parse_published_tags(&self.tags),
             published_at: self.published_at,
             space_id: self.drive_space_id,
             node_id: self.drive_node_id,
@@ -1653,4 +2011,50 @@ impl PostgresDocumentRevisionRow {
             created_at: self.created_at,
         }
     }
+}
+
+fn category_from_row(
+    row: (
+        String,
+        String,
+        String,
+        String,
+        String,
+        i64,
+        String,
+        String,
+        String,
+    ),
+) -> DocumentCategory {
+    let (id, slug, name, name_en, description, sort_order, status, created_at, updated_at) = row;
+    DocumentCategory {
+        id,
+        slug,
+        name,
+        name_en,
+        description,
+        sort_order,
+        status,
+        created_at,
+        updated_at,
+    }
+}
+
+fn parse_published_tags(raw: &str) -> Vec<DocumentTag> {
+    raw.split(";;")
+        .filter_map(|entry| {
+            let mut parts = entry.splitn(3, '|');
+            let id = parts.next()?.trim();
+            let slug = parts.next()?.trim();
+            let name = parts.next()?.trim();
+            if id.is_empty() || slug.is_empty() || name.is_empty() {
+                return None;
+            }
+            Some(DocumentTag {
+                id: id.to_owned(),
+                slug: slug.to_owned(),
+                name: name.to_owned(),
+            })
+        })
+        .collect()
 }

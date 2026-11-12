@@ -117,6 +117,21 @@ export function PublicDocumentPage({ documentRef, basePath }: PublicDocumentPage
                 <dd className="font-mono">{document.id}</dd>
               </div>
             </dl>
+            {document.categoryName || document.category ? (
+              <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
+                <span className="rounded-full bg-blue-50 px-2.5 py-1 font-medium text-blue-700 dark:bg-blue-500/10 dark:text-blue-300">
+                  {document.categoryName || document.category}
+                </span>
+                {(document.tags ?? []).map((tag) => (
+                  <span
+                    className="rounded-full bg-violet-50 px-2.5 py-1 font-medium text-violet-700 dark:bg-violet-500/10 dark:text-violet-300"
+                    key={tag.id}
+                  >
+                    {tag.name}
+                  </span>
+                ))}
+              </div>
+            ) : null}
           </header>
           <div
             className="sdkwork-public-document-content"

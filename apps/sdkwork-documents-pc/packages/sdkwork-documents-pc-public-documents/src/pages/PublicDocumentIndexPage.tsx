@@ -5,12 +5,11 @@ import { AlertCircle, FileText, Loader2, Search } from 'lucide-react';
 import type { PublicDocument } from '../types.ts';
 import { usePublicDocumentsRuntime } from '../runtime.tsx';
 
-const CATEGORY_ORDER = ['policy', 'standard', 'other'] as const;
+const CATEGORY_ORDER = ['policy', 'standard'] as const;
 
-function categoryKey(category: string): (typeof CATEGORY_ORDER)[number] {
-  return (CATEGORY_ORDER as readonly string[]).includes(category)
-    ? (category as (typeof CATEGORY_ORDER)[number])
-    : 'other';
+function categoryRank(category: string): number {
+  const index = (CATEGORY_ORDER as readonly string[]).indexOf(category);
+  return index === -1 ? CATEGORY_ORDER.length : index;
 }
 
 export function PublicDocumentIndexPage({ basePath }: { basePath?: string }) {
@@ -45,15 +44,25 @@ export function PublicDocumentIndexPage({ basePath }: { basePath?: string }) {
     const normalized = query.trim().toLowerCase();
     const filtered = normalized
       ? documents.filter((document) =>
-          [document.title, document.summary, document.slug].some((value) =>
-            value.toLowerCase().includes(normalized),
-          ),
+          [
+            document.title,
+            document.summary,
+            document.slug,
+            document.categoryName ?? '',
+            ...(document.tags ?? []).map((tag) => tag.name),
+          ].some((value) => value.toLowerCase().includes(normalized)),
         )
       : documents;
-    return CATEGORY_ORDER.map((category) => ({
-      category,
-      items: filtered.filter((document) => categoryKey(document.category) === category),
-    })).filter((group) => group.items.length > 0);
+    const groups = new Map<string, typeof filtered>();
+    for (const document of filtered) {
+      const category = document.category || 'other';
+      const items = groups.get(category) ?? [];
+      items.push(document);
+      groups.set(category, items);
+    }
+    return [...groups.entries()]
+      .map(([category, items]) => ({ category, items }))
+      .sort((left, right) => categoryRank(left.category) - categoryRank(right.category));
   }, [documents, query]);
 
   return (
@@ -112,9 +121,10 @@ export function PublicDocumentIndexPage({ basePath }: { basePath?: string }) {
           {grouped.map((group) => (
             <section key={group.category}>
               <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                {t(`publicDocs.category.${group.category}`, {
-                  defaultValue: group.category,
-                })}
+                {group.items[0]?.categoryName ||
+                  t(`publicDocs.category.${group.category}`, {
+                    defaultValue: group.category === 'other' ? 'Other' : group.category,
+                  })}
               </h2>
               <ul className="grid gap-4 md:grid-cols-2">
                 {group.items.map((document) => (
@@ -129,6 +139,18 @@ export function PublicDocumentIndexPage({ basePath }: { basePath?: string }) {
                       {document.summary ? (
                         <span className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
                           {document.summary}
+                        </span>
+                      ) : null}
+                      {document.tags?.length ? (
+                        <span className="mt-3 flex flex-wrap gap-1.5">
+                          {document.tags.map((tag) => (
+                            <span
+                              className="rounded-full bg-violet-50 px-2 py-0.5 text-[11px] font-medium text-violet-700 dark:bg-violet-500/10 dark:text-violet-300"
+                              key={tag.id}
+                            >
+                              {tag.name}
+                            </span>
+                          ))}
                         </span>
                       ) : null}
                     </Link>

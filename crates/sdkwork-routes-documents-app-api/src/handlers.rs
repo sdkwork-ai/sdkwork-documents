@@ -4,8 +4,10 @@ use axum::{
     Extension, Json,
 };
 use sdkwork_documents_contract::{
-    CatalogApiOperationQuery, CatalogApiSurfaceQuery, CatalogSdkQuery, DocumentCreateRequest,
-    DocumentDriveBindingRequest, DocumentIdentityUpdateRequest, DocumentUpdateRequest,
+    CatalogApiOperationQuery, CatalogApiSurfaceQuery, CatalogSdkQuery,
+    DocumentCategoryCreateRequest, DocumentCategoryUpdateRequest, DocumentCreateRequest,
+    DocumentDriveBindingRequest, DocumentIdentityUpdateRequest, DocumentTaxonomyUpdateRequest,
+    DocumentUpdateRequest,
 };
 use serde::Deserialize;
 
@@ -106,6 +108,14 @@ pub(crate) async fn bind_document_drive(
     ))
 }
 
+pub(crate) async fn list_document_overview(
+    State(state): State<AppState>,
+    context: Option<Extension<DocumentsAppRequestContext>>,
+) -> Result<Response, ApiProblem> {
+    let context = auth::require_app_context(context)?;
+    Ok(ok_json(state.api.list_document_overview(context).await))
+}
+
 pub(crate) async fn list_document_revisions(
     State(state): State<AppState>,
     context: Option<Extension<DocumentsAppRequestContext>>,
@@ -172,6 +182,88 @@ pub(crate) async fn update_document_identity(
             .update_document_identity(context, document_id, request)
             .await,
     ))
+}
+
+pub(crate) async fn get_document_taxonomy(
+    State(state): State<AppState>,
+    context: Option<Extension<DocumentsAppRequestContext>>,
+    Path(document_id): Path<String>,
+) -> Result<Response, ApiProblem> {
+    let context = auth::require_app_context(context)?;
+    Ok(ok_json(
+        state.api.get_document_taxonomy(context, document_id).await,
+    ))
+}
+
+pub(crate) async fn update_document_taxonomy(
+    State(state): State<AppState>,
+    context: Option<Extension<DocumentsAppRequestContext>>,
+    Path(document_id): Path<String>,
+    Json(request): Json<DocumentTaxonomyUpdateRequest>,
+) -> Result<Response, ApiProblem> {
+    let context = auth::require_app_context(context)?;
+    Ok(ok_json(
+        state
+            .api
+            .update_document_taxonomy(context, document_id, request)
+            .await,
+    ))
+}
+
+pub(crate) async fn list_document_categories(
+    State(state): State<AppState>,
+    context: Option<Extension<DocumentsAppRequestContext>>,
+) -> Result<Response, ApiProblem> {
+    let context = auth::require_app_context(context)?;
+    Ok(ok_json(state.api.list_document_categories(context).await))
+}
+
+pub(crate) async fn create_document_category(
+    State(state): State<AppState>,
+    context: Option<Extension<DocumentsAppRequestContext>>,
+    Json(request): Json<DocumentCategoryCreateRequest>,
+) -> Result<Response, ApiProblem> {
+    let context = auth::require_app_context(context)?;
+    Ok(created_json(
+        state.api.create_document_category(context, request).await,
+    ))
+}
+
+pub(crate) async fn update_document_category(
+    State(state): State<AppState>,
+    context: Option<Extension<DocumentsAppRequestContext>>,
+    Path(category_id): Path<String>,
+    Json(request): Json<DocumentCategoryUpdateRequest>,
+) -> Result<Response, ApiProblem> {
+    let context = auth::require_app_context(context)?;
+    Ok(ok_json(
+        state
+            .api
+            .update_document_category(context, category_id, request)
+            .await,
+    ))
+}
+
+pub(crate) async fn delete_document_category(
+    State(state): State<AppState>,
+    context: Option<Extension<DocumentsAppRequestContext>>,
+    Path(category_id): Path<String>,
+) -> Result<Response, ApiProblem> {
+    let context = auth::require_app_context(context)?;
+    Ok(no_content(
+        state
+            .api
+            .delete_document_category(context, category_id)
+            .await,
+    ))
+}
+
+pub(crate) async fn list_document_tags(
+    State(state): State<AppState>,
+    context: Option<Extension<DocumentsAppRequestContext>>,
+) -> Result<Response, ApiProblem> {
+    let context = auth::require_app_context(context)?;
+    Ok(ok_json(state.api.list_document_tags(context).await))
 }
 
 pub(crate) async fn delete_document(
