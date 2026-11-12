@@ -5,13 +5,40 @@ use axum::{
 };
 use sdkwork_documents_contract::{
     CatalogApiOperationQuery, CatalogApiSurfaceQuery, CatalogSdkQuery, DocumentCreateRequest,
-    DocumentUpdateRequest,
+    DocumentDriveBindingRequest, DocumentIdentityUpdateRequest, DocumentUpdateRequest,
 };
+use serde::Deserialize;
+
+const DEFAULT_PUBLIC_TENANT_ID: i64 = 100001;
+const DEFAULT_PUBLIC_LOCALE: &str = "zh-CN";
+
+#[derive(Debug, Deserialize, Default)]
+pub(crate) struct PublicDocumentQuery {
+    #[serde(default)]
+    locale: Option<String>,
+}
+
+fn public_tenant_id() -> i64 {
+    std::env::var("SDKWORK_DOCUMENTS_PUBLIC_TENANT_ID")
+        .ok()
+        .and_then(|value| value.trim().parse::<i64>().ok())
+        .unwrap_or(DEFAULT_PUBLIC_TENANT_ID)
+}
+
+fn public_locale(query: &PublicDocumentQuery) -> String {
+    query
+        .locale
+        .as_deref()
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .unwrap_or(DEFAULT_PUBLIC_LOCALE)
+        .to_owned()
+}
 
 use crate::{
     auth,
     ports::DocumentsAppRequestContext,
-    response::{created_json, ok_json, ApiProblem},
+    response::{created_json, no_content, ok_json, ApiProblem},
     routes::AppState,
 };
 
@@ -61,6 +88,100 @@ pub(crate) async fn update_document(
             .api
             .update_document(context, document_id, request)
             .await,
+    ))
+}
+
+pub(crate) async fn bind_document_drive(
+    State(state): State<AppState>,
+    context: Option<Extension<DocumentsAppRequestContext>>,
+    Path(document_id): Path<String>,
+    Json(request): Json<DocumentDriveBindingRequest>,
+) -> Result<Response, ApiProblem> {
+    let context = auth::require_app_context(context)?;
+    Ok(ok_json(
+        state
+            .api
+            .bind_document_drive(context, document_id, request)
+            .await,
+    ))
+}
+
+pub(crate) async fn list_document_revisions(
+    State(state): State<AppState>,
+    context: Option<Extension<DocumentsAppRequestContext>>,
+    Path(document_id): Path<String>,
+) -> Result<Response, ApiProblem> {
+    let context = auth::require_app_context(context)?;
+    Ok(ok_json(
+        state
+            .api
+            .list_document_revisions(context, document_id)
+            .await,
+    ))
+}
+
+pub(crate) async fn get_revision_content(
+    State(state): State<AppState>,
+    context: Option<Extension<DocumentsAppRequestContext>>,
+    Path((document_id, revision_id)): Path<(String, String)>,
+) -> Result<Response, ApiProblem> {
+    let context = auth::require_app_context(context)?;
+    Ok(ok_json(
+        state
+            .api
+            .get_revision_content(context, document_id, revision_id)
+            .await,
+    ))
+}
+
+pub(crate) async fn restore_document_revision(
+    State(state): State<AppState>,
+    context: Option<Extension<DocumentsAppRequestContext>>,
+    Path((document_id, revision_id)): Path<(String, String)>,
+) -> Result<Response, ApiProblem> {
+    let context = auth::require_app_context(context)?;
+    Ok(ok_json(
+        state
+            .api
+            .restore_document_revision(context, document_id, revision_id)
+            .await,
+    ))
+}
+
+pub(crate) async fn get_document_identity(
+    State(state): State<AppState>,
+    context: Option<Extension<DocumentsAppRequestContext>>,
+    Path(document_id): Path<String>,
+) -> Result<Response, ApiProblem> {
+    let context = auth::require_app_context(context)?;
+    Ok(ok_json(
+        state.api.get_document_identity(context, document_id).await,
+    ))
+}
+
+pub(crate) async fn update_document_identity(
+    State(state): State<AppState>,
+    context: Option<Extension<DocumentsAppRequestContext>>,
+    Path(document_id): Path<String>,
+    Json(request): Json<DocumentIdentityUpdateRequest>,
+) -> Result<Response, ApiProblem> {
+    let context = auth::require_app_context(context)?;
+    Ok(ok_json(
+        state
+            .api
+            .update_document_identity(context, document_id, request)
+            .await,
+    ))
+}
+
+pub(crate) async fn delete_document(
+    State(state): State<AppState>,
+    context: Option<Extension<DocumentsAppRequestContext>>,
+    Path(document_id): Path<String>,
+) -> Result<Response, ApiProblem> {
+    let context = auth::require_app_context(context)?;
+    Ok(no_content(
+        state.api.delete_document(context, document_id).await,
     ))
 }
 
@@ -167,6 +288,36 @@ pub(crate) async fn retrieve_developer_catalog_sdk(
         state
             .api
             .retrieve_developer_catalog_sdk(context, sdk_id)
+            .await,
+    ))
+}
+
+/// Public delivery: no IAM session is required. The deployment resolves the
+/// tenant from configuration so the platform domain can render published
+/// documents before a visitor signs in.
+pub(crate) async fn list_published_documents(
+    State(state): State<AppState>,
+    Query(query): Query<PublicDocumentQuery>,
+) -> Result<Response, ApiProblem> {
+    let locale = public_locale(&query);
+    Ok(ok_json(
+        state
+            .api
+            .list_published_documents(public_tenant_id(), &locale)
+            .await,
+    ))
+}
+
+pub(crate) async fn retrieve_published_document(
+    State(state): State<AppState>,
+    Path(document_ref): Path<String>,
+    Query(query): Query<PublicDocumentQuery>,
+) -> Result<Response, ApiProblem> {
+    let locale = public_locale(&query);
+    Ok(ok_json(
+        state
+            .api
+            .retrieve_published_document(public_tenant_id(), &document_ref, &locale)
             .await,
     ))
 }

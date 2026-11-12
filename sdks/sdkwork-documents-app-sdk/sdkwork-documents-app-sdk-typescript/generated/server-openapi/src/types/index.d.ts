@@ -45,4 +45,16 @@ export type { CatalogApiSchemaResponse } from './catalog-api-schema-response';
 export type { CatalogApiOperationPageResponse } from './catalog-api-operation-page-response';
 export type { CatalogSdkFamilyPageResponse } from './catalog-sdk-family-page-response';
 export type { CatalogSdkFamilyDetailResponse } from './catalog-sdk-family-detail-response';
+export type { PublishedDocument } from './published-document';
+export type { PublishedDocumentListResponse } from './published-document-list-response';
+export type { PublishedDocumentResponse } from './published-document-response';
+export type { DocumentDriveBindingRequest } from './document-drive-binding-request';
+export type { DocumentRevision } from './document-revision';
+export type { DocumentRevisionList } from './document-revision-list';
+export type { DocumentRevisionListResponse } from './document-revision-list-response';
+export type { DocumentIdentity } from './document-identity';
+export type { DocumentIdentityUpdateRequest } from './document-identity-update-request';
+export type { DocumentIdentityResponse } from './document-identity-response';
+export type { DocumentRevisionContent } from './document-revision-content';
+export type { DocumentRevisionContentResponse } from './document-revision-content-response';
 //# sourceMappingURL=index.d.ts.map

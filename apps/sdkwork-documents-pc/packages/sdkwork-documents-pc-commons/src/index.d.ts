@@ -9,6 +9,7 @@ export * from './json-value.ts';
 export * from './app-session-token.ts';
 export * from './portal-auth.ts';
 export * from './clipboard.ts';
+export * from './documents-admin-port.ts';
 export * from './documents-reference-runtime.tsx';
 export * from './documents-sdk-client.ts';
 export * from './documentsShellLayout.ts';

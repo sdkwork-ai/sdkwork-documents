@@ -1,0 +1,42 @@
+{
+  "name": "@sdkwork/documents-pc-public-documents",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "SDKWork Documents PC public document index and reader pages.",
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "types": "./src/index.ts"
+    },
+    "./runtime": {
+      "import": "./src/runtime.tsx",
+      "types": "./src/runtime.tsx"
+    },
+    "./styles.css": "./src/article.css"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "lucide-react": "^0.511.0",
+    "react": "^19.1.0",
+    "react-i18next": "catalog:",
+    "react-router-dom": "^7.14.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "typescript": "~5.8.2"
+  },
+  "sdkwork": {
+    "workspace": "sdkwork-documents",
+    "architecture": "pc-react",
+    "domain": "content",
+    "capability": "public-documents",
+    "surface": "pc-feature",
+    "status": "ready"
+  }
+}

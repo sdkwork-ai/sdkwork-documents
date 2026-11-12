@@ -18,6 +18,7 @@ sdkwork-content-documents-service.workspace = true
 sdkwork-content-documents-sdk-reference.workspace = true
 sdkwork-documents-contract.workspace = true
 sdkwork-documents-database-host.workspace = true
+sdkwork-documents-drive.workspace = true
 sdkwork-routes-documents-backend-api.workspace = true
 sdkwork-routes-documents-open-api.workspace = true
 sdkwork-iam-web-adapter.workspace = true
@@ -26,5 +27,6 @@ sdkwork-web-core.workspace = true
 
 [dev-dependencies]
 async-trait.workspace = true
+sqlx.workspace = true
 tokio.workspace = true
 tower.workspace = true

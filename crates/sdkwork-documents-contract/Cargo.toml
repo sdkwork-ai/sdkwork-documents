@@ -12,4 +12,5 @@ async-trait.workspace = true
 axum.workspace = true
 serde.workspace = true
 serde_json.workspace = true
+sdkwork-utils-rust.workspace = true
 thiserror.workspace = true

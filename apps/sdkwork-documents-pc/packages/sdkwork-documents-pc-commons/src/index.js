@@ -9,6 +9,7 @@ export * from "./json-value.js";
 export * from "./app-session-token.js";
 export * from "./portal-auth.js";
 export * from "./clipboard.js";
+export * from "./documents-admin-port.js";
 export * from "./documents-reference-runtime.js";
 export * from "./documents-sdk-client.js";
 export * from "./documentsShellLayout.js";

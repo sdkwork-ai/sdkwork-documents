@@ -3,10 +3,14 @@ import type { SdkworkAppConfig } from './types/common';
 import type { AuthTokenManager } from '@sdkwork/sdk-common';
 import { DocumentsApi } from './api/documents';
 import { DeveloperCatalogApi } from './api/developer-catalog';
+import { RevisionsApi } from './api/revisions';
+import { DocumentIdentityApi } from './api/document-identity';
 export declare class SdkworkDocumentsAppClient {
     private httpClient;
     readonly documents: DocumentsApi;
     readonly developerCatalog: DeveloperCatalogApi;
+    readonly revisions: RevisionsApi;
+    readonly documentIdentity: DocumentIdentityApi;
     constructor(config: SdkworkAppConfig);
     setAuthToken(token: string): this;
     setAccessToken(token: string): this;

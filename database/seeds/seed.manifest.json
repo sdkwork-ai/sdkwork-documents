@@ -38,7 +38,9 @@
         "common/120_sdk_families_01.sql",
         "common/120_sdk_families_02.sql",
         "common/121_sdk_releases_01.sql",
-        "common/121_sdk_releases_02.sql"
+        "common/121_sdk_releases_02.sql",
+        "common/200_platform_policies.sql",
+        "common/210_industry_standards.sql"
       ],
       "locales": {
         "zh-CN": []

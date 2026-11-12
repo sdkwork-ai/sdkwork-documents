@@ -41,12 +41,54 @@ async fn documents_manifest_boot_seeds_the_developer_catalog() {
         "110_api_surfaces_01.sql",
         "120_sdk_families_01.sql",
         "121_sdk_releases_01.sql",
+        "200_platform_policies.sql",
+        "210_industry_standards.sql",
     ] {
         assert!(
             names.iter().any(|name| name == expected),
             "missing catalog seed {expected} in {names:?}"
         );
     }
+}
+
+/// A fresh install must expose the bootstrap policies and industry references.
+/// Guard both locales so the document center is useful before an operator edits
+/// anything, regardless of the locale negotiated by the console.
+#[test]
+fn platform_document_seeds_cover_policies_and_industry_standards() {
+    let app_root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let common = app_root.join("database/seeds/common");
+    let policies = std::fs::read_to_string(common.join("200_platform_policies.sql"))
+        .expect("read platform policy seed");
+    let standards = std::fs::read_to_string(common.join("210_industry_standards.sql"))
+        .expect("read industry standard seed");
+
+    for slug in ["privacy-policy", "terms-of-service", "cookie-policy"] {
+        assert!(policies.contains(slug), "missing policy seed {slug}");
+    }
+    for slug in ["gdpr-compliance", "pipl-compliance", "iso-27001", "soc2"] {
+        assert!(
+            standards.contains(slug),
+            "missing industry standard seed {slug}"
+        );
+    }
+
+    for locale in ["zh-CN", "en-US"] {
+        assert!(
+            policies.contains(locale),
+            "platform policies must seed locale {locale}"
+        );
+        assert!(
+            standards.contains(locale),
+            "industry standards must seed locale {locale}"
+        );
+    }
+
+    assert!(
+        policies.contains("published"),
+        "seeded policies must be published so they appear at first boot"
+    );
+    assert!(standards.contains("published"));
 }
 
 /// Catalog initialization must populate the localized label columns, not only
@@ -57,12 +99,12 @@ fn catalog_seed_files_carry_chinese_locale_overrides() {
     let common = app_root.join("database/seeds/common");
     let taxonomy = std::fs::read_to_string(common.join("100_catalog_taxonomy.sql"))
         .expect("read taxonomy seed");
-    let modules = std::fs::read_to_string(common.join("101_catalog_modules.sql"))
-        .expect("read module seed");
-    let surfaces = std::fs::read_to_string(common.join("110_api_surfaces_01.sql"))
-        .expect("read surface seed");
-    let sdks = std::fs::read_to_string(common.join("120_sdk_families_01.sql"))
-        .expect("read sdk seed");
+    let modules =
+        std::fs::read_to_string(common.join("101_catalog_modules.sql")).expect("read module seed");
+    let surfaces =
+        std::fs::read_to_string(common.join("110_api_surfaces_01.sql")).expect("read surface seed");
+    let sdks =
+        std::fs::read_to_string(common.join("120_sdk_families_01.sql")).expect("read sdk seed");
 
     assert!(taxonomy.contains("name_i18n"));
     assert!(taxonomy.contains("description_i18n"));

@@ -1,6 +1,6 @@
 use sdkwork_api_documents_assembly::assemble_api_router_from_env;
-use sdkwork_web_bootstrap::ApiModuleRegistry;
 use sdkwork_api_documents_standalone_gateway::serve_router;
+use sdkwork_web_bootstrap::ApiModuleRegistry;
 
 #[tokio::main]
 async fn main() {

@@ -10,6 +10,7 @@ workspace = true
 [dependencies]
 async-trait.workspace = true
 sdkwork-documents-contract.workspace = true
+sdkwork-documents-drive.workspace = true
 sdkwork-utils-rust.workspace = true
 
 [dev-dependencies]

@@ -6,7 +6,7 @@
 --   module roster, API surfaces, stored OpenAPI documents, normalized operations,
 --   shared taxonomy, multi-language SDK families/releases, and import bookkeeping.
 -- reversible: false
--- rollback: forward-fix (additive tables; drop them to roll back, no existing table is altered)
+-- rollback: forward-fix (additive tables, drop them to roll back, no existing table is altered)
 -- transactional: true
 -- lock: lightweight
 -- lock_timeout: 2s

@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { BookOpen, Code2, FileText, Layers, Package, Sparkles, type LucideIcon } from 'lucide-react';
 import { ApiMarketPage, ApiReference, Docs, ProductDocs, SdkMarketPage } from '@sdkwork/documents-pc-api-reference';
 import { SdkReference } from '@sdkwork/documents-pc-sdk-reference';
+import { CookiePolicyPage, PrivacyPolicyPage, TermsOfServicePage } from '@sdkwork/documents-pc-legal';
+import { LEGAL_DOCUMENT_PATHS } from '@sdkwork/documents-pc-legal/paths';
 import {
   listSdkworkDocumentsPcNavigationItems,
   SdkworkDocumentsPcRoutePaths,
@@ -164,10 +166,48 @@ export function DocumentsPcShell() {
           <Route path={SdkworkDocumentsPcRoutePaths.sdkMarket} element={<SdkMarketPage />} />
           <Route path={SdkworkDocumentsPcRoutePaths.apiReference} element={<ApiReference />} />
           <Route path={SdkworkDocumentsPcRoutePaths.sdkReference} element={<SdkReference />} />
+          <Route path={LEGAL_DOCUMENT_PATHS['privacy-policy']} element={<PrivacyPolicyPage />} />
+          <Route path={LEGAL_DOCUMENT_PATHS['terms-of-service']} element={<TermsOfServicePage />} />
+          <Route path={LEGAL_DOCUMENT_PATHS['cookie-policy']} element={<CookiePolicyPage />} />
           <Route path="*" element={<Navigate replace to={SdkworkDocumentsPcRoutePaths.home} />} />
         </Routes>
       </div>
+      <DocumentsFooter />
     </div>
+  );
+}
+
+function DocumentsFooter() {
+  const { t } = useTranslation();
+
+  const legalLinks = [
+    { path: LEGAL_DOCUMENT_PATHS['privacy-policy'], labelKey: 'legal.nav.privacy' },
+    { path: LEGAL_DOCUMENT_PATHS['terms-of-service'], labelKey: 'legal.nav.terms' },
+    { path: LEGAL_DOCUMENT_PATHS['cookie-policy'], labelKey: 'legal.nav.cookies' },
+  ];
+
+  return (
+    <footer className="border-t border-slate-200 bg-white dark:border-white/10 dark:bg-[#0a0a0a]">
+      <div className="mx-auto flex max-w-[1400px] flex-col gap-4 px-4 py-8 text-sm md:flex-row md:items-center md:justify-between md:px-6">
+        <p className="text-slate-500 dark:text-slate-400">
+          &copy; {new Date().getFullYear()} SDKWork
+        </p>
+        <nav aria-label={t('legal.footer.title')}>
+          <ul className="flex flex-wrap gap-x-6 gap-y-2">
+            {legalLinks.map((link) => (
+              <li key={link.path}>
+                <Link
+                  className="text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                  to={link.path}
+                >
+                  {t(link.labelKey)}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+    </footer>
   );
 }
 

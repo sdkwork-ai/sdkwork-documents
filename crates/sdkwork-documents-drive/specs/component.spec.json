@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdkwork.component.spec",
+  "component": {
+    "name": "sdkwork-documents-drive",
+    "displayName": "SDKWork Documents Drive Adapter",
+    "version": "0.1.0",
+    "type": "rust-crate",
+    "root": "sdkwork-documents/crates/sdkwork-documents-drive",
+    "domain": "content",
+    "capability": "documents",
+    "status": "ready",
+    "languages": ["rust"],
+    "generated": false,
+    "private": true,
+    "manifests": ["Cargo.toml"]
+  },
+  "contracts": {
+    "publicExports": [
+      "connect_documents_drive_pool",
+      "connect_documents_drive_pool_from_env",
+      "documents_drive_health_check",
+      "DocumentsDriveContentAdapter",
+      "DocumentsDriveContent",
+      "DocumentsDriveRef",
+      "DocumentsDriveError"
+    ],
+    "runtimeEntrypoints": [],
+    "sdkClients": [],
+    "events": [],
+    "configKeys": [
+      "SDKWORK_DOCUMENTS_DATABASE_URL",
+      "SDKWORK_DATABASE_URL"
+    ],
+    "routeManifest": null
+  },
+  "verification": {
+    "commands": ["cargo test -p sdkwork-documents-drive"]
+  },
+  "metadata": {
+    "managedBy": "sdkwork-documents",
+    "standardVersion": "2026-06-20"
+  }
+}

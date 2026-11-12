@@ -37,28 +37,50 @@ impl DocumentsRuntime {
         .map_err(|error| format!("connect documents database failed: {error}"))?;
         let repository: Arc<dyn DocumentsRepository> =
             Arc::new(DocumentsSqlxRepository::new(pool.clone()));
+        let mut service = DocumentsService::new(repository);
+        if let Ok(drive_pool) =
+            sdkwork_documents_drive::connect_documents_drive_pool(database_url).await
+        {
+            service = service.with_drive_content(Arc::new(
+                sdkwork_documents_drive::DocumentsDriveContentAdapter::new(
+                    drive_pool,
+                    "sdkwork-documents",
+                ),
+            ));
+        }
         Ok(Self {
-            service: Arc::new(DocumentsService::new(repository)),
+            service: Arc::new(service),
             pool,
         })
     }
 
     pub async fn connect_from_env() -> Result<Self, String> {
         let database_host = bootstrap_documents_database_from_env().await?;
-        Self::from_database_host(database_host)
+        Self::from_database_host(database_host).await
     }
 
     pub async fn connect_from_pool(pool: DatabasePool) -> Result<Self, String> {
         let database_host = bootstrap_documents_database(pool).await?;
-        Self::from_database_host(database_host)
+        Self::from_database_host(database_host).await
     }
 
-    fn from_database_host(database_host: DocumentsDatabaseHost) -> Result<Self, String> {
+    async fn from_database_host(database_host: DocumentsDatabaseHost) -> Result<Self, String> {
         let pool = database_host.pool().clone();
         let repository: Arc<dyn DocumentsRepository> =
             Arc::new(DocumentsSqlxRepository::new(pool.clone()));
+        let mut service = DocumentsService::new(repository);
+        if let Ok(drive_pool) =
+            sdkwork_documents_drive::connect_documents_drive_pool_from_env().await
+        {
+            service = service.with_drive_content(Arc::new(
+                sdkwork_documents_drive::DocumentsDriveContentAdapter::new(
+                    drive_pool,
+                    "sdkwork-documents",
+                ),
+            ));
+        }
         Ok(Self {
-            service: Arc::new(DocumentsService::new(repository)),
+            service: Arc::new(service),
             pool,
         })
     }

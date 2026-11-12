@@ -56,6 +56,8 @@ const client = new SdkworkDocumentsAppClient({
 
 - `client.documents` - documents API
 - `client.developerCatalog` - developer_catalog API
+- `client.revisions` - revisions API
+- `client.documentIdentity` - document_identity API
 
 ## Usage Examples
 
@@ -71,6 +73,22 @@ const result = await client.documents.list();
 ```typescript
 // Developer catalog overview and facets
 const result = await client.developerCatalog.overviewRetrieve();
+```
+
+### revisions
+
+```typescript
+// List Drive-backed published revisions
+const documentId = '1';
+const result = await client.revisions.list(documentId);
+```
+
+### document_identity
+
+```typescript
+// Read editable public identity
+const documentId = '1';
+const result = await client.documentIdentity.identity.retrieve(documentId);
 ```
 
 ## Error Handling

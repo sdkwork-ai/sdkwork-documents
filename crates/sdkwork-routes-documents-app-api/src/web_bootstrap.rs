@@ -10,7 +10,10 @@ use crate::paths;
 use sdkwork_documents_contract::DocumentsAppRequestContext;
 
 pub fn documents_app_api_public_path_prefixes() -> Vec<String> {
-    vec![paths::HEALTHZ.to_owned()]
+    vec![
+        paths::HEALTHZ.to_owned(),
+        paths::PUBLIC_DOCUMENTS.to_owned(),
+    ]
 }
 
 pub fn documents_app_api_prefixes() -> Vec<String> {
@@ -68,10 +71,7 @@ fn app_api_context_from_web_request(
     let principal = context.principal.as_ref()?;
     let tenant_id = principal.tenant_id().parse().ok()?;
     let user_id = principal.user_id().parse().ok()?;
-    let locale = context
-        .locale
-        .clone()
-        .unwrap_or_else(|| "en-US".to_owned());
+    let locale = context.locale.clone().unwrap_or_else(|| "en-US".to_owned());
     Some(DocumentsAppRequestContext {
         tenant_id,
         user_id,

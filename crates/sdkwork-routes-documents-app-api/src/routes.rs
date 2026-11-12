@@ -28,7 +28,37 @@ pub fn build_business_router_with_shared_app_api(api: Arc<dyn DocumentsAppApi>) 
         )
         .route(
             paths::DOCUMENT,
-            get(handlers::retrieve_document).patch(handlers::update_document),
+            get(handlers::retrieve_document)
+                .patch(handlers::update_document)
+                .delete(handlers::delete_document),
+        )
+        .route(
+            paths::DOCUMENT_DRIVE_BINDING,
+            axum::routing::patch(handlers::bind_document_drive),
+        )
+        .route(
+            paths::DOCUMENT_REVISIONS,
+            get(handlers::list_document_revisions),
+        )
+        .route(
+            paths::DOCUMENT_REVISION_CONTENT,
+            get(handlers::get_revision_content),
+        )
+        .route(
+            paths::DOCUMENT_REVISION_RESTORE,
+            axum::routing::post(handlers::restore_document_revision),
+        )
+        .route(
+            paths::DOCUMENT_IDENTITY,
+            get(handlers::get_document_identity).patch(handlers::update_document_identity),
+        )
+        .route(
+            paths::PUBLIC_DOCUMENTS,
+            get(handlers::list_published_documents),
+        )
+        .route(
+            paths::PUBLIC_DOCUMENT,
+            get(handlers::retrieve_published_document),
         )
         .route(
             paths::DEVELOPER_CATALOG_OVERVIEW,

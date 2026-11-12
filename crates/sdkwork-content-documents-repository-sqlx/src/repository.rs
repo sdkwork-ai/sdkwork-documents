@@ -5,8 +5,9 @@ use sdkwork_documents_contract::{
     CatalogApiSurface, CatalogApiSurfaceDetail, CatalogApiSurfacePage, CatalogApiSurfaceQuery,
     CatalogCategory, CatalogCategoryList, CatalogCounts, CatalogFacet, CatalogLanguage,
     CatalogLanguageList, CatalogSdkFamily, CatalogSdkFamilyDetail, CatalogSdkFamilyPage,
-    CatalogSdkQuery, CatalogSdkRelease, DeveloperCatalogOverview, Document, DocumentUpdateRequest,
-    DocumentsRepository, DocumentsServiceError, DocumentsServiceResult,
+    CatalogSdkQuery, CatalogSdkRelease, DeveloperCatalogOverview, Document, DocumentRevision,
+    DocumentUpdateRequest, DocumentsRepository, DocumentsServiceError, DocumentsServiceResult,
+    PublishedDocument, PublishedDocumentList,
 };
 use sdkwork_utils_rust::{is_uuid, trim};
 
@@ -64,6 +65,220 @@ impl DocumentsRepository for DocumentsSqlxRepository {
         ))
     }
 
+    async fn set_drive_binding(
+        &self,
+        tenant_id: i64,
+        document_id: &str,
+        drive_space_id: Option<&str>,
+        drive_node_id: Option<&str>,
+    ) -> DocumentsServiceResult<Document> {
+        let pg = self.postgres()?;
+        let id = Self::parse_document_id(document_id)?;
+        let content_source = if drive_node_id.is_some() {
+            "drive"
+        } else {
+            "database"
+        };
+        let result = sqlx::query(
+            "UPDATE documents_document
+             SET drive_space_id = $1, drive_node_id = $2, content_source = $3,
+                 drive_content_version = drive_content_version + 1, updated_at = NOW()
+             WHERE tenant_id = $4 AND id = $5",
+        )
+        .bind(drive_space_id)
+        .bind(drive_node_id)
+        .bind(content_source)
+        .bind(tenant_id)
+        .bind(id)
+        .execute(pg)
+        .await
+        .map_err(Self::map_sqlx_error)?;
+        if result.rows_affected() == 0 {
+            return Err(DocumentsServiceError::NotFound(document_id.to_owned()));
+        }
+        self.find_by_id(tenant_id, document_id)
+            .await?
+            .ok_or_else(|| DocumentsServiceError::NotFound(document_id.to_owned()))
+    }
+
+    async fn find_drive_binding(
+        &self,
+        tenant_id: i64,
+        document_id: &str,
+    ) -> DocumentsServiceResult<Option<(String, String)>> {
+        let pg = self.postgres()?;
+        let id = Self::parse_document_id(document_id)?;
+        let row = sqlx::query_as::<_, (Option<String>, Option<String>)>(
+            "SELECT drive_space_id, drive_node_id
+             FROM documents_document
+             WHERE tenant_id = $1 AND id = $2",
+        )
+        .bind(tenant_id)
+        .bind(id)
+        .fetch_optional(pg)
+        .await
+        .map_err(Self::map_sqlx_error)?;
+        Ok(
+            row.and_then(|(space_id, node_id)| match (space_id, node_id) {
+                (Some(space_id), Some(node_id))
+                    if !space_id.trim().is_empty() && !node_id.trim().is_empty() =>
+                {
+                    Some((space_id, node_id))
+                }
+                _ => None,
+            }),
+        )
+    }
+
+    async fn find_public_identity(
+        &self,
+        tenant_id: i64,
+        document_id: &str,
+    ) -> DocumentsServiceResult<Option<(String, String)>> {
+        let pg = self.postgres()?;
+        let id = Self::parse_document_id(document_id)?;
+        let row = sqlx::query_as::<_, (String, String)>(
+            "SELECT COALESCE(locale, ''), COALESCE(slug, '')
+             FROM documents_document
+             WHERE tenant_id = $1 AND id = $2",
+        )
+        .bind(tenant_id)
+        .bind(id)
+        .fetch_optional(pg)
+        .await
+        .map_err(Self::map_sqlx_error)?;
+        Ok(row)
+    }
+
+    async fn set_public_identity(
+        &self,
+        tenant_id: i64,
+        document_id: &str,
+        locale: &str,
+        slug: &str,
+    ) -> DocumentsServiceResult<()> {
+        let pg = self.postgres()?;
+        let id = Self::parse_document_id(document_id)?;
+        sqlx::query(
+            "UPDATE documents_document
+             SET locale = $1, slug = $2, updated_at = NOW()
+             WHERE tenant_id = $3 AND id = $4",
+        )
+        .bind(locale)
+        .bind(slug)
+        .bind(tenant_id)
+        .bind(id)
+        .execute(pg)
+        .await
+        .map_err(Self::map_sqlx_error)?;
+        Ok(())
+    }
+
+    async fn find_revision(
+        &self,
+        tenant_id: i64,
+        document_id: &str,
+        revision_id: &str,
+    ) -> DocumentsServiceResult<Option<DocumentRevision>> {
+        let pg = self.postgres()?;
+        let document_id = Self::parse_document_id(document_id)?;
+        let revision_id = uuid::Uuid::parse_str(revision_id)
+            .map_err(|_| DocumentsServiceError::Validation("invalid revision id".to_owned()))?;
+        let row = sqlx::query_as::<_, PostgresDocumentRevisionRow>(
+            "SELECT id::text, document_id::text, locale, COALESCE(slug, '') AS slug,
+                    COALESCE(drive_space_id, '') AS drive_space_id,
+                    COALESCE(drive_node_id, '') AS drive_node_id,
+                    COALESCE(content_checksum_sha256, '') AS content_checksum_sha256,
+                    content_version,
+                    to_char(created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at
+             FROM documents_document_revision
+             WHERE tenant_id = $1 AND document_id = $2 AND id = $3",
+        )
+        .bind(tenant_id)
+        .bind(document_id)
+        .bind(revision_id)
+        .fetch_optional(pg)
+        .await
+        .map_err(Self::map_sqlx_error)?;
+        Ok(row.map(PostgresDocumentRevisionRow::into_revision))
+    }
+
+    async fn insert_revision(
+        &self,
+        tenant_id: i64,
+        revision: DocumentRevision,
+    ) -> DocumentsServiceResult<DocumentRevision> {
+        let pg = self.postgres()?;
+        let document_id = Self::parse_document_id(&revision.document_id)?;
+        let revision_id = uuid::Uuid::parse_str(&revision.id)
+            .map_err(|_| DocumentsServiceError::Validation("invalid revision id".to_owned()))?;
+        sqlx::query(
+            "INSERT INTO documents_document_revision
+             (id, tenant_id, document_id, locale, slug, drive_space_id, drive_node_id,
+              content_checksum_sha256, content_version)
+             VALUES ($1, $2, $3, $4, NULLIF($5, ''), NULLIF($6, ''), NULLIF($7, ''), NULLIF($8, ''),
+                     COALESCE((SELECT MAX(content_version) FROM documents_document_revision
+                               WHERE tenant_id = $2 AND document_id = $3), 0) + 1)",
+        )
+        .bind(revision_id)
+        .bind(tenant_id)
+        .bind(document_id)
+        .bind(&revision.locale)
+        .bind(&revision.slug)
+        .bind(&revision.drive_space_id)
+        .bind(&revision.drive_node_id)
+        .bind(&revision.content_checksum_sha256)
+        .execute(pg)
+        .await
+        .map_err(Self::map_sqlx_error)?;
+        let row = sqlx::query_as::<_, PostgresDocumentRevisionRow>(
+            "SELECT id::text, document_id::text, locale, COALESCE(slug, '') AS slug,
+                    COALESCE(drive_space_id, '') AS drive_space_id,
+                    COALESCE(drive_node_id, '') AS drive_node_id,
+                    COALESCE(content_checksum_sha256, '') AS content_checksum_sha256,
+                    content_version,
+                    to_char(created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at
+             FROM documents_document_revision
+             WHERE tenant_id = $1 AND id = $2",
+        )
+        .bind(tenant_id)
+        .bind(revision_id)
+        .fetch_one(pg)
+        .await
+        .map_err(Self::map_sqlx_error)?;
+        Ok(row.into_revision())
+    }
+
+    async fn list_revisions(
+        &self,
+        tenant_id: i64,
+        document_id: &str,
+    ) -> DocumentsServiceResult<Vec<DocumentRevision>> {
+        let pg = self.postgres()?;
+        let document_id = Self::parse_document_id(document_id)?;
+        let rows = sqlx::query_as::<_, PostgresDocumentRevisionRow>(
+            "SELECT id::text, document_id::text, locale, COALESCE(slug, '') AS slug,
+                    COALESCE(drive_space_id, '') AS drive_space_id,
+                    COALESCE(drive_node_id, '') AS drive_node_id,
+                    COALESCE(content_checksum_sha256, '') AS content_checksum_sha256,
+                    content_version,
+                    to_char(created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at
+             FROM documents_document_revision
+             WHERE tenant_id = $1 AND document_id = $2
+             ORDER BY content_version DESC
+             LIMIT 100",
+        )
+        .bind(tenant_id)
+        .bind(document_id)
+        .fetch_all(pg)
+        .await
+        .map_err(Self::map_sqlx_error)?;
+        Ok(rows
+            .into_iter()
+            .map(PostgresDocumentRevisionRow::into_revision)
+            .collect())
+    }
+
     async fn find_by_id(
         &self,
         tenant_id: i64,
@@ -98,6 +313,37 @@ impl DocumentsRepository for DocumentsSqlxRepository {
             .bind(&document.title)
             .bind(&document.body)
             .bind(&document.status)
+            .execute(pg)
+            .await
+            .map_err(Self::map_sqlx_error)?;
+            return Ok(document);
+        }
+
+        Err(DocumentsServiceError::Internal(
+            "documents repository requires a PostgreSQL pool (DATABASE_SPEC: authoritative-server persistence is PostgreSQL only)".into(),
+        ))
+    }
+
+    async fn insert_with_public_identity(
+        &self,
+        tenant_id: i64,
+        document: Document,
+        locale: &str,
+        slug: &str,
+    ) -> DocumentsServiceResult<Document> {
+        if let Some(pg) = self.pool.as_postgres() {
+            let id = Self::parse_document_id(&document.id)?;
+            sqlx::query(
+                "INSERT INTO documents_document (id, tenant_id, title, body, status, locale, slug)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7)",
+            )
+            .bind(id)
+            .bind(tenant_id)
+            .bind(&document.title)
+            .bind(&document.body)
+            .bind(&document.status)
+            .bind(locale)
+            .bind(slug)
             .execute(pg)
             .await
             .map_err(Self::map_sqlx_error)?;
@@ -166,6 +412,77 @@ impl DocumentsRepository for DocumentsSqlxRepository {
         Err(DocumentsServiceError::Internal(
             "documents repository requires a PostgreSQL pool (DATABASE_SPEC: authoritative-server persistence is PostgreSQL only)".into(),
         ))
+    }
+
+    async fn list_published_documents(
+        &self,
+        tenant_id: i64,
+        locale: &str,
+    ) -> DocumentsServiceResult<PublishedDocumentList> {
+        let pg = self.postgres()?;
+        let rows = sqlx::query_as::<_, PostgresPublishedDocumentRow>(
+            r#"
+            SELECT id::text AS id, COALESCE(slug, '') AS slug, COALESCE(locale, '') AS locale,
+                   title, COALESCE(summary, '') AS summary, body,
+                   COALESCE(category, '') AS category,
+                   COALESCE(to_char(published_at, 'YYYY-MM-DD'), '') AS published_at,
+                   COALESCE(drive_space_id, '') AS drive_space_id,
+                   COALESCE(drive_node_id, '') AS drive_node_id,
+                   content_source
+            FROM documents_document
+            WHERE tenant_id = $1 AND status = 'published'
+              AND (locale = $2 OR $2 = '')
+            ORDER BY category, sort_order, title
+            "#,
+        )
+        .bind(tenant_id)
+        .bind(locale)
+        .fetch_all(pg)
+        .await
+        .map_err(Self::map_sqlx_error)?;
+        Ok(PublishedDocumentList {
+            items: rows
+                .into_iter()
+                .map(PostgresPublishedDocumentRow::into_published)
+                .collect(),
+        })
+    }
+
+    async fn find_published_document(
+        &self,
+        tenant_id: i64,
+        document_ref: &str,
+        locale: &str,
+    ) -> DocumentsServiceResult<Option<PublishedDocument>> {
+        let pg = self.postgres()?;
+        let reference = trim(document_ref);
+        if reference.is_empty() {
+            return Ok(None);
+        }
+        let row = sqlx::query_as::<_, PostgresPublishedDocumentRow>(
+            r#"
+            SELECT id::text AS id, COALESCE(slug, '') AS slug, COALESCE(locale, '') AS locale,
+                   title, COALESCE(summary, '') AS summary, body,
+                   COALESCE(category, '') AS category,
+                   COALESCE(to_char(published_at, 'YYYY-MM-DD'), '') AS published_at,
+                   COALESCE(drive_space_id, '') AS drive_space_id,
+                   COALESCE(drive_node_id, '') AS drive_node_id,
+                   content_source
+            FROM documents_document
+            WHERE tenant_id = $1 AND status = 'published'
+              AND (id::text = $2 OR slug = $2)
+            ORDER BY (id::text = $2) DESC, (locale = $3) DESC, (locale = 'zh-CN') DESC,
+                     updated_at DESC
+            LIMIT 1
+            "#,
+        )
+        .bind(tenant_id)
+        .bind(reference)
+        .bind(locale)
+        .fetch_optional(pg)
+        .await
+        .map_err(Self::map_sqlx_error)?;
+        Ok(row.map(PostgresPublishedDocumentRow::into_published))
     }
 
     async fn developer_catalog_overview(
@@ -835,6 +1152,39 @@ impl DocumentsRepository for DocumentsSqlxRepository {
 }
 
 #[derive(sqlx::FromRow)]
+struct PostgresPublishedDocumentRow {
+    id: String,
+    slug: String,
+    locale: String,
+    title: String,
+    summary: String,
+    body: String,
+    category: String,
+    published_at: String,
+    drive_space_id: String,
+    drive_node_id: String,
+    content_source: String,
+}
+
+impl PostgresPublishedDocumentRow {
+    fn into_published(self) -> PublishedDocument {
+        PublishedDocument {
+            id: self.id,
+            slug: self.slug,
+            locale: self.locale,
+            title: self.title,
+            summary: self.summary,
+            body: self.body,
+            category: self.category,
+            published_at: self.published_at,
+            space_id: self.drive_space_id,
+            node_id: self.drive_node_id,
+            content_source: self.content_source,
+        }
+    }
+}
+
+#[derive(sqlx::FromRow)]
 struct PostgresDocumentRow {
     id: uuid::Uuid,
     title: String,
@@ -1272,6 +1622,35 @@ impl CatalogSdkReleaseRow {
             release_state: self.release_state,
             is_latest: self.is_latest,
             released_at: self.released_at,
+        }
+    }
+}
+
+#[derive(sqlx::FromRow)]
+struct PostgresDocumentRevisionRow {
+    id: String,
+    document_id: String,
+    locale: String,
+    slug: String,
+    drive_space_id: String,
+    drive_node_id: String,
+    content_checksum_sha256: String,
+    content_version: i64,
+    created_at: String,
+}
+
+impl PostgresDocumentRevisionRow {
+    fn into_revision(self) -> DocumentRevision {
+        DocumentRevision {
+            id: self.id,
+            document_id: self.document_id,
+            locale: self.locale,
+            slug: self.slug,
+            drive_space_id: self.drive_space_id,
+            drive_node_id: self.drive_node_id,
+            content_checksum_sha256: self.content_checksum_sha256,
+            content_version: self.content_version,
+            created_at: self.created_at,
         }
     }
 }

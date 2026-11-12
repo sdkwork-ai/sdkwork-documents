@@ -1,0 +1,28 @@
+[package]
+name = "sdkwork-documents-drive"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[lib]
+name = "sdkwork_documents_drive"
+
+[lints]
+workspace = true
+
+[dependencies]
+async-trait.workspace = true
+dotenvy.workspace = true
+sqlx.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+sdkwork-utils-rust.workspace = true
+sdkwork-database-config.workspace = true
+sdkwork-drive-config.workspace = true
+sdkwork-drive-object-runtime.workspace = true
+sdkwork-drive-storage-contract.workspace = true
+sdkwork-drive-workspace-service.workspace = true
+
+[dev-dependencies]
+tokio.workspace = true

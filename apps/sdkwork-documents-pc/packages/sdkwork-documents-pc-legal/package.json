@@ -1,0 +1,46 @@
+{
+  "name": "@sdkwork/documents-pc-legal",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "SDKWork Documents legal policy documents and page renderers (privacy, terms, cookies).",
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "types": "./src/index.ts"
+    },
+    "./paths": {
+      "import": "./src/paths.ts",
+      "types": "./src/paths.ts"
+    },
+    "./documents": {
+      "import": "./src/legal-document.ts",
+      "types": "./src/legal-document.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@sdkwork/documents-pc-commons": "workspace:*",
+    "lucide-react": "^0.511.0",
+    "react": "^19.1.0",
+    "react-i18next": "catalog:",
+    "react-router-dom": "^7.14.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "typescript": "~5.8.2"
+  },
+  "sdkwork": {
+    "workspace": "sdkwork-documents",
+    "architecture": "pc-react",
+    "domain": "content",
+    "capability": "legal",
+    "surface": "pc-feature",
+    "status": "ready"
+  }
+}

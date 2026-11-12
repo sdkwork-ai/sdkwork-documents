@@ -6,7 +6,7 @@
 --   and SDK market return localized category, module, API, operation, language,
 --   and SDK text while retaining the canonical English columns.
 -- reversible: false
--- rollback: forward-fix (additive columns; drop them to roll back)
+-- rollback: forward-fix (additive columns, drop them to roll back)
 -- transactional: true
 -- lock: lightweight
 -- lock_timeout: 2s

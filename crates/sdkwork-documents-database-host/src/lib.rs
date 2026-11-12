@@ -47,6 +47,18 @@ pub async fn bootstrap_documents_database(
             .map_err(|error| format!("documents database migrate failed: {error}"))?;
     }
 
+    // `seedOnBoot` is declared by database.manifest.json so a fresh development,
+    // test, staging, demo, or production install exposes the bootstrap document
+    // set (`database/seeds/common/2*_*.sql`) without a manual `db:seed` step.
+    // Seeds are idempotent by content checksum, so repeated boots are safe and
+    // an operator can disable this through SDKWORK_DATABASE_SEED_ON_BOOT=false.
+    if options.seed_on_boot {
+        orchestrator
+            .seed(&options.seed_locale, &options.seed_profile)
+            .await
+            .map_err(|error| format!("documents database seed failed: {error}"))?;
+    }
+
     Ok(DocumentsDatabaseHost { pool, module })
 }
 

@@ -73,5 +73,5 @@ void i18n.use(initReactI18next).init({
     },
 });
 export { navigationMessages, resources };
-export { documentsPcMessages, publicApiReferenceMessages, publicDocsMessages, publicSdkReferenceMessages, } from "./resources/index.js";
+export { documentsPcMessages, publicApiReferenceMessages, publicDocsMessages, publicLegalMessages, publicSdkReferenceMessages, } from "./resources/index.js";
 //# sourceMappingURL=index.js.map

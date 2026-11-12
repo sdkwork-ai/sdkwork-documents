@@ -4,6 +4,7 @@ members = [
     "crates/sdkwork-api-documents-assembly",
   "crates/sdkwork-documents-contract",
   "crates/sdkwork-documents-database-host",
+  "crates/sdkwork-documents-drive",
   "crates/sdkwork-content-documents-service",
   "crates/sdkwork-content-documents-sdk-reference",
   "crates/sdkwork-content-documents-repository-sqlx",
@@ -56,6 +57,11 @@ dotenvy = "0.15"
 
 sdkwork-documents-contract = { path = "crates/sdkwork-documents-contract" }
 sdkwork-documents-database-host = { path = "crates/sdkwork-documents-database-host" }
+sdkwork-documents-drive = { path = "crates/sdkwork-documents-drive" }
+sdkwork-drive-workspace-service = { path = "../sdkwork-drive/crates/sdkwork-drive-workspace-service" }
+sdkwork-drive-object-runtime = { path = "../sdkwork-drive/crates/sdkwork-drive-object-runtime" }
+sdkwork-drive-config = { path = "../sdkwork-drive/crates/sdkwork-drive-config" }
+sdkwork-drive-storage-contract = { path = "../sdkwork-drive/crates/sdkwork-drive-storage-contract" }
 sdkwork-content-documents-service = { path = "crates/sdkwork-content-documents-service" }
 sdkwork-content-documents-sdk-reference = { path = "crates/sdkwork-content-documents-sdk-reference" }
 sdkwork-content-documents-repository-sqlx = { path = "crates/sdkwork-content-documents-repository-sqlx" }

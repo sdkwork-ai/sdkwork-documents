@@ -3,7 +3,7 @@ use axum::body::Body;
 use axum::http::{Request, StatusCode};
 use sdkwork_documents_contract::{
     Document, DocumentCreateRequest, DocumentList, DocumentsAppApi, DocumentsAppRequestContext,
-    DocumentsServiceResult,
+    DocumentsServiceResult, PublishedDocument, PublishedDocumentList,
 };
 use sdkwork_iam_web_adapter::IamWebRequestContextResolver;
 use sdkwork_routes_documents_app_api::{
@@ -48,6 +48,26 @@ async fn app_router_web_framework_rejects_unauthenticated_requests() {
         .unwrap();
 
     assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+}
+
+#[tokio::test]
+async fn app_router_serves_public_documents_without_credentials() {
+    let app = wrap_router_with_web_framework(
+        IamWebRequestContextResolver::new(None),
+        build_router_with_shared_app_api(Arc::new(RecordingAppApi::default())),
+    );
+
+    let response = app
+        .oneshot(
+            Request::builder()
+                .uri("/app/v3/api/documents/public")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::OK);
 }
 
 #[tokio::test]
@@ -132,5 +152,27 @@ impl DocumentsAppApi for RecordingAppApi {
         _request: sdkwork_documents_contract::DocumentUpdateRequest,
     ) -> DocumentsServiceResult<Document> {
         unimplemented!()
+    }
+
+    async fn list_published_documents(
+        &self,
+        _tenant_id: i64,
+        _locale: &str,
+    ) -> DocumentsServiceResult<PublishedDocumentList> {
+        Ok(PublishedDocumentList {
+            items: vec![PublishedDocument {
+                id: "550e8400-e29b-41d4-a716-446655440000".to_owned(),
+                slug: "privacy-policy".to_owned(),
+                locale: "zh-CN".to_owned(),
+                title: "隐私政策".to_owned(),
+                summary: String::new(),
+                body: "<p>demo</p>".to_owned(),
+                category: "policy".to_owned(),
+                published_at: "2026-11-12".to_owned(),
+                space_id: String::new(),
+                node_id: String::new(),
+                content_source: "database".to_owned(),
+            }],
+        })
     }
 }

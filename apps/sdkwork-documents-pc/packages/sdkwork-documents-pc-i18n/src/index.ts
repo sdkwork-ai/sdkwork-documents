@@ -84,6 +84,7 @@ export {
   documentsPcMessages,
   publicApiReferenceMessages,
   publicDocsMessages,
+  publicLegalMessages,
   publicSdkReferenceMessages,
 } from './resources/index.ts';
 export type { I18nMessageBundle, I18nResources, LocaleCode, LocaleMessages } from './resources/types.ts';

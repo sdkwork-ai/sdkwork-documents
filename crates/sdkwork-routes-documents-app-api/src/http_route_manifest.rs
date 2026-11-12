@@ -1,6 +1,20 @@
-use sdkwork_web_core::{HttpMethod, HttpRoute, HttpRouteManifest};
+use sdkwork_web_core::{HttpMethod, HttpRoute, HttpRouteManifest, RouteAuth};
 
 const HTTP_ROUTES: &[HttpRoute] = &[
+    HttpRoute::new(
+        HttpMethod::Get,
+        "/app/v3/api/documents/public",
+        "documents",
+        "documents.publicList",
+        RouteAuth::Public,
+    ),
+    HttpRoute::new(
+        HttpMethod::Get,
+        "/app/v3/api/documents/public/{documentRef}",
+        "documents",
+        "documents.publicRetrieve",
+        RouteAuth::Public,
+    ),
     HttpRoute::dual_token(
         HttpMethod::Get,
         "/app/v3/api/documents",
@@ -24,6 +38,48 @@ const HTTP_ROUTES: &[HttpRoute] = &[
         "/app/v3/api/documents/{documentId}",
         "documents",
         "documents.update",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Patch,
+        "/app/v3/api/documents/{documentId}/drive_binding",
+        "documents",
+        "documents.driveBinding",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/documents/{documentId}/revisions",
+        "documents",
+        "revision.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/documents/{documentId}/revisions/{revisionId}/content",
+        "documents",
+        "revision.content",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Post,
+        "/app/v3/api/documents/{documentId}/revisions/{revisionId}/restore",
+        "documents",
+        "revision.restore",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/documents/{documentId}/identity",
+        "documents",
+        "documents.identity",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Patch,
+        "/app/v3/api/documents/{documentId}/identity",
+        "documents",
+        "documents.identityUpdate",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Delete,
+        "/app/v3/api/documents/{documentId}",
+        "documents",
+        "documents.delete",
     ),
     HttpRoute::dual_token(
         HttpMethod::Post,

@@ -12,9 +12,24 @@ pub const POSTGRES_DEVELOPER_CATALOG_MIGRATION: &str =
 pub const POSTGRES_DEVELOPER_CATALOG_I18N_MIGRATION: &str =
     include_str!("../migrations/postgres/V202606200004__documents_catalog_i18n.sql");
 
+/// Public page identity (slug/locale/status metadata) for the document center.
+pub const POSTGRES_DOCUMENT_CENTER_PAGES_MIGRATION: &str =
+    include_str!("../../../database/migrations/postgres/0003_document_center_pages.up.sql");
+
+/// Drive binding columns for each localized document row.
+pub const POSTGRES_DOCUMENT_DRIVE_BINDING_MIGRATION: &str =
+    include_str!("../../../database/migrations/postgres/0004_document_drive_binding.up.sql");
+
+/// Immutable revision ledger for published Drive bodies.
+pub const POSTGRES_DOCUMENT_REVISIONS_MIGRATION: &str =
+    include_str!("../../../database/migrations/postgres/0005_document_revisions.up.sql");
+
 pub const POSTGRES_MIGRATIONS: &[&str] = &[
     POSTGRES_CORE_MIGRATION,
     POSTGRES_REVISION_AUDIT_MIGRATION,
     POSTGRES_DEVELOPER_CATALOG_MIGRATION,
     POSTGRES_DEVELOPER_CATALOG_I18N_MIGRATION,
+    POSTGRES_DOCUMENT_CENTER_PAGES_MIGRATION,
+    POSTGRES_DOCUMENT_DRIVE_BINDING_MIGRATION,
+    POSTGRES_DOCUMENT_REVISIONS_MIGRATION,
 ];

@@ -32,9 +32,95 @@ pub struct DocumentUpdateRequest {
     pub status: Option<String>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct DocumentRevision {
+    pub id: String,
+    pub document_id: String,
+    pub locale: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub slug: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub drive_space_id: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub drive_node_id: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub content_checksum_sha256: String,
+    #[serde(with = "sdkwork_utils_rust::serde_int64")]
+    pub content_version: i64,
+    pub created_at: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct DocumentRevisionList {
+    pub items: Vec<DocumentRevision>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct DocumentIdentity {
+    pub locale: String,
+    pub slug: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct DocumentIdentityUpdateRequest {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub locale: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub slug: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct DocumentRevisionContent {
+    pub revision: DocumentRevision,
+    pub body: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct DocumentDriveBindingRequest {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub drive_space_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub drive_node_id: Option<String>,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DocumentList {
     pub items: Vec<Document>,
+}
+
+/// Public delivery projection of one published document. It carries the stable
+/// slug so `/docs/{slug-or-id}` can resolve without exposing internal fields.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PublishedDocument {
+    pub id: String,
+    pub slug: String,
+    pub locale: String,
+    pub title: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub summary: String,
+    pub body: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub category: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub published_at: String,
+    #[serde(default, skip_serializing)]
+    pub space_id: String,
+    #[serde(default, skip_serializing)]
+    pub node_id: String,
+    #[serde(default, skip_serializing)]
+    pub content_source: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PublishedDocumentList {
+    pub items: Vec<PublishedDocument>,
 }
 
 // ---------------------------------------------------------------------------
