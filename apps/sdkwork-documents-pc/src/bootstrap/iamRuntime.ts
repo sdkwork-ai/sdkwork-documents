@@ -167,17 +167,24 @@ function resolveSessionStorage(): Storage | undefined {
   if (typeof window === 'undefined') {
     return undefined;
   }
-  migrateLegacySessionStorage(SDKWORK_DOCUMENTS_PC_SESSION_STORAGE_KEY);
-  return window.localStorage;
+  migrateLegacyLocalSessionStorage(SDKWORK_DOCUMENTS_PC_SESSION_STORAGE_KEY);
+  return window.sessionStorage;
 }
 
-function migrateLegacySessionStorage(storageKey: string): void {
-  const legacySession = window.sessionStorage.getItem(storageKey);
-  if (legacySession && !window.localStorage.getItem(storageKey)) {
-    window.localStorage.setItem(storageKey, legacySession);
+/**
+ * One-way upgrade of a legacy persistent session: the `localStorage` copy is
+ * moved into `sessionStorage` and deleted. The reverse copy (sessionStorage ->
+ * localStorage) is intentionally gone: a browser session must not be promoted
+ * to persistent storage.
+ */
+function migrateLegacyLocalSessionStorage(storageKey: string): void {
+  const legacySession = window.localStorage.getItem(storageKey);
+  if (!legacySession) {
+    return;
   }
-  if (legacySession) {
-    window.sessionStorage.removeItem(storageKey);
+  window.localStorage.removeItem(storageKey);
+  if (!window.sessionStorage.getItem(storageKey)) {
+    window.sessionStorage.setItem(storageKey, legacySession);
   }
 }
 

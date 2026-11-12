@@ -185,13 +185,24 @@ function currentUnixSeconds(): number {
   return Math.floor(Date.now() / 1000);
 }
 
+/**
+ * Browser-session token persistence.
+ *
+ * The app session token is a credential, so the web runtime keeps it in
+ * `sessionStorage` only: it dies with the tab and is not shared by every
+ * long-lived script of the origin. A legacy `localStorage` copy is migrated
+ * forward exactly once (read, moved, deleted) and is never written back — the
+ * previous implementation mirrored the token into both stores, which turned a
+ * session credential into a persistent one.
+ */
 function readBrowserStorage(): string | null {
-  return readLocalStorage() ?? readSessionStorage();
+  return readSessionStorage() ?? readLocalStorage();
 }
 
 function writeBrowserStorage(token: StoredAppSessionToken): void {
-  writeLocalStorage(token);
   writeSessionStorage(token);
+  // Drop the legacy persistent copy; it must never be re-created.
+  removeLocalStorage();
 }
 
 function removeBrowserStorage(): void {
@@ -229,14 +240,6 @@ function readStorageValue(storage: Storage | undefined): string | null {
   }
 
   return null;
-}
-
-function writeLocalStorage(token: StoredAppSessionToken): void {
-  try {
-    globalThis.localStorage?.setItem(APP_SESSION_STORAGE_KEY, JSON.stringify(token));
-  } catch {
-    // Memory storage remains available for restrictive browser contexts.
-  }
 }
 
 function removeLocalStorage(): void {
