@@ -14,6 +14,7 @@ import {
   List,
   ListOrdered,
   Loader2,
+  Plus,
   Quote,
   Redo2,
   Save,
@@ -24,6 +25,7 @@ import {
 import { useDocumentsAdminRuntime } from '../runtime.tsx';
 import type {
   DocumentsAdminCategory,
+  DocumentsAdminOverviewItem,
   DocumentsAdminRevision,
   DocumentsAdminTag,
 } from '@sdkwork/documents-pc-commons';
@@ -152,7 +154,7 @@ export interface DocumentEditorPageProps {
 }
 
 export function DocumentEditorPage({ documentId, basePath }: DocumentEditorPageProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { client, basePath: runtimeBasePath } = useDocumentsAdminRuntime();
   const resolvedBasePath = basePath ?? runtimeBasePath ?? '/admin/documents';
@@ -187,6 +189,15 @@ export function DocumentEditorPage({ documentId, basePath }: DocumentEditorPageP
   const [taxonomyTags, setTaxonomyTags] = useState('');
   const [taxonomySaving, setTaxonomySaving] = useState(false);
   const [taxonomySaved, setTaxonomySaved] = useState(false);
+  const [createLocale, setCreateLocale] = useState(
+    (i18n.resolvedLanguage ?? i18n.language ?? '').toLowerCase().startsWith('en')
+      ? 'en-US'
+      : 'zh-CN',
+  );
+  const [createSlug, setCreateSlug] = useState('');
+  const [allDocuments, setAllDocuments] = useState<DocumentsAdminOverviewItem[]>([]);
+  const [translationLocale, setTranslationLocale] = useState('en-US');
+  const [translationSaving, setTranslationSaving] = useState(false);
 
   useEffect(() => {
     if (!documentId) {
@@ -278,6 +289,25 @@ export function DocumentEditorPage({ documentId, basePath }: DocumentEditorPageP
     };
   }, [client, documentId, saved]);
 
+  useEffect(() => {
+    let cancelled = false;
+    void client
+      .overview()
+      .then((items) => {
+        if (!cancelled) {
+          setAllDocuments(items);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setAllDocuments([]);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [client, saved]);
+
   const editor = useEditor({
     extensions: [StarterKit],
     content: '<p></p>',
@@ -342,7 +372,12 @@ export function DocumentEditorPage({ documentId, basePath }: DocumentEditorPageP
       if (documentId) {
         await client.update(documentId, { title: trimmedTitle, body, status });
       } else {
-        const created = await client.create({ title: trimmedTitle, body });
+        const created = await client.create({
+          title: trimmedTitle,
+          body,
+          locale: createLocale,
+          ...(createSlug.trim() ? { slug: createSlug.trim() } : {}),
+        });
         if (status !== created.status) {
           await client.update(created.id, { status });
         }
@@ -355,7 +390,7 @@ export function DocumentEditorPage({ documentId, basePath }: DocumentEditorPageP
     } finally {
       setSaving(false);
     }
-  }, [body, client, documentId, navigate, resolvedBasePath, status, t, title]);
+  }, [body, client, createLocale, createSlug, documentId, navigate, resolvedBasePath, status, t, title]);
 
   const handleBindDrive = useCallback(async () => {
     if (!documentId) {
@@ -456,6 +491,31 @@ export function DocumentEditorPage({ documentId, basePath }: DocumentEditorPageP
     }
   }, [client, documentId, t, taxonomyCategory, taxonomyTags]);
 
+  const handleCreateTranslation = useCallback(async () => {
+    if (!documentId || !identitySlug.trim()) {
+      return;
+    }
+    setTranslationSaving(true);
+    setError(null);
+    try {
+      const created = await client.create({
+        title,
+        body,
+        locale: translationLocale,
+        slug: identitySlug.trim(),
+      });
+      navigate(`${resolvedBasePath}/${created.id}`);
+    } catch {
+      setError(
+        t('documentsAdmin.editor.translationError', {
+          defaultValue: 'Could not create this language version. The slug may already exist for that locale.',
+        }),
+      );
+    } finally {
+      setTranslationSaving(false);
+    }
+  }, [body, client, documentId, identitySlug, navigate, resolvedBasePath, t, title, translationLocale]);
+
   const handlePreviewRevision = useCallback(
     async (revision: DocumentsAdminRevision) => {
       if (!documentId) {
@@ -513,6 +573,16 @@ export function DocumentEditorPage({ documentId, basePath }: DocumentEditorPageP
       }
     },
     [client, documentId, t],
+  );
+
+  const languageSiblings = documentId
+    ? allDocuments.filter(
+        (item) => item.id !== documentId && item.slug && item.slug === identitySlug,
+      )
+    : [];
+  const availableTranslationLocales = ['zh-CN', 'en-US'].filter(
+    (locale) =>
+      !allDocuments.some((item) => item.slug === identitySlug && item.locale === locale),
   );
 
   return (
@@ -635,6 +705,43 @@ export function DocumentEditorPage({ documentId, basePath }: DocumentEditorPageP
               </select>
             </label>
           </div>
+
+          {!documentId ? (
+            <div className="grid gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-4 md:grid-cols-2 dark:border-white/10 dark:bg-white/[0.02]">
+              <label className="block">
+                <span className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                  {t('documentsAdmin.editor.createLocale', { defaultValue: 'Language' })}
+                </span>
+                <select
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-slate-400 focus:outline-none dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white"
+                  onChange={(event) => setCreateLocale(event.target.value)}
+                  value={createLocale}
+                >
+                  <option value="zh-CN">简体中文 (zh-CN)</option>
+                  <option value="en-US">English (en-US)</option>
+                </select>
+              </label>
+              <label className="block">
+                <span className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                  {t('documentsAdmin.editor.createSlug', { defaultValue: 'URL slug (optional)' })}
+                </span>
+                <input
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white"
+                  onChange={(event) => setCreateSlug(event.target.value)}
+                  placeholder={t('documentsAdmin.editor.createSlugPlaceholder', {
+                    defaultValue: 'privacy-policy',
+                  })}
+                  value={createSlug}
+                />
+              </label>
+              <p className="text-xs text-slate-500 md:col-span-2 dark:text-slate-400">
+                {t('documentsAdmin.editor.createLocaleHint', {
+                  defaultValue:
+                    'Create one document per language with the same slug; the public reader picks the requested locale.',
+                })}
+              </p>
+            </div>
+          ) : null}
 
           <div>
             <span className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">
@@ -814,6 +921,75 @@ export function DocumentEditorPage({ documentId, basePath }: DocumentEditorPageP
           <p className="text-xs text-slate-500 dark:text-slate-400">
             {t('documentsAdmin.editor.taxonomyHint', {
               defaultValue: 'Separate tags with commas. New tags are created automatically.',
+            })}
+          </p>
+        </section>
+      ) : null}
+
+      {documentId && !loading && identitySlug ? (
+        <section className="space-y-4 rounded-xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.03]">
+          <div>
+            <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+              {t('documentsAdmin.editor.translationTitle', { defaultValue: 'Language versions' })}
+            </h2>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+              {t('documentsAdmin.editor.translationDescription', {
+                defaultValue:
+                  'Each language is its own document with the same slug. Create the missing locales here.',
+              })}
+            </p>
+          </div>
+          <ul className="flex flex-wrap gap-2">
+            <li className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 px-2.5 py-1 text-xs dark:border-white/10">
+              <span className="font-medium text-slate-700 dark:text-slate-200">{identityLocale}</span>
+              <span className="text-slate-400">current</span>
+            </li>
+            {languageSiblings.map((item) => (
+              <li key={item.id}>
+                <Link
+                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 px-2.5 py-1 text-xs text-slate-700 hover:border-slate-300 hover:bg-slate-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-white/5"
+                  to={`${resolvedBasePath}/${item.id}`}
+                >
+                  <span className="font-medium">{item.locale}</span>
+                  <span className="text-slate-400">{item.status}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          {availableTranslationLocales.length > 0 ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <select
+                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-slate-200"
+                onChange={(event) => setTranslationLocale(event.target.value)}
+                value={translationLocale}
+              >
+                {availableTranslationLocales.map((locale) => (
+                  <option key={locale} value={locale}>
+                    {locale}
+                  </option>
+                ))}
+              </select>
+              <button
+                className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-800 transition-colors hover:bg-slate-50 disabled:opacity-60 dark:border-white/15 dark:text-slate-100 dark:hover:bg-white/5"
+                disabled={translationSaving}
+                onClick={() => void handleCreateTranslation()}
+                type="button"
+              >
+                {translationSaving ? (
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                ) : (
+                  <Plus className="h-4 w-4" aria-hidden="true" />
+                )}
+                {t('documentsAdmin.editor.translationCreate', {
+                  defaultValue: 'Create language version',
+                })}
+              </button>
+            </div>
+          ) : null}
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            {t('documentsAdmin.editor.translationHint', {
+              defaultValue:
+                'The new version copies the current title and body; the slug stays the same so /docs/{slug} resolves by locale.',
             })}
           </p>
         </section>

@@ -3838,6 +3838,12 @@
           },
           "body": {
             "type": "string"
+          },
+          "locale": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
           }
         }
       },

@@ -49,6 +49,8 @@ async fn publishes_to_drive_and_records_a_revision() {
             DocumentCreateRequest {
                 title: format!("Live Drive Publish {suffix}"),
                 body: "<p>version one</p>".to_owned(),
+                locale: None,
+                slug: None,
             },
         )
         .await
@@ -132,6 +134,40 @@ async fn publishes_to_drive_and_records_a_revision() {
         .expect("update public identity");
     assert_eq!(identity.locale, "en-US");
     assert_eq!(identity.slug, "live-drive-restored");
+
+    let sibling = service
+        .create_document(
+            context.clone(),
+            DocumentCreateRequest {
+                title: "本地化文档".to_owned(),
+                body: "<p>中文版本</p>".to_owned(),
+                locale: Some("zh-CN".to_owned()),
+                slug: Some("live-drive-restored".to_owned()),
+            },
+        )
+        .await
+        .expect("create localized sibling");
+    let sibling_identity = service
+        .get_document_identity(context.clone(), sibling.id.clone())
+        .await
+        .expect("read sibling identity");
+    assert_eq!(sibling_identity.locale, "zh-CN");
+    assert_eq!(sibling_identity.slug, "live-drive-restored");
+    assert!(
+        service
+            .create_document(
+                context.clone(),
+                DocumentCreateRequest {
+                    title: "重复".to_owned(),
+                    body: String::new(),
+                    locale: Some("zh-CN".to_owned()),
+                    slug: Some("live-drive-restored".to_owned()),
+                },
+            )
+            .await
+            .is_err(),
+        "the same slug must not be created twice for one locale"
+    );
     let identity = service
         .get_document_identity(context.clone(), created.id.clone())
         .await
@@ -264,6 +300,11 @@ async fn publishes_to_drive_and_records_a_revision() {
         .await
         .expect("list revisions after delete");
     assert!(revisions.items.is_empty(), "delete must cascade revisions");
+
+    service
+        .delete_document(context.clone(), sibling.id.clone())
+        .await
+        .expect("delete localized sibling");
 
     service
         .delete_document_category(context, category.id.clone())

@@ -54,6 +54,19 @@ export const documentsAdminMessages: MessageBundle = {
     'documentsAdmin.categories.deleteError': 'Could not delete the category. It may still be in use.',
     'documentsAdmin.editor.newTitle': 'New document',
     'documentsAdmin.editor.newHint': 'Draft a new document',
+    'documentsAdmin.editor.createLocale': 'Language',
+    'documentsAdmin.editor.createSlug': 'URL slug (optional)',
+    'documentsAdmin.editor.createSlugPlaceholder': 'privacy-policy',
+    'documentsAdmin.editor.createLocaleHint':
+      'Create one document per language with the same slug; the public reader picks the requested locale.',
+    'documentsAdmin.editor.translationTitle': 'Language versions',
+    'documentsAdmin.editor.translationDescription':
+      'Each language is its own document with the same slug. Create the missing locales here.',
+    'documentsAdmin.editor.translationCreate': 'Create language version',
+    'documentsAdmin.editor.translationError':
+      'Could not create this language version. The slug may already exist for that locale.',
+    'documentsAdmin.editor.translationHint':
+      'The new version copies the current title and body; the slug stays the same so /docs/{slug} resolves by locale.',
     'documentsAdmin.editor.editTitle': 'Edit document',
     'documentsAdmin.editor.back': 'Back to documents',
     'documentsAdmin.editor.titleLabel': 'Title',
@@ -179,6 +192,19 @@ export const documentsAdminMessages: MessageBundle = {
     'documentsAdmin.categories.deleteError': '分类删除失败，可能仍被文档使用。',
     'documentsAdmin.editor.newTitle': '新建文档',
     'documentsAdmin.editor.newHint': '创建一篇新文档',
+    'documentsAdmin.editor.createLocale': '语言',
+    'documentsAdmin.editor.createSlug': 'URL slug（可选）',
+    'documentsAdmin.editor.createSlugPlaceholder': 'privacy-policy',
+    'documentsAdmin.editor.createLocaleHint':
+      '每种语言创建一篇同 slug 文档，公开阅读页会按请求语言选择对应版本。',
+    'documentsAdmin.editor.translationTitle': '语言版本',
+    'documentsAdmin.editor.translationDescription':
+      '每种语言是独立文档但共享同一 slug，可在这里补齐缺失语言。',
+    'documentsAdmin.editor.translationCreate': '创建语言版本',
+    'documentsAdmin.editor.translationError':
+      '语言版本创建失败，该语言下 slug 可能已存在。',
+    'documentsAdmin.editor.translationHint':
+      '新版本会复制当前标题与正文，slug 保持不变，/docs/{slug} 会按语言解析。',
     'documentsAdmin.editor.editTitle': '编辑文档',
     'documentsAdmin.editor.back': '返回文档列表',
     'documentsAdmin.editor.titleLabel': '标题',

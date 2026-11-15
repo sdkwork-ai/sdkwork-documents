@@ -241,8 +241,13 @@ impl DocumentsAppApi for DocumentsService {
     ) -> DocumentsServiceResult<Document> {
         Self::validate_create(&request)?;
         let id = Self::new_document_id();
-        let slug = Self::derive_document_slug(&request.title).unwrap_or_else(|| id.clone());
-        let locale = Self::normalize_document_locale(&ctx.locale);
+        let slug = match request.slug.as_deref() {
+            Some(value) if !value.trim().is_empty() => Self::validate_public_slug(value)?,
+            _ => Self::derive_document_slug(&request.title).unwrap_or_else(|| id.clone()),
+        };
+        let locale = Self::normalize_document_locale(
+            request.locale.as_deref().unwrap_or(ctx.locale.as_str()),
+        );
         let document = Document {
             id,
             title: request.title,
@@ -940,6 +945,8 @@ mod tests {
             DocumentCreateRequest {
                 title: "Hello".to_owned(),
                 body: String::new(),
+                locale: None,
+                slug: None,
             },
         )
         .await

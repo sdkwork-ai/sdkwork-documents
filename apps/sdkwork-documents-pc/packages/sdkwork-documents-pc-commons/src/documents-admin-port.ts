@@ -16,6 +16,8 @@ export interface DocumentsAdminDocument {
 export interface DocumentsAdminCreateInput {
   title: string;
   body?: string;
+  locale?: string;
+  slug?: string;
 }
 
 export interface DocumentsAdminUpdateInput {

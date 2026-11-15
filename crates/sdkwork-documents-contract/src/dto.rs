@@ -20,6 +20,10 @@ pub struct DocumentCreateRequest {
     pub title: String,
     #[serde(default)]
     pub body: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub locale: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub slug: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]

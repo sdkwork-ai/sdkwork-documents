@@ -684,7 +684,16 @@ impl DocumentsRepository for DocumentsSqlxRepository {
             .bind(slug)
             .execute(pg)
             .await
-            .map_err(Self::map_sqlx_error)?;
+            .map_err(|error| {
+                if let sqlx::Error::Database(database_error) = &error {
+                    if database_error.code().as_deref() == Some("23505") {
+                        return DocumentsServiceError::Validation(
+                            "a document with this locale and slug already exists".to_owned(),
+                        );
+                    }
+                }
+                Self::map_sqlx_error(error)
+            })?;
             return Ok(document);
         }
 

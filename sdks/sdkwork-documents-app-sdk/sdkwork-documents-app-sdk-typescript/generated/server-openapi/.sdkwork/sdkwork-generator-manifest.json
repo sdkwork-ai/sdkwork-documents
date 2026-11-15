@@ -256,7 +256,7 @@
     },
     {
       "path": "src/types/document-create-request.ts",
-      "sha256": "73dcdec8d931a63227edefd64f1ad8e8b47238a1b875538319e91ba69cbe9ccd"
+      "sha256": "671b03369eaf4fe16f609c28fd8af93bf9e21f941bc03dad4f12e41ec9661378"
     },
     {
       "path": "src/types/document-drive-binding-request.ts",
