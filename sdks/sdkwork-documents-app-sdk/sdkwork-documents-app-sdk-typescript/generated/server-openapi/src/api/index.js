@@ -4,4 +4,8 @@ export { DocumentsApi, createDocumentsApi } from './documents';
 export { DeveloperCatalogApi, createDeveloperCatalogApi } from './developer-catalog';
 export { RevisionsApi, createRevisionsApi } from './revisions';
 export { DocumentIdentityApi, createDocumentIdentityApi } from './document-identity';
+export { DocumentOverviewApi, createDocumentOverviewApi } from './document-overview';
+export { DocumentCategoriesApi, createDocumentCategoriesApi } from './document-categories';
+export { DocumentTagsApi, createDocumentTagsApi } from './document-tags';
+export { DocumentTaxonomyApi, createDocumentTaxonomyApi } from './document-taxonomy';
 //# sourceMappingURL=index.js.map

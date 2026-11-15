@@ -45,8 +45,39 @@ export interface DocumentsAdminRevisionContent {
     revision: DocumentsAdminRevision;
     body: string;
 }
+export interface DocumentsAdminOverviewItem {
+    id: string;
+    title: string;
+    status: string;
+    locale: string;
+    slug: string;
+    category: string;
+    tags: DocumentsAdminTag[];
+    updatedAt: string;
+}
+export interface DocumentsAdminCategory {
+    id: string;
+    slug: string;
+    name: string;
+    nameEn?: string;
+    description?: string;
+    sortOrder: string;
+    status: string;
+    createdAt: string;
+    updatedAt: string;
+}
+export interface DocumentsAdminTag {
+    id: string;
+    slug: string;
+    name: string;
+}
+export interface DocumentsAdminTaxonomy {
+    category: string;
+    tags: DocumentsAdminTag[];
+}
 export interface DocumentsAdminClient {
     list(): Promise<DocumentsAdminDocument[]>;
+    overview(): Promise<DocumentsAdminOverviewItem[]>;
     retrieve(documentId: string): Promise<DocumentsAdminDocument>;
     create(input: DocumentsAdminCreateInput): Promise<DocumentsAdminDocument>;
     update(documentId: string, input: DocumentsAdminUpdateInput): Promise<DocumentsAdminDocument>;
@@ -60,5 +91,27 @@ export interface DocumentsAdminClient {
     }): Promise<DocumentsAdminIdentity>;
     getRevisionContent(documentId: string, revisionId: string): Promise<DocumentsAdminRevisionContent>;
     restoreRevision(documentId: string, revisionId: string): Promise<DocumentsAdminDocument>;
+    listCategories(): Promise<DocumentsAdminCategory[]>;
+    createCategory(input: {
+        slug: string;
+        name: string;
+        nameEn?: string;
+        description?: string;
+        sortOrder?: string;
+    }): Promise<DocumentsAdminCategory>;
+    updateCategory(categoryId: string, input: {
+        name?: string;
+        nameEn?: string;
+        description?: string;
+        sortOrder?: string;
+        status?: string;
+    }): Promise<DocumentsAdminCategory>;
+    deleteCategory(categoryId: string): Promise<void>;
+    listTags(): Promise<DocumentsAdminTag[]>;
+    getTaxonomy(documentId: string): Promise<DocumentsAdminTaxonomy>;
+    updateTaxonomy(documentId: string, input: {
+        category?: string;
+        tags?: string[];
+    }): Promise<DocumentsAdminTaxonomy>;
 }
 //# sourceMappingURL=documents-admin-port.d.ts.map
