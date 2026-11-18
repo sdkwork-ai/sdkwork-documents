@@ -10,5 +10,5 @@ interface ApiPlaygroundParamsTableProps {
     hideDescription?: boolean;
     onBulkEdit?: (text: string) => void;
 }
-export declare function ApiPlaygroundParamsTable({ title, params, errors, onChange, onRemove, hideEnabled, hideDescription, onBulkEdit, }: ApiPlaygroundParamsTableProps): import("react/jsx-runtime").JSX.Element | null;
+export declare function ApiPlaygroundParamsTable({ title, params, errors, onChange, onRemove, hideEnabled, hideDescription, onBulkEdit, }: ApiPlaygroundParamsTableProps): import("react").JSX.Element | null;
 //# sourceMappingURL=ApiPlaygroundParamsTable.d.ts.map

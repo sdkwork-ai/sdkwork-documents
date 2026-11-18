@@ -4,6 +4,6 @@ interface ApiPlaygroundProps {
     requestBaseUrl: string;
     onClose: () => void;
 }
-export declare function ApiPlayground({ endpoint, requestBaseUrl, onClose }: ApiPlaygroundProps): import("react/jsx-runtime").JSX.Element;
+export declare function ApiPlayground({ endpoint, requestBaseUrl, onClose }: ApiPlaygroundProps): import("react").JSX.Element;
 export {};
 //# sourceMappingURL=ApiPlayground.d.ts.map

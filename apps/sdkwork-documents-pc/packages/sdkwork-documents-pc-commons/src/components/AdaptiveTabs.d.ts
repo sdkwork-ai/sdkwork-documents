@@ -13,5 +13,5 @@ export interface AdaptiveTabsProps {
     ariaLabel: string;
     variant?: 'underline' | 'pill';
 }
-export declare function AdaptiveTabs({ items, activeId, onSelect, moreLabel, ariaLabel, variant, }: AdaptiveTabsProps): import("react/jsx-runtime").JSX.Element;
+export declare function AdaptiveTabs({ items, activeId, onSelect, moreLabel, ariaLabel, variant, }: AdaptiveTabsProps): import("react").JSX.Element;
 //# sourceMappingURL=AdaptiveTabs.d.ts.map

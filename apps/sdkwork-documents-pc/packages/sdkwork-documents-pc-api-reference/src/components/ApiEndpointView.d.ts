@@ -3,6 +3,6 @@ interface ApiEndpointProps {
     endpoint: ApiReferenceEndpoint;
     requestBaseUrl: string;
 }
-export declare function ApiEndpointView({ endpoint, requestBaseUrl }: ApiEndpointProps): import("react/jsx-runtime").JSX.Element;
+export declare function ApiEndpointView({ endpoint, requestBaseUrl }: ApiEndpointProps): import("react").JSX.Element;
 export {};
 //# sourceMappingURL=ApiEndpointView.d.ts.map

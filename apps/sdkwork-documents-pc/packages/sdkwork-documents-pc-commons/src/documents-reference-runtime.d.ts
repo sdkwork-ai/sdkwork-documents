@@ -94,7 +94,7 @@ export interface DocumentsReferenceRuntime {
 export declare function DocumentsReferenceRuntimeProvider({ value, children, }: {
     value: DocumentsReferenceRuntime;
     children: ReactNode;
-}): import("react/jsx-runtime").JSX.Element;
+}): import("react").JSX.Element;
 export declare function useDocumentsReferenceRuntime(): DocumentsReferenceRuntime;
 export declare function readDocumentsRuntimeEnv(name: string): string | undefined;
 export declare function resolveDocumentsRuntimeBoolean(name: string, defaultValue?: boolean): boolean;
