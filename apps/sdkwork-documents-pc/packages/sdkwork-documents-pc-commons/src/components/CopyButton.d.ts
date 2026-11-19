@@ -12,5 +12,5 @@ export type CopyButtonProps = {
     variant?: CopyButtonVariant;
     onCopied?: () => void;
 };
-export declare function CopyButton({ text, label, copiedLabel, errorLabel, className, iconClassName, title, disabled, variant, onCopied, }: CopyButtonProps): import("react/jsx-runtime").JSX.Element;
+export declare function CopyButton({ text, label, copiedLabel, errorLabel, className, iconClassName, title, disabled, variant, onCopied, }: CopyButtonProps): import("react").JSX.Element;
 //# sourceMappingURL=CopyButton.d.ts.map

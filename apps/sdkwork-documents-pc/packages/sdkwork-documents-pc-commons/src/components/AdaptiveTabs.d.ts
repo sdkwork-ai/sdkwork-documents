@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react';
+import React, { type ReactNode } from 'react';
 export interface AdaptiveTabItem {
     id: string;
     label: string;
@@ -13,5 +13,5 @@ export interface AdaptiveTabsProps {
     ariaLabel: string;
     variant?: 'underline' | 'pill';
 }
-export declare function AdaptiveTabs({ items, activeId, onSelect, moreLabel, ariaLabel, variant, }: AdaptiveTabsProps): import("react/jsx-runtime").JSX.Element;
+export declare function AdaptiveTabs({ items, activeId, onSelect, moreLabel, ariaLabel, variant, }: AdaptiveTabsProps): React.JSX.Element;
 //# sourceMappingURL=AdaptiveTabs.d.ts.map

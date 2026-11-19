@@ -4,6 +4,6 @@ interface ModelKitOverviewSectionProps {
     apiKeyPlaceholder?: string;
     providerName?: string;
 }
-export declare function ModelKitOverviewSection({ endpoints, apiKeyPlaceholder, providerName, }: ModelKitOverviewSectionProps): import("react/jsx-runtime").JSX.Element;
+export declare function ModelKitOverviewSection({ endpoints, apiKeyPlaceholder, providerName, }: ModelKitOverviewSectionProps): import("react").JSX.Element;
 export {};
 //# sourceMappingURL=ModelKitOverviewSection.d.ts.map
