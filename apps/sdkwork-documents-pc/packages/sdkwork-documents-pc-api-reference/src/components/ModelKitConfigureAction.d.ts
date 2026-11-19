@@ -7,6 +7,6 @@ interface ModelKitConfigureActionProps {
     providerName?: string;
     variant?: 'inline' | 'card';
 }
-export declare function ModelKitConfigureAction({ profile, endpoints, apiKeyPlaceholder, providerName, variant, }: ModelKitConfigureActionProps): import("react").JSX.Element;
+export declare function ModelKitConfigureAction({ profile, endpoints, apiKeyPlaceholder, providerName, variant, }: ModelKitConfigureActionProps): import("react/jsx-runtime").JSX.Element;
 export {};
 //# sourceMappingURL=ModelKitConfigureAction.d.ts.map
