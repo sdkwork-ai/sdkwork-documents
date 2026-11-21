@@ -66,13 +66,11 @@ the document set on the first startup after migration.
 
 ## Initialization state
 
-This module is in initialization state per `DATABASE_FRAMEWORK_SPEC.md` section 7.5.
+This module is in **initialization state** for greenfield deployments:
 
-- `baselineStrategy`: `baseline-plus-migrations`
-- Primary baseline: `ddl/baseline/postgres/0001_documents_baseline.sql` (immutable bootstrap anchor; not the complete active table inventory by itself)
-- Ordered migrations: `migrations/postgres/0001_developer_catalog.up.sql` adds the developer catalog tables; `0002_developer_catalog_i18n.up.sql` adds localized catalog columns; `0003_document_center_pages.up.sql` adds the public document identity columns and indexes; `0004_document_drive_binding.up.sql` adds the per-locale Drive space/node binding and content-source columns.
-- Seeds: `common/001_bootstrap.sql`, the developer catalog seed files, the platform policy and industry-standard document seeds, plus the `zh-CN` default locale; `en-US` is declared active and the remaining locales are reserved placeholders per section 8.1.
-- Consolidation level: baseline is current; no migration has been folded into it and no tracked migration has been rewritten.
+1. **Baseline** — `database/ddl/baseline/{engine}/0001_documents_baseline.sql` contains the full DDL snapshot.
+2. **Migrations** — `database/migrations/{engine}/` is reserved for post-GA incremental schema changes only. It is intentionally empty at initialization.
+3. **Drift** — run `pnpm db:drift:check` before release.
 
 ## Commands
 
@@ -86,13 +84,3 @@ pnpm run db:seed
 pnpm run db:status
 pnpm run db:drift:check
 ```
-
-`db:validate` runs the canonical validator `../sdkwork-specs/tools/check-database-framework-standard.mjs`.
-
-Runtime services MUST create pools through `sdkwork-database-sqlx` and register `DefaultDatabaseModule` at bootstrap via `sdkwork-documents-database-host`.
-
-## Related specifications
-
-- `DATABASE_FRAMEWORK_SPEC.md` — database module layout, initialization state, governance.
-- `DATABASE_SPEC.md` — relational data, naming, and table authority rules.
-- `MIGRATION_SPEC.md` — schema version migration records and compatibility windows.
