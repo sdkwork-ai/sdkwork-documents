@@ -40,7 +40,8 @@
         "common/121_sdk_releases_01.sql",
         "common/121_sdk_releases_02.sql",
         "common/200_platform_policies.sql",
-        "common/210_industry_standards.sql"
+        "common/210_industry_standards.sql",
+        "common/220_application_documents.sql"
       ],
       "locales": {
         "zh-CN": []

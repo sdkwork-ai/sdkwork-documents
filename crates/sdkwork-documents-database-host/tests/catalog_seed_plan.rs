@@ -43,6 +43,7 @@ async fn documents_manifest_boot_seeds_the_developer_catalog() {
         "121_sdk_releases_01.sql",
         "200_platform_policies.sql",
         "210_industry_standards.sql",
+        "220_application_documents.sql",
     ] {
         assert!(
             names.iter().any(|name| name == expected),
@@ -89,6 +90,36 @@ fn platform_document_seeds_cover_policies_and_industry_standards() {
         "seeded policies must be published so they appear at first boot"
     );
     assert!(standards.contains("published"));
+}
+
+/// An installed application's About links point at `/docs/{slug}`. Seed the
+/// application pages in both active locales so those URLs resolve on first boot
+/// without an operator publishing anything.
+#[test]
+fn application_document_seeds_cover_birdcoder_pages() {
+    let app_root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let documents = std::fs::read_to_string(
+        app_root.join("database/seeds/common/220_application_documents.sql"),
+    )
+    .expect("read application document seed");
+
+    assert!(documents.contains("sdkwork-birdcoder2"));
+    for slug in ["privacy", "terms", "support"] {
+        assert!(
+            documents.contains(&format!("'{slug}'")),
+            "missing application document slug {slug}"
+        );
+    }
+    for locale in ["zh-CN", "en-US"] {
+        assert!(
+            documents.contains(locale),
+            "application documents must seed locale {locale}"
+        );
+    }
+    assert!(
+        documents.contains("'published'"),
+        "application documents must be published so the docs pages resolve after install"
+    );
 }
 
 /// Catalog initialization must populate the localized label columns, not only
