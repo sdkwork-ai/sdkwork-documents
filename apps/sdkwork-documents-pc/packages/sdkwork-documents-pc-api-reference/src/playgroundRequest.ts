@@ -172,6 +172,10 @@ function shouldSendBody(method: string, bodyValue: string): boolean {
   return !['GET', 'HEAD'].includes(method.toUpperCase()) && bodyValue.trim().length > 0;
 }
 
+function isJsonObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
 function findMissingRequiredBodyFields(
   schema: OpenApiJsonSchema | undefined,
   value: unknown,
@@ -197,23 +201,22 @@ function findMissingRequiredBodyFields(
     return missingFields;
   }
 
-  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+  if (!isJsonObject(value)) {
     return missingFields;
   }
 
-  const record = value as Record<string, unknown>;
   for (const field of resolvedSchema.required ?? []) {
-    const fieldValue = record[field];
+    const fieldValue = value[field];
     if (fieldValue === undefined || fieldValue === null || (typeof fieldValue === 'string' && !fieldValue.trim())) {
       missingFields.push(path ? `${path}.${field}` : field);
     }
   }
 
   for (const [field, fieldSchema] of Object.entries(resolvedSchema.properties ?? {})) {
-    if (record[field] !== undefined && record[field] !== null) {
+    if (value[field] !== undefined && value[field] !== null) {
       missingFields.push(...findMissingRequiredBodyFields(
         fieldSchema,
-        record[field],
+        value[field],
         spec,
         path ? `${path}.${field}` : field,
       ));
