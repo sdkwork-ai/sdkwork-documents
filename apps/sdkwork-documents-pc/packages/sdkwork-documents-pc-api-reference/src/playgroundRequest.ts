@@ -1,5 +1,7 @@
 import type { ParamRow } from './apiPlaygroundRows';
 import { resolveApiRequestUrl } from '@sdkwork/documents-pc-commons/runtime';
+import { getDocumentedRequestSchema, resolveOpenApiSchema } from './openapiSchemaRuntime.ts';
+import type { OpenApiDocument, OpenApiOperation, OpenApiJsonSchema } from './openapiTypes';
 
 type AuthType = 'current_user' | 'api_key';
 type RequestTab = 'params' | 'headers' | 'auth' | 'body';
@@ -31,12 +33,8 @@ export const FORBIDDEN_HEADER_NAMES = new Set([
 export interface PlaygroundEndpoint {
   method: string;
   path: string;
-  openApiOperation?: {
-    requestBody?: {
-      required?: boolean;
-      content?: Record<string, unknown>;
-    };
-  };
+  openApiOperation?: OpenApiOperation;
+  openApiSpec?: OpenApiDocument;
 }
 
 export interface BuildPlaygroundRequestInput {
@@ -174,6 +172,57 @@ function shouldSendBody(method: string, bodyValue: string): boolean {
   return !['GET', 'HEAD'].includes(method.toUpperCase()) && bodyValue.trim().length > 0;
 }
 
+function findMissingRequiredBodyFields(
+  schema: OpenApiJsonSchema | undefined,
+  value: unknown,
+  spec: OpenApiDocument | undefined,
+  path = '',
+): string[] {
+  const resolved = resolveOpenApiSchema(schema, spec);
+  if (!resolved) {
+    return [];
+  }
+
+  const resolvedSchema = resolved.schema;
+  const missingFields: string[] = [];
+  if (Array.isArray(value) && resolvedSchema.items) {
+    value.forEach((item, index) => {
+      missingFields.push(...findMissingRequiredBodyFields(
+        resolvedSchema.items,
+        item,
+        spec,
+        `${path}[${index}]`,
+      ));
+    });
+    return missingFields;
+  }
+
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return missingFields;
+  }
+
+  const record = value as Record<string, unknown>;
+  for (const field of resolvedSchema.required ?? []) {
+    const fieldValue = record[field];
+    if (fieldValue === undefined || fieldValue === null || (typeof fieldValue === 'string' && !fieldValue.trim())) {
+      missingFields.push(path ? `${path}.${field}` : field);
+    }
+  }
+
+  for (const [field, fieldSchema] of Object.entries(resolvedSchema.properties ?? {})) {
+    if (record[field] !== undefined && record[field] !== null) {
+      missingFields.push(...findMissingRequiredBodyFields(
+        fieldSchema,
+        record[field],
+        spec,
+        path ? `${path}.${field}` : field,
+      ));
+    }
+  }
+
+  return missingFields;
+}
+
 function validateRequiredFields(input: BuildPlaygroundRequestInput): PlaygroundRequestValidationFailure | null {
   const errors: Record<string, boolean> = {};
   let hasParamError = false;
@@ -243,9 +292,9 @@ function validateJsonBody(input: BuildPlaygroundRequestInput): PlaygroundRequest
     return null;
   }
 
+  let body: unknown;
   try {
-    JSON.parse(input.bodyValue);
-    return null;
+    body = JSON.parse(input.bodyValue);
   } catch {
     return validationFailure(
       'body',
@@ -254,6 +303,19 @@ function validateJsonBody(input: BuildPlaygroundRequestInput): PlaygroundRequest
       'Request body must be valid JSON before sending the request.',
     );
   }
+
+  const schema = getDocumentedRequestSchema(input.endpoint.openApiOperation?.requestBody);
+  const missingFields = findMissingRequiredBodyFields(schema, body, input.endpoint.openApiSpec);
+  if (missingFields.length > 0) {
+    return validationFailure(
+      'body',
+      { body: true },
+      'Missing Required Body Fields',
+      `Request body is missing required fields: ${missingFields.join(', ')}.`,
+    );
+  }
+
+  return null;
 }
 
 function normalizeHeaderName(name: string): string {
