@@ -1,4 +1,5 @@
 import { resolveApiRequestUrl } from '@sdkwork/documents-pc-commons/runtime';
+import { getDocumentedRequestSchema, resolveOpenApiSchema } from "./openapiSchemaRuntime.js";
 const ACCESS_TOKEN_HEADER = 'Access-Token';
 export const FORBIDDEN_HEADER_NAMES = new Set([
     'accept-encoding',
@@ -91,6 +92,38 @@ function isJsonLikeContentType(contentType) {
 function shouldSendBody(method, bodyValue) {
     return !['GET', 'HEAD'].includes(method.toUpperCase()) && bodyValue.trim().length > 0;
 }
+function isJsonObject(value) {
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+function findMissingRequiredBodyFields(schema, value, spec, path = '') {
+    const resolved = resolveOpenApiSchema(schema, spec);
+    if (!resolved) {
+        return [];
+    }
+    const resolvedSchema = resolved.schema;
+    const missingFields = [];
+    if (Array.isArray(value) && resolvedSchema.items) {
+        value.forEach((item, index) => {
+            missingFields.push(...findMissingRequiredBodyFields(resolvedSchema.items, item, spec, `${path}[${index}]`));
+        });
+        return missingFields;
+    }
+    if (!isJsonObject(value)) {
+        return missingFields;
+    }
+    for (const field of resolvedSchema.required ?? []) {
+        const fieldValue = value[field];
+        if (fieldValue === undefined || fieldValue === null || (typeof fieldValue === 'string' && !fieldValue.trim())) {
+            missingFields.push(path ? `${path}.${field}` : field);
+        }
+    }
+    for (const [field, fieldSchema] of Object.entries(resolvedSchema.properties ?? {})) {
+        if (value[field] !== undefined && value[field] !== null) {
+            missingFields.push(...findMissingRequiredBodyFields(fieldSchema, value[field], spec, path ? `${path}.${field}` : field));
+        }
+    }
+    return missingFields;
+}
 function validateRequiredFields(input) {
     const errors = {};
     let hasParamError = false;
@@ -138,13 +171,19 @@ function validateJsonBody(input) {
     if (!shouldSendBody(input.endpoint.method, input.bodyValue) || !hasJsonRequestBody(input.endpoint)) {
         return null;
     }
+    let body;
     try {
-        JSON.parse(input.bodyValue);
-        return null;
+        body = JSON.parse(input.bodyValue);
     }
     catch {
         return validationFailure('body', { body: true }, 'Invalid JSON Body', 'Request body must be valid JSON before sending the request.');
     }
+    const schema = getDocumentedRequestSchema(input.endpoint.openApiOperation?.requestBody);
+    const missingFields = findMissingRequiredBodyFields(schema, body, input.endpoint.openApiSpec);
+    if (missingFields.length > 0) {
+        return validationFailure('body', { body: true }, 'Missing Required Body Fields', `Request body is missing required fields: ${missingFields.join(', ')}.`);
+    }
+    return null;
 }
 function normalizeHeaderName(name) {
     return name.trim().toLowerCase();

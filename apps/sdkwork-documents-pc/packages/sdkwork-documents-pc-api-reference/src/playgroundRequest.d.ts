@@ -1,16 +1,13 @@
 import type { ParamRow } from './apiPlaygroundRows';
+import type { OpenApiDocument, OpenApiOperation } from './openapiTypes';
 type AuthType = 'current_user' | 'api_key';
 type RequestTab = 'params' | 'headers' | 'auth' | 'body';
 export declare const FORBIDDEN_HEADER_NAMES: Set<string>;
 export interface PlaygroundEndpoint {
     method: string;
     path: string;
-    openApiOperation?: {
-        requestBody?: {
-            required?: boolean;
-            content?: Record<string, unknown>;
-        };
-    };
+    openApiOperation?: OpenApiOperation;
+    openApiSpec?: OpenApiDocument;
 }
 export interface BuildPlaygroundRequestInput {
     baseUrl: string;
